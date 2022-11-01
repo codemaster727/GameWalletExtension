@@ -49,7 +49,7 @@ const style_btn = {
   borderRadius: '10px',
   width: '100px',
   height: '50px',
-  margin: '0 5px',
+  margin: '0 0.5rem',
 };
 
 const style_btn_active = {
@@ -64,7 +64,7 @@ const style_type_btn = {
   boxShadow: 'none',
   borderRadius: '10px',
   width: '80px',
-  margin: '0 5px',
+  margin: '0 0.5rem',
   paddingTop: '8px',
   paddingBottom: '8px',
 };
@@ -548,7 +548,7 @@ const Withdraw = () => {
               component='article'
               textAlign='left'
               fontWeight='bold'
-              fontSize='18px'
+              fontSize='1.8rem'
               alignItems='center'
               mt={3}
               mb={2}

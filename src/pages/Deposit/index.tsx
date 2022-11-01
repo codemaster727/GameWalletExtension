@@ -21,6 +21,7 @@ import PaymentImage from 'src/assets/coingroup/payment.png';
 import { useSocket } from 'src/context/SocketProvider';
 import { PrevButtonForSwiper, NextButtonForSwiper } from 'src/components/Buttons/ImageButton';
 import {
+  style_box_address,
   style_btn,
   style_btn_buy_ext,
   style_menuitem,
@@ -34,14 +35,6 @@ import ScrollBox from '~/components/Layout/ScrollBox';
 import {} from 'src/components/styles';
 
 Swiper.use([Virtual, Navigation, Pagination]);
-
-const style_box_address = {
-  borderRadius: '10px',
-  backgroundColor: '#191c20',
-  padding: '10px 15px',
-  margin: '10px 15px 0',
-  alignItems: 'center',
-};
 
 const style_btn_copy = {
   borderRadius: '20px',

@@ -105,3 +105,11 @@ export const style_btn_buy_ext = {
   margin: 'auto',
   borderRadius: '10px',
 };
+
+export const style_box_address = {
+  borderRadius: '8px',
+  backgroundColor: '#191c20',
+  padding: '8px 10px',
+  margin: '8px 8px 0',
+  alignItems: 'center',
+};

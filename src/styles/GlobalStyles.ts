@@ -185,8 +185,9 @@ export default createGlobalStyle<ITheme>`
 	}
 
 	.Mui-selected {
-		border: 1px solid green !important;
+		border: 1px solid #95f204 !important;
 		background-color: #17181b !important;
+		color: #95f204 !important;
 	}
 
 	.menuitem-pageunit {

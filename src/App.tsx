@@ -27,6 +27,7 @@ import { WalletModalProvider } from './context/WalletModalProvider';
 import ErrorPage from './pages/error-page';
 import Layout from './components/Layout';
 import Deposit from './pages/Deposit';
+import Withdraw from './pages/Withdraw';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -90,6 +91,14 @@ const App = () => {
           element: (
             <PrivateRoute>
               <Deposit />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: '/withdraw',
+          element: (
+            <PrivateRoute>
+              <Withdraw />
             </PrivateRoute>
           ),
         },
