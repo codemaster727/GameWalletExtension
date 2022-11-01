@@ -14,10 +14,7 @@ import { LoadingButton } from '@mui/lab';
 import { Swiper as SwiperReact, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
 import Swiper, { Virtual, Pagination, Navigation } from 'swiper';
-import NumberFormat, {
-  InputAttributes,
-  NumericFormat,
-} from 'react-number-format';
+import NumberFormat, { InputAttributes, NumericFormat } from 'react-number-format';
 import BitcoinIcon from '../../assets/coingroup/bitcoin.svg';
 import EthIcon from '../../assets/coingroup/ethereum.svg';
 import UsdtIcon from '../../assets/coingroup/usdt.svg';
@@ -34,10 +31,7 @@ import RightArrowImage from '../../assets/utils/line-angle-right-icon.svg';
 import PaymentImage from '../../assets/coingroup/payment.png';
 import ConfirmBtn from '../../assets/coingroup/confirmBtn.png';
 import { useSocket } from '../../context/SocketProvider';
-import {
-  NextButtonForSwiper,
-  PrevButtonForSwiper,
-} from '../Buttons/ImageButton';
+import { NextButtonForSwiper, PrevButtonForSwiper } from '../Buttons/ImageButton';
 
 Swiper.use([Virtual, Navigation, Pagination]);
 
@@ -55,7 +49,7 @@ const style_btn = {
   borderRadius: '10px',
   width: '100px',
   height: '50px',
-  margin: '0 0.5rem',
+  margin: '0 5px',
 };
 
 const style_btn_active = {
@@ -70,7 +64,7 @@ const style_type_btn = {
   boxShadow: 'none',
   borderRadius: '10px',
   width: '80px',
-  margin: '0 0.5rem',
+  margin: '0 5px',
   paddingTop: '8px',
   paddingBottom: '8px',
 };
@@ -85,21 +79,21 @@ const style_type_btn_active = {
 
 const style_box_address = {
   backgroundColor: 'transparent',
-  padding: '3rem 2rem',
+  padding: '30px 20px',
   width: '500px',
   margin: 'auto',
-  marginTop: '1rem',
+  marginTop: '10px',
 };
 
 const style_btn_buy = {
   color: 'white',
   fontSize: '15px',
   fontWeight: 'bold',
-  padding: '1rem 2rem',
+  padding: '10px 20px',
   backgroundColor: '#1e202d',
   display: 'block',
   margin: 'auto',
-  borderRadius: '1rem',
+  borderRadius: '10px',
 };
 
 const style_btn_toggle = {
@@ -119,12 +113,7 @@ const style_textfield = {
 };
 
 const Icon = (icon: any) => (
-  <img
-    alt="icon"
-    src={icon}
-    width="30px"
-    style={{ borderRadius: '20px', minWidth: '30px' }}
-  />
+  <img alt='icon' src={icon} width='30px' style={{ borderRadius: '20px', minWidth: '30px' }} />
 );
 
 const init_tokens = [
@@ -193,21 +182,12 @@ const Withdraw = () => {
   const [activeNet, setActiveNet] = useState<number>(6);
   const [percent, setPercent] = useState<string>('');
   const [activeTokenTypeIndex, setActiveTokenTypeIndex] = useState(0);
-  const [address, setAddress] = useState<string>(
-    '0x0fbd6e14566A30906Bc0c927a75b1498aE87Fd43',
-  );
+  const [address, setAddress] = useState<string>('0x0fbd6e14566A30906Bc0c927a75b1498aE87Fd43');
   const [amount, setAmount] = useState<string>('0.0001');
   const [error, setError] = useState<any>({});
-  const [activeTokenTypeEthIndex, setActiveTokenTypeEthIndex] =
-    useState<number>(0);
+  const [activeTokenTypeEthIndex, setActiveTokenTypeEthIndex] = useState<number>(0);
 
-  const {
-    networkError,
-    balanceData,
-    tokenData,
-    withdrawMutate,
-    withdrawIsLoading,
-  } = useSocket();
+  const { networkError, balanceData, tokenData, withdrawMutate, withdrawIsLoading } = useSocket();
 
   const activeToken = tokenData[activeTokenIndex];
 
@@ -248,11 +228,7 @@ const Withdraw = () => {
     }
   };
 
-  const validate = (
-    addr: string | undefined,
-    amnt: string | undefined,
-    net: number,
-  ) => {
+  const validate = (addr: string | undefined, amnt: string | undefined, net: number) => {
     const am = parseFloat(amnt as string);
     if (!addr) {
       alert('Invalid input.');
@@ -262,14 +238,7 @@ const Withdraw = () => {
       alert('Invalid input.');
       return false;
     }
-    if (
-      net === 3 ||
-      net === 5 ||
-      net === 6 ||
-      net === 7 ||
-      net === 8 ||
-      net === 10
-    ) {
+    if (net === 3 || net === 5 || net === 6 || net === 7 || net === 8 || net === 10) {
       alert('Not supported yet. Please wait to complete.');
       return false;
     }
@@ -312,19 +281,17 @@ const Withdraw = () => {
     setAmount(
       (
         Math.floor(
-          ((parseFloat(balanceData[activeToken?.id]) * parseFloat(percent)) /
-            100) *
-            100000,
+          ((parseFloat(balanceData[activeToken?.id]) * parseFloat(percent)) / 100) * 100000,
         ) / 100000
       ).toString(),
     );
   }, [percent]);
 
   return (
-    <Box p="2rem 2rem 1rem">
+    <Box p='20px 20px 10px'>
       <Box>
-        <Box p="1rem 2rem">
-          <div style={{ position: 'relative', height: 'fit-content' }}>
+        <Box p='10px 20px'>
+          <div style={{ height: 'fit-content' }}>
             <PrevButtonForSwiper />
             <NextButtonForSwiper />
             <SwiperReact
@@ -356,31 +323,31 @@ const Withdraw = () => {
               }}
               style={{ margin: '0 45px 0 43px' }}
             >
-              {tokenData.map((token: any, index: number) => (
-                <SwiperSlide key={token.name} virtualIndex={index}>
-                  <Button
-                    key={token.name}
-                    variant="contained"
-                    startIcon={Icon(token.icon)}
-                    style={
-                      index === activeTokenIndex ? style_btn_active : style_btn
-                    }
-                    onClick={(e) => handleTokenChange(index)}
-                  >
-                    {token.name}
-                  </Button>
-                </SwiperSlide>
-              ))}
+              {tokenData &&
+                'map' in tokenData &&
+                tokenData?.map((token: any, index: number) => (
+                  <SwiperSlide key={token.name} virtualIndex={index}>
+                    <Button
+                      key={token.name}
+                      variant='contained'
+                      startIcon={Icon(token.icon)}
+                      style={index === activeTokenIndex ? style_btn_active : style_btn}
+                      onClick={(e) => handleTokenChange(index)}
+                    >
+                      {token.name}
+                    </Button>
+                  </SwiperSlide>
+                ))}
             </SwiperReact>
           </div>
         </Box>
         <Typography
-          variant="h5"
-          component="article"
-          textAlign="left"
-          fontWeight="bold"
-          fontSize="18px"
-          alignItems="center"
+          variant='h5'
+          component='article'
+          textAlign='left'
+          fontWeight='bold'
+          fontSize='18px'
+          alignItems='center'
           mt={2.2}
           style={{ overflowWrap: 'break-word', textAlign: 'center' }}
         >
@@ -395,7 +362,7 @@ const Withdraw = () => {
           <div
             style={{
               margin: 'auto',
-              marginTop: '2rem',
+              marginTop: '20px',
               alignItems: 'center',
               width: 'fit-content',
             }}
@@ -403,16 +370,12 @@ const Withdraw = () => {
             {token_types.map((token_type, index) => (
               <Button
                 key={token_type}
-                variant="contained"
-                size="medium"
-                style={
-                  index === activeTokenTypeIndex
-                    ? style_type_btn_active
-                    : style_type_btn
-                }
+                variant='contained'
+                size='medium'
+                style={index === activeTokenTypeIndex ? style_type_btn_active : style_type_btn}
                 onClick={() => handleTokenTypeChange(index)}
               >
-                <Typography variant="h5" fontWeight="bold">
+                <Typography variant='h5' fontWeight='bold'>
                   {token_type}
                 </Typography>
               </Button>
@@ -423,7 +386,7 @@ const Withdraw = () => {
           <div
             style={{
               margin: 'auto',
-              marginTop: '2rem',
+              marginTop: '20px',
               alignItems: 'center',
               width: 'fit-content',
             }}
@@ -431,16 +394,12 @@ const Withdraw = () => {
             {token_types_eth.map((token_type, index) => (
               <Button
                 key={token_type}
-                variant="contained"
-                size="medium"
-                style={
-                  index === activeTokenTypeEthIndex
-                    ? style_type_btn_active
-                    : style_type_btn
-                }
+                variant='contained'
+                size='medium'
+                style={index === activeTokenTypeEthIndex ? style_type_btn_active : style_type_btn}
                 onClick={() => handleTokenTypeEthChange(index)}
               >
-                <Typography variant="h5" fontWeight="bold">
+                <Typography variant='h5' fontWeight='bold'>
                   {token_type}
                 </Typography>
               </Button>
@@ -451,17 +410,11 @@ const Withdraw = () => {
           <Box>Network error...</Box>
         ) : (
           <Box mt={2} style={style_box_address}>
-            <Typography
-              variant="h5"
-              component="h5"
-              textAlign="left"
-              color="#AAAAAA"
-              mb={1}
-            >
+            <Typography variant='h5' component='h5' textAlign='left' color='#AAAAAA' mb={1}>
               Withdraw address
             </Typography>
             <Paper
-              component="form"
+              component='form'
               sx={{
                 p: '2px 4px',
                 display: 'flex',
@@ -478,7 +431,7 @@ const Withdraw = () => {
               <InputBase
                 sx={style_textfield}
                 fullWidth
-                placeholder="Fill in carefully according to the specific currency"
+                placeholder='Fill in carefully according to the specific currency'
                 inputProps={{
                   'aria-label': 'withdraw address',
                 }}
@@ -488,20 +441,20 @@ const Withdraw = () => {
             </Paper>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography
-                variant="h5"
-                component="h5"
-                textAlign="left"
-                color="#AAAAAA"
+                variant='h5'
+                component='h5'
+                textAlign='left'
+                color='#AAAAAA'
                 mt={2}
                 mb={1}
               >
                 Withdraw amount
               </Typography>
               <Typography
-                variant="h5"
-                component="h5"
-                textAlign="left"
-                color="#AAAAAA"
+                variant='h5'
+                component='h5'
+                textAlign='left'
+                color='#AAAAAA'
                 mt={2}
                 mb={1}
               >
@@ -509,7 +462,7 @@ const Withdraw = () => {
               </Typography>
             </div>
             <Paper
-              component="form"
+              component='form'
               sx={{
                 p: '2px 4px',
                 display: 'flex',
@@ -528,7 +481,7 @@ const Withdraw = () => {
                   backgroundColor: 'transparent',
                   color: 'white',
                   border: 'none',
-                  paddingLeft: '1rem',
+                  paddingLeft: '10px',
                 }}
                 thousandSeparator
                 decimalScale={5}
@@ -558,8 +511,8 @@ const Withdraw = () => {
                 value={percent}
                 exclusive
                 onChange={handlePercentChange}
-                aria-label="text alignment"
-                color="success"
+                aria-label='text alignment'
+                color='success'
                 sx={{
                   marginRight: '0',
                   borderRadius: '15px',
@@ -569,29 +522,21 @@ const Withdraw = () => {
                 }}
               >
                 <ToggleButton
-                  value="0.01"
-                  aria-label="left aligned"
+                  value='0.01'
+                  aria-label='left aligned'
                   sx={{ ...style_btn_toggle, borderRadius: '15px' }}
                 >
                   Min
                 </ToggleButton>
-                <ToggleButton
-                  value="25"
-                  aria-label="centered"
-                  sx={style_btn_toggle}
-                >
+                <ToggleButton value='25' aria-label='centered' sx={style_btn_toggle}>
                   25%
                 </ToggleButton>
-                <ToggleButton
-                  value="50"
-                  aria-label="right aligned"
-                  sx={style_btn_toggle}
-                >
+                <ToggleButton value='50' aria-label='right aligned' sx={style_btn_toggle}>
                   50%
                 </ToggleButton>
                 <ToggleButton
-                  value="100"
-                  aria-label="justified"
+                  value='100'
+                  aria-label='justified'
                   sx={{ ...style_btn_toggle, borderRadius: '15px' }}
                 >
                   Max
@@ -599,12 +544,12 @@ const Withdraw = () => {
               </ToggleButtonGroup>
             </Paper>
             <Typography
-              variant="h5"
-              component="article"
-              textAlign="left"
-              fontWeight="bold"
-              fontSize="1.8rem"
-              alignItems="center"
+              variant='h5'
+              component='article'
+              textAlign='left'
+              fontWeight='bold'
+              fontSize='18px'
+              alignItems='center'
               mt={3}
               mb={2}
               style={{ overflowWrap: 'break-word', textAlign: 'center' }}
@@ -664,16 +609,16 @@ const Withdraw = () => {
               />
             )}
             <Typography
-              variant="h6"
-              textAlign="left"
-              padding="0"
-              fontSize="14px"
-              component="article"
-              color="#A9ADBD"
+              variant='h6'
+              textAlign='left'
+              padding='0'
+              fontSize='14px'
+              component='article'
+              color='#A9ADBD'
               mt={2}
             >
-              For security purposes, large or suspicious withdrawal may take 1-6
-              hours for audit process. We appreciate your patience!
+              For security purposes, large or suspicious withdrawal may take 1-6 hours for audit
+              process. We appreciate your patience!
             </Typography>
           </Box>
         )}

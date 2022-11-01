@@ -26,28 +26,8 @@ import { NextButton, PrevButton } from '../Buttons/ImageButton';
 import Icon, { DownIcon } from '../Icon';
 import { scansites_test as scansites } from '../../constants';
 import DownArrowImage from '../../assets/utils/line-angle-down-icon.svg';
-
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-  PaperProps: {
-    style: {
-      height: ITEM_HEIGHT * 2.5 + ITEM_PADDING_TOP,
-      width: 140,
-    },
-  },
-};
-
-const MenuProps_page = {
-  PaperProps: {
-    style: {
-      height: ITEM_HEIGHT * 2.5 + ITEM_PADDING_TOP,
-      width: 80,
-    },
-  },
-};
-
-const page_limits = [2, 10, 20, 30, 40, 50];
+import { MenuProps, MenuProps_page, page_limits } from '../../constants';
+import { style_menuitem, style_select } from '../styles';
 
 Swiper.use([Virtual, Navigation, Pagination]);
 
@@ -61,11 +41,11 @@ const style_wallet_modal = {
   py: 3,
   color: 'white',
   backgroundColor: '#17181b',
-  borderRadius: '2rem',
+  borderRadius: '20px',
 } as any;
 
 const style_modal_content = {
-  borderRadius: '2rem',
+  borderRadius: '20px',
   backgroundColor: '#202328',
   height: '570px',
   overflow: 'auto',
@@ -92,36 +72,18 @@ const style_btn_active = {
   color: 'white',
 };
 
-const style_select = {
-  color: 'white',
-  fontSize: '14px',
-  fontWeight: 'bold',
-  border: '1px solid #666666',
-  height: '30px',
-  width: '140px',
-};
-
-const style_menuitem = {
-  backgroundColor: '#17181b',
-  padding: '0.5rem 1rem',
-  position: 'relative',
-  color: 'white',
-  display: 'flex',
-  alignItems: 'center',
-};
-
 const style_cell = {
   padding: '2px 20px',
 };
 
 const style_transaction_body = {
   backgroundColor: '#191c20',
-  padding: '4rem',
+  padding: '40px',
   margin: 'auto',
-  borderRadius: '0rem',
+  borderRadius: '0',
   height: '440px',
   overflow: 'auto',
-  marginX: '2rem',
+  marginX: '20px',
 };
 
 const style_modal = {
@@ -130,9 +92,9 @@ const style_modal = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   height: 'fit-content',
-  padding: '5rem 3rem',
+  padding: '50px 30px',
   backgroundColor: '#393a3e',
-  borderRadius: '1rem',
+  borderRadius: '10px',
   fontSize: '12px',
 };
 
@@ -142,13 +104,13 @@ const style_pagination = {
   alignItems: 'center',
   justifyContent: 'center',
   position: 'absolute',
-  bottom: '2.5rem',
+  bottom: '25px',
 };
 
 const pagination_button = {
   borderRadius: '5px',
   border: '1px solid #666666',
-  padding: '0.1rem 0.5rem',
+  padding: '0.10px 5px',
   color: 'white',
 };
 
@@ -206,9 +168,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
     setCurrency(value as number);
   };
 
-  const handlepageLimitChange = (
-    event: SelectChangeEvent<typeof pageLimit>,
-  ) => {
+  const handlepageLimitChange = (event: SelectChangeEvent<typeof pageLimit>) => {
     const {
       target: { value },
     } = event;
@@ -253,18 +213,18 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
           }}
         >
           <button
-            type="button"
+            type='button'
             style={{
               backgroundColor: 'transparent',
               border: 'none',
               marginTop: '4px',
-              marginRight: '2rem',
+              marginRight: '20px',
             }}
             onClick={transactionsClose}
           >
-            <img src={LeftArrowImage} alt="LeftArrowImage" width={10} />
+            <img src={LeftArrowImage} alt='LeftArrowImage' width={10} />
           </button>
-          <Typography variant="h3" fontStyle="italic" fontWeight="bold">
+          <Typography variant='h3' fontStyle='italic' fontWeight='bold'>
             TRANSACTIONS
           </Typography>
           <Button
@@ -281,25 +241,25 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
         <div
           style={{
             display: 'flex',
-            gap: '2rem',
-            marginTop: '1rem',
+            gap: '20px',
+            marginTop: '10px',
             alignItems: 'center',
           }}
         >
           {tabs.map((tab: Tab, index: number) => (
-            <Tooltip title={tab.name} placement="bottom" key={tab.name}>
+            <Tooltip title={tab.name} placement='bottom' key={tab.name}>
               <Button
                 variant={index === transactionType ? 'text' : 'outlined'}
                 style={index === transactionType ? style_btn_active : style_btn}
                 onClick={() => setTransactionType(index)}
               >
-                <Typography variant="h5" fontWeight="bold">
+                <Typography variant='h5' fontWeight='bold'>
                   {tab.name}
                 </Typography>
               </Button>
             </Tooltip>
           ))}
-          <Box sx={{ marginLeft: 'auto' }} className="currency_select">
+          <Box sx={{ marginLeft: 'auto' }} className='currency_select'>
             <Select
               value={currency}
               onChange={handleCurrencyChange}
@@ -323,32 +283,30 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
               sx={{ ...style_select, marginLeft: 'auto' }}
               inputProps={{ 'aria-label': 'Without label' }}
             >
-              <MenuItem
-                className="menuitem-currency"
-                value={0}
-                sx={style_menuitem}
-              >
+              <MenuItem className='menuitem-currency' value={0} sx={style_menuitem}>
                 All Currencies
               </MenuItem>
-              {tokenData?.map((token: any, index: number) => (
-                <MenuItem
-                  className="menuitem-currency"
-                  key={token?.id}
-                  value={index + 1}
-                  sx={style_menuitem}
-                >
-                  {Icon(token.icon, 15)}
-                  &nbsp;
-                  {token?.name}
-                </MenuItem>
-              ))}
+              {tokenData &&
+                'map' in tokenData &&
+                tokenData?.map((token: any, index: number) => (
+                  <MenuItem
+                    className='menuitem-currency'
+                    key={token?.id}
+                    value={index + 1}
+                    sx={style_menuitem}
+                  >
+                    {Icon(token.icon, 15)}
+                    &nbsp;
+                    {token?.name}
+                  </MenuItem>
+                ))}
             </Select>
           </Box>
         </div>
       </Box>
-      <Box className="modal_content" sx={style_modal_content}>
+      <Box className='no_scroll_bar' sx={style_modal_content}>
         <Box
-          p="2rem 2rem 2rem 2rem"
+          p='20px 20px 20px 20px'
           sx={{
             width: '100%',
             margin: 'auto',
@@ -364,8 +322,8 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
               color: '#AAAAAA',
               fontSize: '12px',
               textAlign: 'center',
-              paddingBottom: '2rem',
-              paddingX: '6rem',
+              paddingBottom: '20px',
+              paddingX: '60px',
             }}
           >
             <Grid item sx={style_cell} sm={2}>
@@ -384,7 +342,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
               Transaction
             </Grid>
           </Grid>
-          <Box sx={style_transaction_body} className="modal_content">
+          <Box sx={style_transaction_body} className='modal_content'>
             {!transactionIsLoading &&
               (transactionData?.length
                 ? transactionData?.map((tx: any, index: number) => {
@@ -393,7 +351,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                         key={tx.hash + tx.created_at + Math.random()}
                         container
                         spacing={2.5}
-                        alignItems="center"
+                        alignItems='center'
                         sx={{
                           color: 'white',
                           fontSize: '12px',
@@ -401,17 +359,12 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                           alignItems: 'center',
                         }}
                       >
-                        <Grid
-                          sm={2}
-                          item
-                          sx={{ ...style_cell, color: '#AAAAAA' }}
-                          width={10}
-                        >
+                        <Grid sm={2} item sx={{ ...style_cell, color: '#AAAAAA' }} width={10}>
                           <Typography
-                            variant="h6"
-                            component="h6"
-                            textAlign="center"
-                            color="#AAAAAA"
+                            variant='h6'
+                            component='h6'
+                            textAlign='center'
+                            color='#AAAAAA'
                           >
                             {new Date(tx.created_at).toLocaleString()}
                           </Typography>
@@ -425,40 +378,36 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                             }}
                           >
                             <Typography
-                              variant="h6"
-                              component="h6"
-                              textAlign="right"
-                              fontWeight="bold"
-                              color="white"
+                              variant='h6'
+                              component='h6'
+                              textAlign='right'
+                              fontWeight='bold'
+                              color='white'
                             >
                               {tx.amount}
                             </Typography>
                             &nbsp;&nbsp;
                             {Icon(
-                              tokenData.find(
-                                (token: any) => token.id === tx.token_id,
-                              )?.icon,
+                              tokenData.find((token: any) => token.id === tx.token_id)?.icon,
                               25,
                             )}
                           </div>
                         </Grid>
                         <Grid sm={2} item sx={style_cell}>
                           <Typography
-                            variant="h6"
-                            component="h6"
-                            textAlign="center"
-                            fontWeight="bold"
-                            color="white"
-                            alignItems="end"
+                            variant='h6'
+                            component='h6'
+                            textAlign='center'
+                            fontWeight='bold'
+                            color='white'
+                            alignItems='end'
                           >
                             $
                             {(
                               tx.amount *
                               priceData[
                                 `${
-                                  tokenData.find(
-                                    (token: any) => token.id === tx.token_id,
-                                  )?.name
+                                  tokenData.find((token: any) => token.id === tx.token_id)?.name
                                 }-USD`
                               ]
                             )?.toFixed(2)}
@@ -466,10 +415,10 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                         </Grid>
                         <Grid sm={3} item sx={style_cell}>
                           <Typography
-                            variant="h6"
-                            component="article"
-                            textAlign="center"
-                            fontWeight="bold"
+                            variant='h6'
+                            component='article'
+                            textAlign='center'
+                            fontWeight='bold'
                             mt={2}
                             mb={2}
                             color={tx.state === 'success' ? '#95F204' : 'red'}
@@ -477,12 +426,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                             {tx.state === 'success' ? 'Success' : 'Fail'}
                           </Typography>
                         </Grid>
-                        <Grid
-                          sm={3}
-                          item
-                          sx={style_cell}
-                          onClick={() => handleDetailClick(index)}
-                        >
+                        <Grid sm={3} item sx={style_cell} onClick={() => handleDetailClick(index)}>
                           <div
                             style={{
                               display: 'flex',
@@ -492,14 +436,14 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                             }}
                           >
                             <Typography
-                              variant="h6"
-                              component="article"
-                              textAlign="center"
-                              fontWeight="bold"
+                              variant='h6'
+                              component='article'
+                              textAlign='center'
+                              fontWeight='bold'
                               mt={2}
                               mb={2}
                               mr={1}
-                              color="#7F7F7F"
+                              color='#7F7F7F'
                               sx={{ alignItems: 'center' }}
                             >
                               Click for details
@@ -517,8 +461,8 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
         <Modal
           open={detailShow}
           onClose={() => setDetailShow(false)}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
+          aria-labelledby='modal-modal-title'
+          aria-describedby='modal-modal-description'
         >
           <Box sx={{ ...style_modal, width: '450px' }}>
             <Button
@@ -526,25 +470,19 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                 color: '#F2F2F288',
                 minWidth: 'fit-content',
                 position: 'absolute',
-                top: '3rem',
-                right: '2rem',
+                top: '30px',
+                right: '20px',
               }}
               onClick={() => setDetailShow(false)}
             >
               <CloseIcon />
             </Button>
-            <Grid container spacing={2} overflow="hidden">
+            <Grid container spacing={2} overflow='hidden'>
               <Grid item xs={3}>
                 State
               </Grid>
-              <Grid
-                item
-                xs={9}
-                color={detailTx?.state === 'success' ? '#95F204' : 'red'}
-              >
-                {detailTx?.state === 'success'
-                  ? 'Success'
-                  : 'Fail'}
+              <Grid item xs={9} color={detailTx?.state === 'success' ? '#95F204' : 'red'}>
+                {detailTx?.state === 'success' ? 'Success' : 'Fail'}
               </Grid>
               <Grid item xs={3}>
                 Txid
@@ -554,8 +492,8 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                 ... &nbsp; &nbsp; &nbsp;
                 <a
                   href={scansites[detailTx?.net_id] + detailTx?.hash}
-                  target="_blank"
-                  rel="noreferrer"
+                  target='_blank'
+                  rel='noreferrer'
                 >
                   View
                 </a>
@@ -570,11 +508,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                 Currency
               </Grid>
               <Grid item xs={9}>
-                {
-                  tokenData.find(
-                    (token: any) => token?.id === detailTx?.token_id,
-                  )?.name
-                }
+                {tokenData?.find((token: any) => token?.id === detailTx?.token_id)?.name}
               </Grid>
               <Grid item xs={3}>
                 Quantity
@@ -601,7 +535,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
             </Grid>
           </Box>
         </Modal>
-        <Box sx={style_pagination} className="pagination_select">
+        <Box sx={style_pagination} className='pagination_select'>
           <Select
             value={pageLimit}
             onChange={handlepageLimitChange}
@@ -622,7 +556,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
           >
             {page_limits.map((limit: number, index: number) => (
               <MenuItem
-                className="menuitem-pageLimit"
+                className='menuitem-pageLimit'
                 key={limit}
                 value={index}
                 sx={style_menuitem}
@@ -631,7 +565,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
               </MenuItem>
             ))}
           </Select>
-          <Box marginX="4rem" color="#7F7F7F">
+          <Box marginX='40px' color='#7F7F7F'>
             Total&nbsp;
             {totalPage}
           </Box>

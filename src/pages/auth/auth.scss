@@ -1,0 +1,66 @@
+.extension-box {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 330px;
+  height: 550px;
+  background: inherit;
+  background-color: #202328;
+  box-sizing: border-box;
+  border: 1px solid #797979;
+  border-radius: 0px;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  font-family: 'Arial', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 13px;
+  letter-spacing: normal;
+  color: white;
+  vertical-align: none;
+  text-align: center;
+  line-height: normal;
+  text-transform: none;
+  margin: auto;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  padding: 0;
+}
+
+.pw-input {
+  box-sizing: border-box;
+  border-width: 2px;
+  border-style: solid;
+  border-color: rgba(121, 121, 121, 1);
+  border-left: 0px;
+  border-top: 0px;
+  border-right: 0px;
+  border-radius: 0px;
+  color: white;
+  background-color: #202328;
+  box-shadow: none;
+  margin-top: 40px;
+  padding-right: '16px';
+  width: 100%;
+  &::after {
+    border-bottom: none !important;
+  }
+}
+
+.login-button {
+  width: 100px;
+  height: 40px;
+  background-color: #95f204 !important;
+  border: none !important;
+  border-radius: 10px !important;
+  box-shadow: none;
+  font-family: 'Arial Bold', 'Arial Regular', 'Arial', sans-serif !important;
+  font-style: normal;
+  font-weight: 500 !important;
+  font-size: 12px !important;
+  color: #333333 !important;
+  letter-spacing: 0.02857em;
+  margin-top: 30px !important;
+}

@@ -6,6 +6,7 @@ import { toast, ToastPosition, Theme } from 'react-toastify';
 import { Container, Section, Description, Warning } from '../../components/styles';
 import { useSocket } from '../../context/SocketProvider';
 import { useWalletModal } from '../../context/WalletModalProvider';
+import { Link } from 'react-router-dom';
 
 // toast.configure();
 
@@ -41,6 +42,8 @@ const Home = () => {
         <Description>"Deposit right now if you want to get income"</Description>
         <Warning>"Don't hesitate"</Warning>
       </Section>
+      <Link to='/login'>To Login</Link>
+      <Link to='/balances'>To Balances</Link>
       <Button onClick={handleOpen} variant='contained' size='large' sx={{ fontSize: 16 }}>
         Deposit here
       </Button>

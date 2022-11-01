@@ -29,3 +29,28 @@ export const scansites_test: Scansites = {
   '9': 'https://solscan.io/tx/', // ?cluster=devnet
   '10': 'https://ghostnet.tzkt.io/', // ?cluster=devnet
 };
+
+export const token_types = ['ERC20', 'BEP20', 'TRC20', 'Polygon'];
+export const token_types_eth = ['Ethereum', 'Arbitrum'];
+
+const ITEM_HEIGHT = 25;
+const ITEM_PADDING_TOP = 8;
+export const MenuProps = {
+  PaperProps: {
+    style: {
+      height: ITEM_HEIGHT * 7 + ITEM_PADDING_TOP,
+      width: 140,
+    },
+  },
+};
+
+export const MenuProps_page = {
+  PaperProps: {
+    style: {
+      height: ITEM_HEIGHT * 7 + ITEM_PADDING_TOP,
+      width: 80,
+    },
+  },
+};
+
+export const page_limits = [2, 10, 20, 30, 40, 50];

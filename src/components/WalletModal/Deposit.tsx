@@ -34,7 +34,7 @@ const style_type_btn = {
   boxShadow: 'none',
   borderRadius: '10px',
   width: '80px',
-  margin: '0 0.5rem',
+  margin: '0 5px',
   paddingTop: '8px',
   paddingBottom: '8px',
 };
@@ -48,35 +48,35 @@ const style_type_btn_active = {
 };
 
 const style_box_address = {
-  borderRadius: '1rem',
+  borderRadius: '10px',
   backgroundColor: '#191c20',
-  padding: '3rem 2rem',
+  padding: '30px 20px',
   width: '500px',
   margin: 'auto',
-  marginTop: '1rem',
+  marginTop: '10px',
   display: 'flex',
   // gridTemplateColumns: '0.5fr 164px',
-  gap: '4rem',
+  gap: '40px',
 };
 
 const style_btn_copy = {
-  borderRadius: '2rem',
+  borderRadius: '20px',
   color: '#7F7F7F',
   backgroundColor: '#333333',
   fontSize: '16px',
-  padding: '1rem 2rem',
-  marginTop: '6rem',
+  padding: '10px 20px',
+  marginTop: '60px',
 };
 
 const style_btn_buy = {
   color: 'white',
   fontSize: '15px',
   fontWeight: 'bold',
-  padding: '1rem 2rem',
+  padding: '10px 20px',
   backgroundColor: '#1e202d',
   display: 'block',
   margin: 'auto',
-  borderRadius: '1rem',
+  borderRadius: '10px',
 };
 
 const Icon = (icon: any) => (
@@ -188,7 +188,7 @@ const Deposit = () => {
       QRCode?.toCanvas(address, { errorCorrectionLevel: 'H' }, function (err: any, canvas: any) {
         if (err) throw err;
 
-        canvas.style.borderRadius = '2rem';
+        canvas.style.borderRadius = '20px';
         canvas.style.width = '180px';
         canvas.style.height = '180px';
         container?.appendChild(canvas);
@@ -213,9 +213,9 @@ const Deposit = () => {
   }, [activeTokenIndex, activeTokenTypeIndex, activeTokenTypeEthIndex]);
 
   return (
-    <Box p='2rem'>
-      <Box p='1rem 2rem'>
-        <div style={{ position: 'relative', height: 'fit-content' }}>
+    <Box p='20px'>
+      <Box p='10px 20px'>
+        <div style={{ height: 'fit-content' }}>
           <PrevButtonForSwiper />
           <NextButtonForSwiper />
           <SwiperReact
@@ -247,19 +247,21 @@ const Deposit = () => {
             }}
             style={{ margin: '0 45px 0 43px' }}
           >
-            {tokenData?.map((token: any, index: any) => (
-              <SwiperSlide key={token.name} virtualIndex={index}>
-                <Button
-                  key={token.name}
-                  variant='contained'
-                  startIcon={Icon(token.icon)}
-                  style={index === activeTokenIndex ? style_btn_active : style_btn}
-                  onClick={(e) => handleTokenChange(index)}
-                >
-                  {token.name}
-                </Button>
-              </SwiperSlide>
-            ))}
+            {tokenData &&
+              'map' in tokenData &&
+              tokenData?.map((token: any, index: any) => (
+                <SwiperSlide key={token.name} virtualIndex={index}>
+                  <Button
+                    key={token.name}
+                    variant='contained'
+                    startIcon={Icon(token.icon)}
+                    style={index === activeTokenIndex ? style_btn_active : style_btn}
+                    onClick={(e) => handleTokenChange(index)}
+                  >
+                    {token.name}
+                  </Button>
+                </SwiperSlide>
+              ))}
           </SwiperReact>
         </div>
       </Box>
@@ -267,7 +269,7 @@ const Deposit = () => {
         <div
           style={{
             margin: 'auto',
-            marginTop: '2rem',
+            marginTop: '20px',
             alignItems: 'center',
             width: 'fit-content',
           }}
@@ -319,7 +321,7 @@ const Deposit = () => {
         <div
           style={{
             margin: 'auto',
-            marginTop: '2rem',
+            marginTop: '20px',
             alignItems: 'center',
             width: 'fit-content',
           }}
@@ -365,9 +367,9 @@ const Deposit = () => {
             id='qrcode'
             style={{
               marginRight: 'auto',
-              padding: '1rem',
-              paddingBottom: 'calc(1rem - 4px)',
-              borderRadius: '2rem',
+              padding: '10px',
+              paddingBottom: 'calc(10px - 4px)',
+              borderRadius: '20px',
               backgroundColor: '#555555',
             }}
           />
@@ -377,8 +379,8 @@ const Deposit = () => {
         variant='h6'
         textAlign='center'
         mt={2}
-        padding='0 4rem'
-        fontSize='1.4rem'
+        padding='0 40px'
+        fontSize='1.40px'
         component='article'
         color='#A9ADBD'
       >

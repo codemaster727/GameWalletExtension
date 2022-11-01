@@ -17,7 +17,7 @@ const style_modal = {
   height: 'fit-content',
   padding: 0,
   backgroundColor: '#17181b',
-  borderRadius: '2rem',
+  borderRadius: '20px',
 };
 
 interface VoidPureFuntion {

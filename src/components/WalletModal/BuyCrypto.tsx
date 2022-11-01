@@ -9,7 +9,7 @@ const style_btn = {
   backgroundColor: 'white',
   color: '#F2F2F288',
   fontSize: '12px',
-  borderRadius: '1rem',
+  borderRadius: '10px',
   padding: 0,
   height: 'fit-content',
   lineHeight: 0,
@@ -20,7 +20,7 @@ const style_btn_active = {
   color: '#F2F2F288',
   fontSize: '12px',
   fontWeight: 'bold',
-  borderRadius: '1rem',
+  borderRadius: '10px',
   padding: 0,
   height: 'fit-content',
   lineHeight: 0,
@@ -28,11 +28,11 @@ const style_btn_active = {
 
 const Icon = (icon: any) => (
   <img
-    id="u7_img"
-    className="img"
-    alt="BTCIcon"
+    id='u7_img'
+    className='img'
+    alt='BTCIcon'
     src={icon}
-    width="30px"
+    width='30px'
     style={{ borderRadius: '20px' }}
   />
 );
@@ -65,38 +65,37 @@ const BuyCrypto = ({ handleClose }: any) => {
   };
 
   return (
-    <Box p="2rem 4rem 4rem 4rem">
-      <Typography variant="h4" fontWeight="bold" fontStyle="italic" margin={0}>
+    <Box p='20px 40px 40px 40px'>
+      <Typography variant='h4' fontWeight='bold' fontStyle='italic' margin={0}>
         BUY CRYPTO USING CARDS
       </Typography>
       <Typography
-        variant="h5"
-        component="article"
-        textAlign="left"
+        variant='h5'
+        component='article'
+        textAlign='left'
         mt={2}
         mb={2}
-        color="white"
-        fontWeight="bold"
+        color='white'
+        fontWeight='bold'
       >
-        While we look for a reliable card payment processor, you can purchase
-        crypto using your card via the recommended third-party services below.
-        After purchasing the crypto, you can deposit it directly to your Rollbit
-        account.
+        While we look for a reliable card payment processor, you can purchase crypto using your card
+        via the recommended third-party services below. After purchasing the crypto, you can deposit
+        it directly to your Rollbit account.
       </Typography>
-      <div style={{ display: 'flex', gap: '4rem' }}>
+      <div style={{ display: 'flex', gap: '40px' }}>
         {payments?.map((payment, index) => (
           <Button
             key={payment.name}
-            variant="contained"
+            variant='contained'
             style={index === activePaymentIndex ? style_btn_active : style_btn}
             // onClick={() => handleTokenChange(index)}
           >
-            <a href={payment.url} target="_blank" rel="noreferrer">
+            <a href={payment.url} target='_blank' rel='noreferrer'>
               <img
-                alt="BTCIcon"
+                alt='BTCIcon'
                 src={payment.icon}
-                height="40px"
-                style={{ borderRadius: '1rem' }}
+                height='40px'
+                style={{ borderRadius: '10px' }}
               />
             </a>
           </Button>

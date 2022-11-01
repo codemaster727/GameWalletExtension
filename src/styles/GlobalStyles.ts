@@ -37,17 +37,20 @@ export default createGlobalStyle<ITheme>`
   }
 
   body {
-    background: ${(props) => props.theme.dark};
+		position: relative;
+    background: #202328;
     color: var(--primary-color);
 		line-height: 1.5;
     height: 100vh;
     margin: auto;
     overflow: initial;
-    width: 100vw;
+		width: 330px;
+		height: 550px;
+		border: 1px dash white;
   }
 
   body, input, textarea, button {
-    font: 1.6rem 'Montserrat', sans-serif;
+    font: 16px 'Montserrat', sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6, strong {
@@ -73,33 +76,33 @@ export default createGlobalStyle<ITheme>`
 
 	h1, .h1 {
 		margin: 24px 0;
-		font-size: 3.2rem;
+		font-size: 3.20px;
 		font-weight: 700;
 		line-height: 1.1;
 	}
 
 	h2,	.h2 {
-		font-size: 3rem;
+		font-size: 30px;
 	}
 
 	h3,	.h3 {
-		font-size: 2.4rem;
+		font-size: 2.40px;
 	}
 
 	h4,	.h4 {
-		font-size: 2rem;
+		font-size: 20px;
 	}
 
 	h5,	.h5 {
-		font-size: 1.8rem;
+		font-size: 18px;
 	}
 
 	h6,	.h6 {
-		font-size: 1.6rem;
+		font-size: 16px;
 	}
 
   button, a {
-    font-size: 1.5rem;
+    font-size: 15px;
     cursor: pointer;
   }
 
@@ -141,9 +144,9 @@ export default createGlobalStyle<ITheme>`
   }
 
 	.pagination {
-    // bottom: -1rem;
+    // bottom: -10px;
     position: absolute !important;
-    bottom: -2rem;
+    bottom: -20px;
     left: 0;
     justify-content: center;
 	}
@@ -168,12 +171,14 @@ export default createGlobalStyle<ITheme>`
 		background: #262628 !important;
 	}
 
-	.modal_content::-webkit-scrollbar {
+	.no_scroll_bar::-webkit-scrollbar {
 		display: none;
 	}
 
 	.menuitem-currency {
 		width: calc(140px - 5px) !important;
+		min-height: 25px !important;
+		line-height: 0;
 		&:hover{
 			background-color: #363739 !important;
 		}
@@ -225,8 +230,8 @@ export default createGlobalStyle<ITheme>`
 	}
 
 	.css-d7py89-MuiTable-root .css-e5a0pp-MuiTableBody-root {
-		border-radius: 2rem !important;
-		padding: 4rem !important;
+		border-radius: 20px !important;
+		padding: 40px !important;
 	}
 
 	.currency_select {
@@ -243,5 +248,22 @@ export default createGlobalStyle<ITheme>`
 				color: #7F7F7F !important;
 			}
 		}
+	}
+
+	.base-box {
+		padding: 0;
+		background-color: #202328;
+	}
+
+	.bottom-box {
+		position: absolute;
+		bottom: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		text-align: center;
+		height: 60px;
+		border-top: 1px solid grey;
 	}
 `;

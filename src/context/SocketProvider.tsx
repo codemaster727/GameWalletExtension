@@ -1,11 +1,4 @@
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { getQuery, getPrice, postQuery } from '../apis/api';
 import BitcoinIcon from '../assets/coingroup/bitcoin.svg';
@@ -265,46 +258,46 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     return () => connection_price?.close();
   }, []);
 
-  useEffect(() => {
-    const connection_deposit = new WebSocket(
-      'wss://80halgu2p0.execute-api.eu-west-1.amazonaws.com/production/',
-    );
-    setConnection(connection_deposit);
+  // useEffect(() => {
+  //   const connection_deposit = new WebSocket(
+  //     'wss://80halgu2p0.execute-api.eu-west-1.amazonaws.com/production/',
+  //   );
+  //   setConnection(connection_deposit);
 
-    return () => connection_deposit.close();
-  }, []);
+  //   return () => connection_deposit.close();
+  // }, []);
 
-  useEffect(() => {
-    if (connection && tokenData) {
-      connection.onopen = (socket) => {
-        setNetworkError(false);
-      };
+  // useEffect(() => {
+  //   if (connection && tokenData) {
+  //     connection.onopen = (socket) => {
+  //       setNetworkError(false);
+  //     };
 
-      connection.onmessage = (message) => {
-        const json = JSON.parse(message.data);
-        if (json?.status === 'confirmed') {
-          setSuccessResult((prev) => ({
-            count: (prev?.count ?? 0) + 1,
-            message: `${json?.amount} ${
-              tokenData?.find((a: any) => a.id === json?.token_id)?.name
-            } was successfully deposited and confirmed! Please check your balance now.`,
-          }));
-          queryClient.invalidateQueries(['ListAssets']);
-        } else if (json?.status === 'not-confirmed') {
-          setSuccessResult((prev) => ({
-            count: (prev?.count ?? 0) + 1,
-            message: `Your deposit request was successful but not confirmed yet. Please wait for a while to confirm the transaction and notice your balance will be updated after that.`,
-          }));
-          queryClient.invalidateQueries(['ListAssets']);
-        } else {
-          setErrorResult((prev) => ({
-            count: (prev?.count ?? 0) + 1,
-            message: `Your deposit has been failed. Please check your transaction and contact us.`,
-          }));
-        }
-      };
-    }
-  }, [connection, tokenData]);
+  //     connection.onmessage = (message) => {
+  //       const json = JSON.parse(message.data);
+  //       if (json?.status === 'confirmed') {
+  //         setSuccessResult((prev) => ({
+  //           count: (prev?.count ?? 0) + 1,
+  //           message: `${json?.amount} ${
+  //             tokenData?.find((a: any) => a.id === json?.token_id)?.name
+  //           } was successfully deposited and confirmed! Please check your balance now.`,
+  //         }));
+  //         queryClient.invalidateQueries(['ListAssets']);
+  //       } else if (json?.status === 'not-confirmed') {
+  //         setSuccessResult((prev) => ({
+  //           count: (prev?.count ?? 0) + 1,
+  //           message: `Your deposit request was successful but not confirmed yet. Please wait for a while to confirm the transaction and notice your balance will be updated after that.`,
+  //         }));
+  //         queryClient.invalidateQueries(['ListAssets']);
+  //       } else {
+  //         setErrorResult((prev) => ({
+  //           count: (prev?.count ?? 0) + 1,
+  //           message: `Your deposit has been failed. Please check your transaction and contact us.`,
+  //         }));
+  //       }
+  //     };
+  //   }
+  // }, [connection, tokenData]);
 
   return (
     <SocketContext.Provider
@@ -314,29 +307,33 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         refetch,
         priceData,
         balanceData: array2object(
-          balanceData &&
-            (balanceData?.map((a: any) => ({
-              [a.token_id]: Math.floor(a.amount * 100000) / 100000,
-            })) ??
-              []),
+          balanceData && 'map' in balanceData
+            ? balanceData?.map((a: any) => ({
+                [a.token_id]: Math.floor(a.amount * 100000) / 100000,
+              }))
+            : [],
         ),
         walletData: array2object(
-          walletData?.map((a: any) => ({ [a.net_id]: a.address })) ?? [],
+          walletData && 'map' in walletData
+            ? walletData?.map((a: any) => ({ [a.net_id]: a.address }))
+            : [],
         ),
         tokenData:
-          tokenData
-            ?.sort((a: any, b: any) => a.id - b.id)
-            .map((token: any) => ({
-              ...token,
-              icon: init_tokens?.find((tk) => tk.id === token.id)?.icon,
-            })) ?? [],
+          tokenData && 'sort' in tokenData
+            ? tokenData
+                ?.sort((a: any, b: any) => a.id - b.id)
+                .map((token: any) => ({
+                  ...token,
+                  icon: init_tokens?.find((tk) => tk.id === token.id)?.icon,
+                }))
+            : [],
         errorResult,
         successResult,
         withdrawMutate,
         withdrawIsLoading,
         transactionIsLoading,
         transactionData: transactionData?.rows,
-        transactionTotal: transactionData?.total[0].Total,
+        transactionTotal: transactionData?.total ? transactionData?.total[0].Total : 0,
         transactionMutate,
       }}
     >

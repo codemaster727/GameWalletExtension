@@ -1,20 +1,21 @@
 {
   "short_name": "GameWallet React App",
   "name": "GameWallet React App",
-  "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32",
-      "type": "image/x-icon"
-    },
-    {
-      "src": "logo512.png",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
-  ],
-  "start_url": "./",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "manifest_version": 3,
+  "version": "1.0",
+  "icons": {
+    "16": "favicon-32x32.png",
+    "32": "favicon-32x32.png",
+    "48": "favicon-32x32.png",
+    "128": "logo512.png"
+  },
+  "background": {
+    "service_worker": "./background.js"
+  },
+  "action": {
+    "default_title": "GameWallet React App",
+    "default_popup": "index.html"
+  },
+  "permissions": ["storage"],
+  "host_permissions": ["https://jgp4iec7b3.execute-api.eu-west-1.amazonaws.com/default/*"]
 }

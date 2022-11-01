@@ -1,13 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  Box,
-  Modal,
-  Tooltip,
-  Typography,
-  IconButton,
-} from '@mui/material';
+import { Button, Box, Modal, Tooltip, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 // import BuyCrypto from './BuyCrypto';
 import Balances from './Balances';
@@ -29,14 +22,14 @@ const style_wallet_modal = {
   py: 3,
   color: 'white',
   backgroundColor: '#17181b',
-  borderRadius: '2rem',
+  borderRadius: '20px',
 } as any;
 
 const style_modal_content = {
   height: '570px',
   overflow: 'auto',
   // backgroundColor: 'transparent',
-  MsOverflowStyle: 'none' /* IE and Edge */,
+  msOverflowStyle: 'none' /* IE and Edge */,
   scrollbarWidth: 'none' /* Firefox */,
 };
 
@@ -45,14 +38,14 @@ const style_btn = {
   fontSize: '12px',
   minWidth: 'fit-content',
   borderColor: '#666666',
-  padding: '0.7rem',
+  padding: '8px',
 };
 
 const style_btn_active = {
   color: 'white',
   fontSize: '12px',
   fontWeight: 'bold',
-  paddingY: '0.7rem',
+  paddingY: '8px',
   backgroundColor: '#1e202d',
 };
 
@@ -60,16 +53,16 @@ const style_transactions_btn = {
   color: '#F2F2F288',
   fontSize: '12px',
   marginLeft: 'auto',
-  marginRight: '2rem',
+  marginRight: '20px',
 };
 
 const Icon = (icon: any) => (
   <img
-    id="u7_img"
-    className="img"
-    alt="BTCIcon"
+    id='u7_img'
+    className='img'
+    alt='BTCIcon'
     src={icon}
-    width="30px"
+    width='30px'
     style={{ borderRadius: '20px' }}
   />
 );
@@ -122,16 +115,16 @@ const WalletModalMain = ({ transactionsOpen }: Props) => {
             alignItems: 'center',
           }}
         >
-          <Typography variant="h3" fontStyle="italic" fontWeight="bold">
+          <Typography variant='h3' fontStyle='italic' fontWeight='bold'>
             Wallet
           </Typography>
           <Button
-            variant="text"
+            variant='text'
             startIcon={Icon(TransactionsIcon)}
             style={style_transactions_btn}
             onClick={transactionsOpen}
           >
-            <Typography variant="h5">Transactions</Typography>
+            <Typography variant='h5'>Transactions</Typography>
           </Button>
           <Button
             sx={{
@@ -143,9 +136,9 @@ const WalletModalMain = ({ transactionsOpen }: Props) => {
             <CloseIcon />
           </Button>
         </div>
-        <div style={{ display: 'flex', gap: '2rem', marginTop: '1rem' }}>
+        <div style={{ display: 'flex', gap: '20px', marginTop: '10px' }}>
           {tabs.map((tab, index) => (
-            <Tooltip title={tab.name} placement="bottom" key={tab.name}>
+            <Tooltip title={tab.name} placement='bottom' key={tab.name}>
               <Button
                 variant={index === modalType ? 'text' : 'outlined'}
                 startIcon={index === modalType && Icon(tab.active_icon)}
@@ -153,7 +146,7 @@ const WalletModalMain = ({ transactionsOpen }: Props) => {
                 onClick={() => setModalType(index)}
               >
                 {index === modalType ? (
-                  <Typography variant="h5" fontWeight="bold">
+                  <Typography variant='h5' fontWeight='bold'>
                     {tab.name}
                   </Typography>
                 ) : (
@@ -164,10 +157,8 @@ const WalletModalMain = ({ transactionsOpen }: Props) => {
           ))}
         </div>
       </Box>
-      <Box sx={{ borderRadius: '2rem', backgroundColor: '#202328' }}>
-        <Box className="modal_content" sx={style_modal_content}>
-          {ModalByType()}
-        </Box>
+      <Box sx={{ borderRadius: '20px', backgroundColor: '#202328' }}>
+        <Box>{ModalByType()}</Box>
       </Box>
     </Box>
   );
