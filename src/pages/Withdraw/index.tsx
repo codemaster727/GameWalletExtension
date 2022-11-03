@@ -21,6 +21,7 @@ import ScrollBox from '~/components/Layout/ScrollBox';
 import Icon from '~/components/Icon';
 import { MenuProps } from '~/constants';
 import { style_box_address, style_menuitem, style_select } from '~/components/styles';
+import { useTheme } from '@mui/material';
 
 const style_type_btn_ext = {
   backgroundColor: '#282b31',
@@ -85,6 +86,8 @@ const Withdraw = () => {
 
   const { networkError, balanceData, tokenData, withdrawMutate, withdrawIsLoading } = useSocket();
   const activeToken = tokenData[activeTokenIndex];
+
+  const theme = useTheme();
 
   const handleTokenChange = (event: SelectChangeEvent<typeof activeTokenIndex>) => {
     const {
@@ -239,7 +242,7 @@ const Withdraw = () => {
             style={{ overflowWrap: 'break-word', textAlign: 'center' }}
           >
             Current balance:&nbsp;
-            <span style={{ color: '#95f204' }}>
+            <span style={{ color: '#0abab5' }}>
               {balanceData[activeToken?.id] ?? '0'}
               &nbsp;
               {activeToken?.name}
@@ -303,9 +306,9 @@ const Withdraw = () => {
             <Box>Network error...</Box>
           ) : (
             <Box mt={2} style={{ ...style_box_address, backgroundColor: 'transparent' }}>
-              <Typography variant='h6' component='h6' textAlign='left' color='#AAAAAA' mb={1}>
+              <Typography variant='h5' component='h5' textAlign='left' color='#AAAAAA' mb={1}>
                 Withdraw address
-                <span style={{ color: '#95f204' }}>
+                <span style={{ color: '#0abab5' }}>
                   (Note: Only {tokenData[activeTokenIndex]?.label})
                 </span>
               </Typography>
@@ -323,8 +326,8 @@ const Withdraw = () => {
               </Paper>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography
-                  variant='h6'
-                  component='h6'
+                  variant='h5'
+                  component='h5'
                   textAlign='left'
                   color='#AAAAAA'
                   mt={2}
@@ -333,8 +336,8 @@ const Withdraw = () => {
                   Withdraw amount
                 </Typography>
                 <Typography
-                  variant='h6'
-                  component='h6'
+                  variant='h5'
+                  component='h5'
                   textAlign='left'
                   color='#AAAAAA'
                   mt={2}
@@ -425,7 +428,7 @@ const Withdraw = () => {
                 style={{ overflowWrap: 'break-word', textAlign: 'center' }}
               >
                 Fee&nbsp;
-                <span style={{ color: '#95f204' }}>
+                <span style={{ color: '#0abab5' }}>
                   {1}
                   &nbsp;
                   {activeToken?.name}
@@ -437,7 +440,7 @@ const Withdraw = () => {
                 padding='0'
                 fontSize='12px'
                 component='article'
-                color='#A9ADBD'
+                color='#AAAAAA'
                 mt={2}
               >
                 For security purposes, large or suspicious withdrawal may take 1-6 hours for audit
@@ -449,62 +452,28 @@ const Withdraw = () => {
         </Box>
       </ScrollBox>
       <Box className='bottom-box'>
-        {withdrawIsLoading ? (
-          // <LoadingButton
-          //   loading
-          //   variant="contained"
-          //   loadingPosition="center"
-          //   sx={{
-          //     // backgroundImage: `url(${ConfirmBtn})`,
-          //     backgroundColor: 'green',
-          //     backgroundSize: 'stretch',
-          //     width: '325px',
-          //     height: '56px',
-          //     color: 'white',
-          //     margin: 'auto',
-          //     borderRadius: '50px',
-          //     display: 'block',
-          //   }}
-          // />
-          <Button
-            sx={{
-              backgroundColor: '#95F204',
-              backgroundSize: 'stretch',
-              width: '120px',
-              height: '30px',
-              color: 'white',
-              margin: 'auto',
-              borderRadius: '8px',
-              display: 'block',
-              opacity: 0.3,
-            }}
-            disabled={withdrawIsLoading}
-            onClick={sendRequestWithdraw}
-          >
-            Confirm
-          </Button>
-        ) : (
-          <Button
-            sx={{
-              backgroundColor: '#7eca0b',
-              backgroundSize: 'stretch',
-              width: '120px',
-              height: '30px',
-              color: 'white',
-              margin: 'auto',
-              borderRadius: '8px',
-              display: 'block',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              ':hover': {
-                backgroundColor: '#7eca0b88',
-              },
-            }}
-            onClick={sendRequestWithdraw}
-          >
-            Confirm
-          </Button>
-        )}
+        <Button
+          color='primary'
+          variant='contained'
+          sx={{
+            backgroundSize: 'stretch',
+            width: '120px',
+            height: '30px',
+            color: 'white',
+            margin: 'auto',
+            borderRadius: '8px',
+            display: 'block',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            // ':hover': {
+            //   backgroundColor: '#7eca0b88',
+            // },
+          }}
+          disabled={withdrawIsLoading}
+          onClick={sendRequestWithdraw}
+        >
+          Confirm
+        </Button>
       </Box>
     </Box>
   );

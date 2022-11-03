@@ -27,7 +27,7 @@ const style_type_btn = {
 
 const style_type_btn_active = {
   ...style_type_btn,
-  backgroundColor: '#374b21',
+  backgroundColor: '#1c4043',
   border: '1px solid #84d309',
   fontWeight: 'bold',
   color: 'white',
@@ -96,7 +96,7 @@ const Balances = () => {
             component='h4'
             textAlign='center'
             fontWeight='bold'
-            color='#95F204'
+            color='#0abab5'
             mb={1}
           >
             Total Balance
@@ -107,7 +107,7 @@ const Balances = () => {
               component='h4'
               textAlign='center'
               fontWeight='bold'
-              color='#80FFFF'
+              color='#95F204'
             >
               $&nbsp;
               {!loading && total_USD_price ? total_USD_price.toFixed(2) : 'Loading...'}
@@ -188,7 +188,7 @@ const Balances = () => {
                           fontWeight='bold'
                           mt={2}
                           mb={2}
-                          color='#95F204'
+                          color='#0abab5'
                         >
                           {balanceData[token.id]?.toFixed(
                             Math.min(
@@ -209,7 +209,7 @@ const Balances = () => {
                             fontWeight='bold'
                             mt={2}
                             mb={2}
-                            color='#80FFFF'
+                            color='#95F204'
                           >
                             $&nbsp;
                             {loading && 'Loading...'}

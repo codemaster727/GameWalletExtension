@@ -14,7 +14,8 @@ import DepositIcon from '../../assets/coingroup/deposit.png';
 import DepositActiveIcon from '../../assets/coingroup/deposit_active.png';
 import WithdrawIcon from '../../assets/coingroup/withdraw.png';
 import WithdrawActiveIcon from '../../assets/coingroup/withdraw_active.png';
-import TransactionsIcon from '../../assets/coingroup/transactions.png';
+import TransactionsIcon from '../../assets/coingroup/transactions_white.png';
+import CartIcon from '../../assets/coingroup/cart.png';
 import Icon from '../Icon';
 import { useAuth } from '~/context/AuthProvider';
 
@@ -50,9 +51,9 @@ const NavBar = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const handleLock = () => {
+  const handleLock = async () => {
     handleClose();
-    signOut();
+    await signOut();
   };
 
   return (
@@ -98,14 +99,20 @@ const NavBar = () => {
           </Link>
         ))}
 
-        <Divider sx={{ my: 0.5 }} />
+        <Divider sx={{ my: 0.5, backgroundColor: 'white' }} />
         <Link to='transactions'>
           <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
             {Icon(TransactionsIcon)}
             Transactions
           </MenuItem>
         </Link>
-        <Divider sx={{ my: 0.5 }} />
+        <Link to='#'>
+          <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
+            {Icon(CartIcon)}
+            Buy Cryptos
+          </MenuItem>
+        </Link>
+        <Divider sx={{ my: 0.5, backgroundColor: 'white' }} />
         <MenuItem onClick={handleLock} disableRipple sx={style_menu_item}>
           <LockIcon sx={{ path: { fill: 'white' } }} />
           Lock

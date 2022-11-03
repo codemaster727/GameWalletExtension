@@ -421,7 +421,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                             fontWeight='bold'
                             mt={2}
                             mb={2}
-                            color={tx.state === 'success' ? '#95F204' : 'red'}
+                            color={tx.state === 'success' ? '#0abab5' : 'red'}
                           >
                             {tx.state === 'success' ? 'Success' : 'Fail'}
                           </Typography>
@@ -481,7 +481,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
               <Grid item xs={3}>
                 State
               </Grid>
-              <Grid item xs={9} color={detailTx?.state === 'success' ? '#95F204' : 'red'}>
+              <Grid item xs={9} color={detailTx?.state === 'success' ? '#0abab5' : 'red'}>
                 {detailTx?.state === 'success' ? 'Success' : 'Fail'}
               </Grid>
               <Grid item xs={3}>

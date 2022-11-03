@@ -28,6 +28,8 @@ import ErrorPage from './pages/error-page';
 import Layout from './components/Layout';
 import Deposit from './pages/Deposit';
 import Withdraw from './pages/Withdraw';
+import Forgot from './pages/auth/forgot';
+import AuthPage from './pages/auth';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -73,7 +75,16 @@ const App = () => {
           path: '/',
           element: (
             // <AuthRoute>
-            <Login />
+            <Withdraw />
+            // </AuthRoute>
+          ),
+          loader: signInLoader,
+        },
+        {
+          path: '/forgot',
+          element: (
+            // <AuthRoute>
+            <Forgot />
             // </AuthRoute>
           ),
           loader: signInLoader,

@@ -20,8 +20,8 @@ const style_type_btn = {
 
 const style_type_btn_active = {
   ...style_type_btn,
-  backgroundColor: '#374b21',
-  border: '1px solid #84d309',
+  backgroundColor: '#1c4043',
+  border: '1px solid #0da3a0',
   fontWeight: 'bold',
   color: 'white',
 };
@@ -165,7 +165,7 @@ const Balances = () => {
                                 fontWeight='bold'
                                 mt={2}
                                 mb={2}
-                                color='#95F204'
+                                color='#0abab5'
                               >
                                 {balanceData[token.id]?.toFixed(
                                   Math.min(
@@ -186,7 +186,7 @@ const Balances = () => {
                                   fontWeight='bold'
                                   mt={2}
                                   mb={2}
-                                  color='#80FFFF'
+                                  color='#95F204'
                                 >
                                   $&nbsp;
                                   {loading && 'Loading...'}
@@ -275,7 +275,7 @@ const Balances = () => {
                 component='h5'
                 textAlign='center'
                 fontWeight='bold'
-                color='#95F204'
+                color='#0abab5'
                 mx={1}
               >
                 Total Balance
@@ -285,7 +285,7 @@ const Balances = () => {
                 component='h5'
                 textAlign='center'
                 fontWeight='bold'
-                color={isUSD === 'EUR' ? '#FFFF80' : '#80FFFF'}
+                color={isUSD === 'EUR' ? '#FFFF80' : '#95F204'}
                 mx={1}
               >
                 $&nbsp;

@@ -10,12 +10,28 @@
     "128": "logo512.png"
   },
   "background": {
-    "service_worker": "./background.js"
+    "service_worker": "background.js",
+    "background": { "persistent": true },
+    "type": "module"
   },
+  "content_scripts": [
+    {
+      "matches": ["https://*/*"],
+      "js": ["content-script.js"]
+    }
+  ],
   "action": {
     "default_title": "GameWallet React App",
     "default_popup": "index.html"
   },
-  "permissions": ["storage"],
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "alarms",
+    "clipboardWrite",
+    "notifications",
+    "scripting"
+  ],
   "host_permissions": ["https://jgp4iec7b3.execute-api.eu-west-1.amazonaws.com/default/*"]
 }

@@ -1,13 +1,14 @@
 import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
+// import bcrypt from 'bcrypt';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { getQuery, getPrice, postQuery } from '../apis/api';
 import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   authed: boolean;
-  signIn: () => void;
+  signIn: (password: string) => Promise<boolean>;
   signUp: () => void;
-  signOut: () => void;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -21,8 +22,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
   const user = '1';
 
-  const signIn = () => {
-    setAuthed(true);
+  const createPW = async (pw: string) => {
+    // const hash = await bcrypt.hash(pw, 10);
+    const hash = pw;
+    const create_pw_result = await chrome.storage?.local.set({ hash });
+    console.log(hash, create_pw_result);
+  };
+
+  const signIn = async (password: string) => {
+    await createPW('123');
+    const { hash } = await chrome.storage?.local.get('hash');
+    console.log(hash);
+    // const unlock_result = await bcrypt.compare(password, hash.hash);
+    const unlock_result = password === hash;
+    if (unlock_result) {
+      setAuthed(true);
+      await chrome.storage?.session.set({ authed: unlock_result });
+      const { authed: authed_set } = await chrome.storage?.session.get('authed');
+      console.log('auth_session: ', authed_set);
+    }
+    return unlock_result;
     // navigate('/balances');
   };
 
@@ -30,34 +49,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setAuthed(true);
   };
 
-  const signOut = () => {
+  const signOut = async () => {
     setAuthed(false);
+    await chrome.storage?.session.remove('authed');
   };
 
-  // Queries
-  const {
-    status: tokenStatus,
-    isLoading: tokenIsLoading,
-    isError: tokenIsError,
-    data: tokenData,
-  } = useQuery(['/GetSupportedAssets'], getQuery);
-
-  const {
-    status: transactionStatus,
-    isLoading: transactionIsLoading,
-    isError: transactionIsError,
-    mutate: transactionMutate,
-    data: transactionData,
-  } = useMutation(
-    (data) => {
-      return postQuery('/ListTransactions', data);
-    },
-    {
-      onError: (data: any) => {
-        const { error } = data;
-      },
-    },
-  );
+  useEffect(() => {
+    const loadAuthSession = async () => {
+      const { authed } = await chrome.storage?.session.get('authed');
+      console.log('auth_session: ', authed);
+      if (authed) setAuthed(true);
+    };
+    loadAuthSession();
+  }, []);
 
   return (
     <AuthContext.Provider

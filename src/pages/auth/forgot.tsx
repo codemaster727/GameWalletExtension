@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '~/context/AuthProvider';
 import './auth.scss';
 
-const Login = () => {
+const Forgot = () => {
   const [password, setPassword] = useState('');
   const { authed, signIn } = useAuth();
   const navigate = useNavigate();
@@ -54,12 +54,7 @@ const Login = () => {
         value={password}
         onChange={handlePasswordChange}
       />
-      <Button
-        className='login-button'
-        sx={{ marginTop: 5 }}
-        variant='contained'
-        onClick={signInHere}
-      >
+      <Button className='login-button' variant='contained' onClick={signInHere}>
         Unlock
       </Button>
       <Box
@@ -70,19 +65,15 @@ const Login = () => {
           marginTop: '30px',
         }}
       >
-        <Link
-          to='/forgot'
-          target='_blank'
-          style={{ fontSize: '12px', textDecoration: 'underline', color: '#0abab5' }}
-        >
+        <Link to='/' style={{ fontSize: '12px', textDecoration: 'underline', color: '#0abab5' }}>
           Forgot Password?
         </Link>
-        {/* <Link to='/' style={{ fontSize: '12px', textDecoration: 'underline', color: '#0abab5' }}>
+        <Link to='/' style={{ fontSize: '12px', textDecoration: 'underline', color: '#0abab5' }}>
           Free to Sign Up
-        </Link> */}
+        </Link>
       </Box>
     </Box>
   );
 };
 
-export default Login;
+export default Forgot;

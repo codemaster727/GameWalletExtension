@@ -352,7 +352,7 @@ const Withdraw = () => {
           style={{ overflowWrap: 'break-word', textAlign: 'center' }}
         >
           Current balance:&nbsp;
-          <span style={{ color: '#95f204' }}>
+          <span style={{ color: '#0abab5' }}>
             {balanceData[activeToken?.id] ?? '0'}
             &nbsp;
             {activeToken?.name}
@@ -555,7 +555,7 @@ const Withdraw = () => {
               style={{ overflowWrap: 'break-word', textAlign: 'center' }}
             >
               Fee&nbsp;
-              <span style={{ color: '#95f204' }}>
+              <span style={{ color: '#0abab5' }}>
                 {1}
                 &nbsp;
                 {activeToken?.name}

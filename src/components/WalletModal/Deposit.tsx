@@ -354,9 +354,9 @@ const Deposit = () => {
             mt={2}
             style={{ overflowWrap: 'break-word' }}
           >
-            <span style={{ color: '#95f204' }}>{address?.slice(0, 4)}</span>
+            <span style={{ color: '#0abab5' }}>{address?.slice(0, 4)}</span>
             {address?.slice(4, -4)}
-            <span style={{ color: '#95f204' }}>{address?.slice(-4)}</span>
+            <span style={{ color: '#0abab5' }}>{address?.slice(-4)}</span>
           </Typography>
           <Button style={style_btn_copy} onClick={copyAddress}>
             COPY
