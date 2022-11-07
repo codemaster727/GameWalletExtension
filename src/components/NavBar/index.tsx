@@ -30,13 +30,13 @@ const tabs = [
     name: 'Deposit',
     icon: DepositIcon,
     active_icon: DepositActiveIcon,
-    to: 'deposit',
+    to: 'deposit/0',
   },
   {
     name: 'Withdraw',
     icon: WithdrawIcon,
     active_icon: WithdrawActiveIcon,
-    to: 'withdraw',
+    to: 'withdraw/0',
   },
 ];
 

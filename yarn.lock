@@ -10594,11 +10594,6 @@ react-app-polyfill@^2.0.0:
     regenerator-runtime "^0.13.7"
     whatwg-fetch "^3.4.1"
 
-react-chrome-extension-router@^1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/react-chrome-extension-router/-/react-chrome-extension-router-1.4.0.tgz#27db29edf9e23fa7d37cd4ecb57955da0f3b0ec4"
-  integrity sha512-ngf7DMVGIcr0w8Fp3Eo6nufi3L1mQqLz1xLfvzD1YBPI8zLSKAS9PP3pUS+vp7oeE62ZKxcFJiUC6OFKuBQ6Cg==
-
 react-dev-utils@^11.0.3:
   version "11.0.4"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-11.0.4.tgz#a7ccb60257a1ca2e0efe7a83e38e6700d17aa37a"

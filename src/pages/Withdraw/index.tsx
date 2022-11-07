@@ -24,7 +24,7 @@ import { MenuProps } from '~/constants';
 import { style_box_address, style_menuitem, style_select } from '~/components/styles';
 import { useTheme } from '@mui/material';
 import { style_type_btn_ext, style_type_btn_active_ext } from 'src/components/styles';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { NextButtonForSwiper, PrevButtonForSwiper } from '~/components/Buttons/ImageButton';
 
 Swiper.use([Virtual, Navigation, Pagination]);
@@ -69,6 +69,8 @@ const Withdraw = () => {
   const [amount, setAmount] = useState<string>('0.0001');
   const [error, setError] = useState<any>({});
   const [activeTokenTypeEthIndex, setActiveTokenTypeEthIndex] = useState<number>(0);
+
+  const { token } = useParams();
 
   const { networkError, balanceData, tokenData, withdrawMutate, withdrawIsLoading } = useSocket();
   const activeToken = tokenData[activeTokenIndex];
@@ -178,6 +180,10 @@ const Withdraw = () => {
       ).toString(),
     );
   }, [percent]);
+
+  useEffect(() => {
+    setActiveTokenIndex(parseInt(token ?? '0'));
+  }, [token]);
 
   return (
     <Box className='base-box'>
@@ -418,7 +424,6 @@ const Withdraw = () => {
                     border: 'none',
                     paddingLeft: '0',
                     width: '100px',
-                    marginLeft: '-2rem',
                     fontSize: '11px',
                   }}
                   thousandSeparator
@@ -452,7 +457,7 @@ const Withdraw = () => {
                   aria-label='text alignment'
                   color='success'
                   sx={{
-                    marginRight: '4px',
+                    marginRight: '-2px',
                     borderRadius: '15px',
                     color: 'white',
                     backgroundColor: 'transparent',

@@ -1,11 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { styled, alpha } from '@mui/material/styles';
-import { Button, Box, Typography, Table, TableBody, TableRow, TableCell } from '@mui/material';
+import {
+  Button,
+  Box,
+  MenuItem,
+  Typography,
+  Table,
+  TableBody,
+  TableRow,
+  TableCell,
+} from '@mui/material';
 import { useSocket } from '../../context/SocketProvider';
 import './balances.scss';
 import Icon from '~/components/Icon';
 import ScrollBox from '~/components/Layout/ScrollBox';
 import { Rings } from 'react-loading-icons';
+import StyledMenu from '~/components/Menu/StyledMenu';
+import { Link } from 'react-router-dom';
+import { style_menu_item } from '~/components/styles';
+import DepositIcon from '../../assets/coingroup/deposit.png';
+import DepositActiveIcon from '../../assets/coingroup/deposit_active.png';
+import WithdrawIcon from '../../assets/coingroup/withdraw.png';
+import WithdrawActiveIcon from '../../assets/coingroup/withdraw_active.png';
 
 const style_type_btn = {
   backgroundColor: '#282b31',
@@ -37,8 +53,11 @@ const style_total_price = {
 };
 
 const Balances = () => {
-  const [isUSD, setIsUSD] = useState('USD');
+  const [isUSD, setIsUSD] = useState<string>('USD');
+  const [token, setToken] = useState<number>(0);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { loading, priceData, balanceData, tokenData } = useSocket();
+  const open = Boolean(anchorEl);
 
   const total_USD_price: number =
     !loading &&
@@ -88,6 +107,15 @@ const Balances = () => {
     if (value !== isUSD) {
       setIsUSD(value);
     }
+  };
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>, token_id: number) => {
+    setAnchorEl(event.currentTarget);
+    setToken(token_id);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
   return (
@@ -144,20 +172,47 @@ const Balances = () => {
           ) : (
             <ScrollBox height={370}>
               <Box padding='20px 30px'>
+                <StyledMenu
+                  MenuListProps={{
+                    'aria-labelledby': 'demo-customized-button',
+                  }}
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleClose}
+                >
+                  <Link to={`/deposit/${token}`}>
+                    <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
+                      {Icon(DepositActiveIcon)}
+                      {'Deposit'}
+                    </MenuItem>
+                  </Link>
+                  <Link to={`/withdraw/${token}`}>
+                    <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
+                      {Icon(WithdrawActiveIcon)}
+                      {'Withdraw'}
+                    </MenuItem>
+                  </Link>
+                </StyledMenu>
                 {isUSD !== 'NFT' ? (
                   <Table aria-label='simple table'>
                     <TableBody>
                       {!loading &&
                         tokenData &&
                         priceData &&
-                        tokenData?.map((token: any) => {
+                        tokenData?.map((token: any, index: number) => {
                           const USD_price =
                             parseFloat(balanceData[token.id] ?? '0') *
                             parseFloat(priceData[token.name.concat('-USD')]);
                           const EUR_price =
                             (USD_price * priceData['USDT-EUR']) / priceData['USDT-USD'];
                           return (
-                            <TableRow key={token.name} sx={{ td: { border: 'none' } }}>
+                            <TableRow
+                              key={token.id}
+                              sx={{ cursor: 'pointer', td: { border: 'none' } }}
+                              onClick={(event: React.MouseEvent<HTMLElement>) => {
+                                handleClick(event, index);
+                              }}
+                            >
                               <TableCell sx={style_row} component='td' scope='row'>
                                 {Icon(token.icon, 30)}
                               </TableCell>

@@ -33,7 +33,7 @@ import Icon from '~/components/Icon';
 import { MenuProps, token_types, token_types_eth } from '~/constants';
 import ScrollBox from '~/components/Layout/ScrollBox';
 import {} from 'src/components/styles';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useTheme } from '@mui/material';
 
 Swiper.use([Virtual, Navigation, Pagination]);
@@ -101,6 +101,9 @@ const Deposit = () => {
   const [activeTokenTypeEthIndex, setActiveTokenTypeEthIndex] = useState<number>(0);
   const [activeNet, setActiveNet] = useState<number>(6);
 
+  const { token } = useParams();
+  console.log(token);
+
   const { loading, networkError, priceData, walletData, tokenData } = useSocket();
   const theme = useTheme();
 
@@ -162,9 +165,13 @@ const Deposit = () => {
     }
   }, [activeTokenIndex, activeTokenTypeIndex, activeTokenTypeEthIndex]);
 
+  useEffect(() => {
+    setActiveTokenIndex(parseInt(token ?? '0'));
+  }, [token]);
+
   return (
     <Box className='base-box'>
-      <ScrollBox height={500}>
+      <ScrollBox height={480}>
         <Box
           display='flex'
           justifyContent='space-between'

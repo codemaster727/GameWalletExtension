@@ -101,7 +101,7 @@ const App = () => {
           ),
         },
         {
-          path: '/deposit',
+          path: '/deposit/:token',
           element: (
             <PrivateRoute>
               <Deposit />
@@ -109,7 +109,7 @@ const App = () => {
           ),
         },
         {
-          path: '/withdraw',
+          path: '/withdraw/:token',
           element: (
             <PrivateRoute>
               <Withdraw />
