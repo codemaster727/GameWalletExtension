@@ -35,7 +35,7 @@ const Signup = () => {
   };
 
   return (
-    <Box className='extension-box'>
+    <Box className='extension-box' sx={{ backgroundColor: '#202328' }}>
       <Typography variant='h3' component={'article'} fontWeight='bold' marginTop={8}>
         Create Password
       </Typography>
@@ -47,10 +47,12 @@ const Signup = () => {
         placeholder='Your email'
         value={email}
         onChange={handleChange}
+        disableUnderline
       />
       <Input
         className='pw-input'
         name='password'
+        disableUnderline
         sx={{ color: 'white', width: '80%', fontSize: 12 }}
         size='medium'
         placeholder='Password'
@@ -61,6 +63,7 @@ const Signup = () => {
       <Input
         className='pw-input'
         name='password_1'
+        disableUnderline
         sx={{ color: 'white', width: '80%', fontSize: 12 }}
         size='medium'
         placeholder='Confirm password'

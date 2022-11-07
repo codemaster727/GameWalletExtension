@@ -33,6 +33,8 @@ import Icon from '~/components/Icon';
 import { MenuProps, token_types, token_types_eth } from '~/constants';
 import ScrollBox from '~/components/Layout/ScrollBox';
 import {} from 'src/components/styles';
+import { Link } from 'react-router-dom';
+import { useTheme } from '@mui/material';
 
 Swiper.use([Virtual, Navigation, Pagination]);
 
@@ -100,6 +102,7 @@ const Deposit = () => {
   const [activeNet, setActiveNet] = useState<number>(6);
 
   const { loading, networkError, priceData, walletData, tokenData } = useSocket();
+  const theme = useTheme();
 
   const activeToken = tokens[activeTokenIndex];
 
@@ -161,71 +164,135 @@ const Deposit = () => {
 
   return (
     <Box className='base-box'>
-      <ScrollBox>
-        <Box className='currency_select'>
-          <Select
-            value={activeTokenIndex}
-            onChange={handleTokenChange}
-            input={<OutlinedInput />}
-            renderValue={(selected: number) => {
-              const token = tokenData[selected];
-              return (
-                token && (
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {Icon(token?.icon, 18)}
+      <ScrollBox height={500}>
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          alignItems='center'
+          sx={{ margin: '5px 20px' }}
+        >
+          <Link to='/balances'>
+            <Button
+              variant='contained'
+              color='secondary'
+              className='balance-btn'
+              sx={{ color: theme.palette.text.secondary, fontSize: '14px' }}
+            >
+              Balances
+            </Button>
+          </Link>
+          <Box className='currency_select'>
+            <Select
+              value={activeTokenIndex}
+              onChange={handleTokenChange}
+              input={<OutlinedInput />}
+              renderValue={(selected: number) => {
+                const token = tokenData[selected];
+                return (
+                  token && (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      {Icon(token?.icon, 18)}
+                      &nbsp;
+                      {token?.name}
+                    </Box>
+                  )
+                );
+              }}
+              MenuProps={MenuProps}
+              // IconComponent={() => DownIcon(DownArrowImage, 12)}
+              // IconComponent={() => <ExpandMoreIcon />}
+              // IconComponent={() => <Person />}
+              sx={style_select}
+              inputProps={{ 'aria-label': 'Without label' }}
+            >
+              {tokenData &&
+                'map' in tokenData &&
+                tokenData?.map((token: any, index: number) => (
+                  <MenuItem
+                    className='menuitem-currency'
+                    key={token?.id}
+                    value={index}
+                    sx={style_menuitem}
+                  >
+                    {Icon(token.icon, 15)}
                     &nbsp;
                     {token?.name}
-                  </Box>
-                )
-              );
-            }}
-            MenuProps={MenuProps}
-            // IconComponent={() => DownIcon(DownArrowImage, 12)}
-            // IconComponent={() => <ExpandMoreIcon />}
-            // IconComponent={() => <Person />}
-            sx={{ ...style_select, marginLeft: '20px', marginTop: '15px' }}
-            inputProps={{ 'aria-label': 'Without label' }}
-          >
-            {tokenData &&
-              'map' in tokenData &&
-              tokenData?.map((token: any, index: number) => (
-                <MenuItem
-                  className='menuitem-currency'
-                  key={token?.id}
-                  value={index}
-                  sx={style_menuitem}
-                >
-                  {Icon(token.icon, 15)}
-                  &nbsp;
-                  {token?.name}
-                </MenuItem>
-              ))}
-          </Select>
+                  </MenuItem>
+                ))}
+            </Select>
+          </Box>
         </Box>
+        <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
         {(activeTokenIndex === 2 || activeTokenIndex === 3) && (
           <div
             style={{
               margin: 'auto',
-              marginTop: '10px',
+              marginTop: '20px',
               alignItems: 'center',
-              width: 'fit-content',
             }}
           >
-            {token_types.map((token_type, index) => (
-              <Button
-                key={token_type}
-                variant='contained'
-                size='medium'
-                style={
-                  index === activeTokenTypeIndex ? style_type_btn_active_ext : style_type_btn_ext
-                }
-                onClick={() => handleTokenTypeChange(index)}
+            <Box m='10px 20px' position='relative'>
+              <PrevButtonForSwiper />
+              <NextButtonForSwiper />
+              <SwiperReact
+                modules={[Pagination, Navigation]}
+                pagination={{ clickable: false, el: '.pagination' }}
+                spaceBetween={1}
+                slidesPerView={3}
+                allowSlideNext
+                centeredSlides={false}
+                cardsEffect={{ perSlideOffset: 0 }}
+                virtual
+                draggable={false}
+                allowTouchMove={false}
+                navigation={{
+                  nextEl: '.hl-swiper-next',
+                  prevEl: '.hl-swiper-prev',
+                }}
+                breakpoints={{
+                  360: {
+                    slidesPerView: 3,
+                  },
+                  576: {
+                    slidesPerView: 4,
+                  },
+                  720: {
+                    slidesPerView: 5,
+                  },
+                  992: {
+                    slidesPerView: 6,
+                  },
+                }}
+                style={{ margin: '0 35px' }}
               >
-                <Typography variant='h5' fontWeight='bold'>
-                  {token_type}
-                </Typography>
-              </Button>
-            ))}
+                {token_types.map((token_type, index) => (
+                  <SwiperSlide key={'swiper' + token_type} virtualIndex={index}>
+                    <Button
+                      key={token_type}
+                      variant={index === activeTokenTypeIndex ? 'outlined' : 'contained'}
+                      color={index === activeTokenTypeIndex ? 'primary' : 'secondary'}
+                      size='medium'
+                      style={
+                        index === activeTokenTypeIndex
+                          ? style_type_btn_active_ext
+                          : style_type_btn_ext
+                      }
+                      sx={{
+                        backgroundColor:
+                          index === activeTokenTypeIndex
+                            ? theme.palette.primary.main + '20'
+                            : theme.palette.secondary.main,
+                      }}
+                      onClick={() => handleTokenTypeChange(index)}
+                    >
+                      <Typography variant='h5' component='span' fontWeight='bold'>
+                        {token_type}
+                      </Typography>
+                    </Button>
+                  </SwiperSlide>
+                ))}
+              </SwiperReact>
+            </Box>
           </div>
         )}
         {activeTokenIndex !== 2 &&
@@ -265,14 +332,21 @@ const Deposit = () => {
               width: 'fit-content',
             }}
           >
-            {token_types_eth.map((token_type, index) => (
+            {token_types_eth.map((token_type: string, index: number) => (
               <Button
                 key={token_type}
-                variant='contained'
+                variant={index === activeTokenTypeEthIndex ? 'outlined' : 'contained'}
+                color={index === activeTokenTypeEthIndex ? 'primary' : 'secondary'}
                 size='medium'
                 style={
                   index === activeTokenTypeEthIndex ? style_type_btn_active_ext : style_type_btn_ext
                 }
+                sx={{
+                  backgroundColor:
+                    index === activeTokenTypeEthIndex
+                      ? theme.palette.primary.main + '20'
+                      : theme.palette.secondary.main,
+                }}
                 onClick={() => handleTokenTypeEthChange(index)}
               >
                 <Typography variant='h5' fontWeight='bold'>
@@ -306,10 +380,10 @@ const Deposit = () => {
               <span style={{ color: '#0abab5' }}>{address?.slice(-4)}</span>
             </Typography>
             <Button style={style_btn_copy} onClick={copyAddress}>
-              <ContentCopyIcon fontSize='large' />
+              <ContentCopyIcon fontSize='large' color='info' />
             </Button>
           </Box>
-          <Box textAlign='center' mt={1}>
+          <Box textAlign='center' mt={1.5}>
             <div
               id='qrcode'
               style={{
@@ -325,9 +399,9 @@ const Deposit = () => {
           <Typography
             variant='h6'
             textAlign='center'
-            mt={1}
+            mt={1.5}
             component='article'
-            color='#A9ADBD'
+            color='#AAAAAA'
             width='100%'
           >
             Send the amount of
@@ -337,11 +411,11 @@ const Deposit = () => {
         </Box>
       </ScrollBox>
       {/* <hr style={{ background: 'grey', height: '0.1px', border: 'none' }} /> */}
-      <Box className='bottom-box'>
+      {/* <Box className='bottom-box'>
         <Button style={style_btn_buy_ext} onClick={() => alert('Working now. Please wait.')}>
           BUY CRYPTO
         </Button>
-      </Box>
+      </Box> */}
     </Box>
   );
 };

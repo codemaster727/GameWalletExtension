@@ -5,6 +5,7 @@ import {
   Route,
   Routes,
   createMemoryRouter,
+  createHashRouter,
   MemoryRouter,
   Outlet,
   Navigate,
@@ -14,7 +15,8 @@ import {
 } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ThemeProvider } from 'styled-components';
+// import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import defaultTheme from 'src/styles/theme/defaultTheme';
 import GlobalStyles from 'src/styles/GlobalStyles';
@@ -30,6 +32,7 @@ import Deposit from './pages/Deposit';
 import Withdraw from './pages/Withdraw';
 import Forgot from './pages/auth/forgot';
 import AuthPage from './pages/auth';
+import { AuthState } from './constants';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -42,7 +45,7 @@ const App = () => {
     children: React.ReactElement;
   }): React.ReactElement | null => {
     const { authed } = useAuth();
-    return authed ? children : <Navigate to='/' />;
+    return authed === AuthState.AUTHED ? children : <Navigate to='/' />;
   };
 
   const AuthRoute = ({ children }: { children: React.ReactElement }) => {
@@ -53,11 +56,11 @@ const App = () => {
   };
 
   const signInLoader = (e: any) => {
-    console.log('loader: ', e);
+    console.log('loader: ', e.request.url?.replace('http://localhost:3000', ''));
     return e.request.url?.replace('http://localhost:3000', '');
   };
 
-  const router = createMemoryRouter([
+  const router = createHashRouter([
     {
       element: (
         <Layout>
@@ -75,7 +78,7 @@ const App = () => {
           path: '/',
           element: (
             // <AuthRoute>
-            <Withdraw />
+            <AuthPage />
             // </AuthRoute>
           ),
           loader: signInLoader,

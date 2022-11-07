@@ -5,6 +5,7 @@ import { useSocket } from '../../context/SocketProvider';
 import './balances.scss';
 import Icon from '~/components/Icon';
 import ScrollBox from '~/components/Layout/ScrollBox';
+import { Rings } from 'react-loading-icons';
 
 const style_type_btn = {
   backgroundColor: '#282b31',
@@ -27,7 +28,7 @@ const style_type_btn_active = {
 };
 
 const style_row = {
-  padding: '0px 10px',
+  padding: '2px 10px',
 };
 
 const style_total_price = {
@@ -138,46 +139,28 @@ const Balances = () => {
               </Typography>
             </Button>
           </div>
-          <ScrollBox height={370}>
-            <Box padding='20px 30px'>
-              {isUSD !== 'NFT' ? (
-                <Table aria-label='simple table'>
-                  <TableBody>
-                    {!loading &&
-                      tokenData &&
-                      priceData &&
-                      tokenData?.map((token: any) => {
-                        const USD_price =
-                          parseFloat(balanceData[token.id] ?? '0') *
-                          parseFloat(priceData[token.name.concat('-USD')]);
-                        const EUR_price =
-                          (USD_price * priceData['USDT-EUR']) / priceData['USDT-USD'];
-                        return (
-                          <TableRow key={token.name} sx={{ td: { border: 'none' } }}>
-                            <TableCell sx={style_row} component='td' scope='row'>
-                              {Icon(token.icon, 30)}
-                            </TableCell>
-                            <TableCell sx={style_row} align='center'>
-                              <Typography
-                                variant='h5'
-                                component='h5'
-                                textAlign='center'
-                                fontWeight='bold'
-                                mt={2}
-                                mb={2}
-                                color='#0abab5'
-                              >
-                                {balanceData[token.id]?.toFixed(
-                                  Math.min(
-                                    Math.floor(Math.log10(priceData[token.name.concat('-USD')])),
-                                    3,
-                                  ) + 2,
-                                ) ?? '0'}
-                                &nbsp;
-                                {token.name}
-                              </Typography>
-                            </TableCell>
-                            {isUSD !== 'EUR' ? (
+          {loading ? (
+            <Rings style={{ marginTop: '50%' }} />
+          ) : (
+            <ScrollBox height={370}>
+              <Box padding='20px 30px'>
+                {isUSD !== 'NFT' ? (
+                  <Table aria-label='simple table'>
+                    <TableBody>
+                      {!loading &&
+                        tokenData &&
+                        priceData &&
+                        tokenData?.map((token: any) => {
+                          const USD_price =
+                            parseFloat(balanceData[token.id] ?? '0') *
+                            parseFloat(priceData[token.name.concat('-USD')]);
+                          const EUR_price =
+                            (USD_price * priceData['USDT-EUR']) / priceData['USDT-USD'];
+                          return (
+                            <TableRow key={token.name} sx={{ td: { border: 'none' } }}>
+                              <TableCell sx={style_row} component='td' scope='row'>
+                                {Icon(token.icon, 30)}
+                              </TableCell>
                               <TableCell sx={style_row} align='center'>
                                 <Typography
                                   variant='h5'
@@ -186,89 +169,108 @@ const Balances = () => {
                                   fontWeight='bold'
                                   mt={2}
                                   mb={2}
-                                  color='#95F204'
+                                  color='#0abab5'
                                 >
-                                  $&nbsp;
-                                  {loading && 'Loading...'}
-                                  {!loading && USD_price ? USD_price.toFixed(2) : ''}
+                                  {balanceData[token.id]?.toFixed(
+                                    Math.min(
+                                      Math.floor(Math.log10(priceData[token.name.concat('-USD')])),
+                                      3,
+                                    ) + 2,
+                                  ) ?? '0'}
+                                  &nbsp;
+                                  {token.name}
                                 </Typography>
                               </TableCell>
-                            ) : (
-                              <TableCell sx={style_row} align='center'>
-                                <Typography
-                                  variant='h5'
-                                  component='h5'
-                                  textAlign='center'
-                                  fontWeight='bold'
-                                  mt={2}
-                                  mb={2}
-                                  color='#FFFF80'
-                                >
-                                  &euro;&nbsp;
-                                  {loading && 'Loading...'}
-                                  {!loading && EUR_price ? EUR_price.toFixed(2) : ''}
-                                </Typography>
-                              </TableCell>
-                            )}
-                          </TableRow>
-                        );
-                      })}
-                  </TableBody>
-                </Table>
-              ) : (
-                <Box
-                  display='flex'
-                  justifyContent='space-between'
-                  flexWrap='wrap'
-                  sx={{ rowGap: '15px' }}
-                >
-                  <img
-                    src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
-                    alt='CryptoPunks'
-                    width={125}
-                    height={125}
-                    data-xblocker='passed'
-                  />
-                  <img
-                    src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
-                    alt='CryptoPunks'
-                    width={125}
-                    height={125}
-                    data-xblocker='passed'
-                  />
-                  <img
-                    src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
-                    alt='CryptoPunks'
-                    width={125}
-                    height={125}
-                    data-xblocker='passed'
-                  />
-                  <img
-                    src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
-                    alt='CryptoPunks'
-                    width={125}
-                    height={125}
-                    data-xblocker='passed'
-                  />
-                  <img
-                    src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
-                    alt='CryptoPunks'
-                    width={125}
-                    height={125}
-                    data-xblocker='passed'
-                  />
-                </Box>
-              )}
-            </Box>
-          </ScrollBox>
+                              {isUSD !== 'EUR' ? (
+                                <TableCell sx={style_row} align='center'>
+                                  <Typography
+                                    variant='h5'
+                                    component='h5'
+                                    textAlign='center'
+                                    fontWeight='bold'
+                                    mt={2}
+                                    mb={2}
+                                    color='white'
+                                  >
+                                    $&nbsp;
+                                    {loading && 'Loading...'}
+                                    {!loading && USD_price ? USD_price.toFixed(2) : ''}
+                                  </Typography>
+                                </TableCell>
+                              ) : (
+                                <TableCell sx={style_row} align='center'>
+                                  <Typography
+                                    variant='h5'
+                                    component='h5'
+                                    textAlign='center'
+                                    fontWeight='bold'
+                                    mt={2}
+                                    mb={2}
+                                    color='#FFFF80'
+                                  >
+                                    &euro;&nbsp;
+                                    {loading && 'Loading...'}
+                                    {!loading && EUR_price ? EUR_price.toFixed(2) : ''}
+                                  </Typography>
+                                </TableCell>
+                              )}
+                            </TableRow>
+                          );
+                        })}
+                    </TableBody>
+                  </Table>
+                ) : (
+                  <Box
+                    display='flex'
+                    justifyContent='space-between'
+                    flexWrap='wrap'
+                    sx={{ rowGap: '15px' }}
+                  >
+                    <img
+                      src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
+                      alt='CryptoPunks'
+                      width={125}
+                      height={125}
+                      data-xblocker='passed'
+                    />
+                    <img
+                      src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
+                      alt='CryptoPunks'
+                      width={125}
+                      height={125}
+                      data-xblocker='passed'
+                    />
+                    <img
+                      src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
+                      alt='CryptoPunks'
+                      width={125}
+                      height={125}
+                      data-xblocker='passed'
+                    />
+                    <img
+                      src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
+                      alt='CryptoPunks'
+                      width={125}
+                      height={125}
+                      data-xblocker='passed'
+                    />
+                    <img
+                      src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
+                      alt='CryptoPunks'
+                      width={125}
+                      height={125}
+                      data-xblocker='passed'
+                    />
+                  </Box>
+                )}
+              </Box>
+            </ScrollBox>
+          )}
         </div>
       </Box>
-      <Box>
-        {/* <hr style={{ background: 'grey', height: '0.1px', border: 'none' }} /> */}
+      {!loading && (
         <Box className='bottom-box'>
-          {loading ? (
-            loading
-          ) : (
+          {
             <>
               <Typography
                 variant='h5'
@@ -285,16 +287,16 @@ const Balances = () => {
                 component='h5'
                 textAlign='center'
                 fontWeight='bold'
-                color={isUSD === 'EUR' ? '#FFFF80' : '#95F204'}
+                color={isUSD === 'EUR' ? '#FFFF80' : 'white'}
                 mx={1}
               >
                 $&nbsp;
                 {!loading && total_price[isUSD] ? total_price[isUSD]?.toFixed(2) : 'Loading...'}
               </Typography>
             </>
-          )}
+          }
         </Box>
-      </Box>
+      )}
     </Box>
   );
 };

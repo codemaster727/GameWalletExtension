@@ -38,7 +38,7 @@ export default createGlobalStyle<ITheme>`
 
   body {
 		position: relative;
-    background: #202328;
+    background: #17181b;
     color: var(--primary-color);
 		line-height: 1.5;
     height: 100vh;
@@ -266,5 +266,22 @@ export default createGlobalStyle<ITheme>`
 		text-align: center;
 		height: 60px;
 		border-top: 1px solid grey;
+	}
+
+	.MuiButtonBase-root {
+		text-transform: unset !important;
+	}
+
+	.balance-btn {
+		width: 80px;
+    height: 30px;
+    background: inherit;
+    background-color: rgba(40, 43, 49, 1);
+    border: none;
+    border-radius: 15px;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    font-size: 14px;
 	}
 `;

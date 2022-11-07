@@ -9,68 +9,79 @@ const Forgot = () => {
   const [password, setPassword] = useState('');
   const { authed, signIn } = useAuth();
   const navigate = useNavigate();
-  const signInHere = async () => {
-    const unlock_result = await signIn(password);
-    console.log(unlock_result);
-
-    if (unlock_result) {
-      console.log('go to balances');
-    }
-  };
 
   const handlePasswordChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     setPassword(e.target.value);
   };
 
-  useEffect(() => {
-    if (authed) navigate('/balances');
-  }, [authed]);
-
   return (
-    <Box className='extension-box'>
-      <div
-        style={{
-          backgroundColor: '#ffff80',
-          borderRadius: '50%',
-          width: 170,
-          height: 170,
-          margin: 'auto',
-          marginTop: '80px',
-          textAlign: 'center',
-          verticalAlign: 'center',
-          paddingTop: '25%',
-          color: 'black',
-          fontSize: '30px',
-        }}
-      ></div>
-      <Typography variant='h3' component={'article'} fontWeight='bold' marginTop={2}>
-        Welcome!
-      </Typography>
-      <Input
-        className='pw-input'
-        sx={{ color: 'white', width: '80%', fontSize: 12 }}
-        size='medium'
-        placeholder='Type your password'
-        value={password}
-        onChange={handlePasswordChange}
-      />
-      <Button className='login-button' variant='contained' onClick={signInHere}>
-        Unlock
-      </Button>
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-evenly',
-          marginTop: '30px',
-        }}
+    <Box sx={{ backgroundColor: '#17181b', textAlign: 'center', marginTop: '8rem' }}>
+      <Typography
+        variant='h3'
+        component={'article'}
+        fontWeight='bold'
+        marginTop={2}
+        marginBottom={8}
       >
-        <Link to='/' style={{ fontSize: '12px', textDecoration: 'underline', color: '#0abab5' }}>
-          Forgot Password?
-        </Link>
-        <Link to='/' style={{ fontSize: '12px', textDecoration: 'underline', color: '#0abab5' }}>
-          Free to Sign Up
-        </Link>
+        Forgot Password
+      </Typography>
+      <Typography variant='h5' component={'article'} fontWeight='bold' color='grey'>
+        Please input your email and verification code
+      </Typography>
+      <Box mt={3} sx={{ backgroundColor: '#202328', borderRadius: '20px', padding: '5rem 3rem' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '1rem',
+          }}
+        >
+          <Input
+            className='pw-input'
+            sx={{ color: 'white', width: '80%', fontSize: 12, marginTop: '0' }}
+            size='medium'
+            placeholder='Your email'
+            value={password}
+            onChange={handlePasswordChange}
+            disableUnderline
+          />
+          <Button
+            className='login-button'
+            variant='contained'
+            sx={{
+              borderRadius: '10px',
+              width: '70px',
+              height: '34px',
+              backgroundColor: '#aaaaaa !important',
+              fontFamily: 'Arial Bold, Arial, sans-serif',
+              fontWeight: 'bold !important',
+              fontStyle: 'normal',
+              fontSize: '14px',
+              textTransform: 'unset',
+            }}
+            onClick={() => {}}
+          >
+            Resend
+          </Button>
+        </Box>
+        <Input
+          className='pw-input'
+          sx={{ color: 'white', fontSize: 12 }}
+          size='medium'
+          placeholder='Your email'
+          value={password}
+          onChange={handlePasswordChange}
+          disableUnderline
+        />
+        <Button
+          className='login-button'
+          sx={{ marginTop: '5rem' }}
+          variant='contained'
+          onClick={() => {}}
+        >
+          Confirm
+        </Button>
       </Box>
     </Box>
   );

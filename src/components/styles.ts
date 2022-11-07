@@ -51,7 +51,7 @@ export const style_btn = {
 };
 
 export const style_menu_item = {
-  fontSize: '16px',
+  fontSize: '15px',
   fontWeight: 'bold',
   paddingY: '10px',
   gap: '20px',
@@ -73,12 +73,11 @@ export const style_menuitem = {
   color: 'white',
   display: 'flex',
   alignItems: 'center',
+  fontSize: '14px',
 };
 
 export const style_type_btn_ext = {
-  backgroundColor: '#282b31',
   color: '#F2F2F288',
-  border: '1px solid #282b31',
   fontSize: '14px',
   boxShadow: 'none',
   borderRadius: '10px',
@@ -89,8 +88,6 @@ export const style_type_btn_ext = {
 
 export const style_type_btn_active_ext = {
   ...style_type_btn_ext,
-  backgroundColor: '#374b21',
-  border: '1px solid #84d309',
   fontWeight: 'bold',
   color: 'white',
 };
@@ -107,9 +104,9 @@ export const style_btn_buy_ext = {
 };
 
 export const style_box_address = {
-  borderRadius: '8px',
+  borderRadius: '20px',
   backgroundColor: '#191c20',
-  padding: '8px 10px',
-  margin: '8px 8px 0',
+  padding: '16px 16px',
+  margin: '20px 20px 0',
   alignItems: 'center',
 };

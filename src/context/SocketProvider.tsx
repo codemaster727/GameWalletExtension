@@ -258,46 +258,64 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     return () => connection_price?.close();
   }, []);
 
-  // useEffect(() => {
-  //   const connection_deposit = new WebSocket(
-  //     'wss://80halgu2p0.execute-api.eu-west-1.amazonaws.com/production/',
-  //   );
-  //   setConnection(connection_deposit);
+  useEffect(() => {
+    console.log(successResult?.count);
+    // if (successResult?.count ?? 0 > 0) {
+    //   chrome.runtime.sendMessage(successResult, function (response) {
+    //     console.log(response);
+    //   });
+    // }
+  }, [successResult]);
 
-  //   return () => connection_deposit.close();
-  // }, []);
+  useEffect(() => {
+    console.log(successResult?.count);
+    // if (errorResult?.count ?? 0 > 0) {
+    //   chrome.runtime.sendMessage(errorResult, function (response) {
+    //     console.log(response);
+    //   });
+    // }
+  }, [errorResult]);
 
-  // useEffect(() => {
-  //   if (connection && tokenData) {
-  //     connection.onopen = (socket) => {
-  //       setNetworkError(false);
-  //     };
+  useEffect(() => {
+    const connection_deposit = new WebSocket(
+      'wss://80halgu2p0.execute-api.eu-west-1.amazonaws.com/production/',
+    );
+    setConnection(connection_deposit);
 
-  //     connection.onmessage = (message) => {
-  //       const json = JSON.parse(message.data);
-  //       if (json?.status === 'confirmed') {
-  //         setSuccessResult((prev) => ({
-  //           count: (prev?.count ?? 0) + 1,
-  //           message: `${json?.amount} ${
-  //             tokenData?.find((a: any) => a.id === json?.token_id)?.name
-  //           } was successfully deposited and confirmed! Please check your balance now.`,
-  //         }));
-  //         queryClient.invalidateQueries(['ListAssets']);
-  //       } else if (json?.status === 'not-confirmed') {
-  //         setSuccessResult((prev) => ({
-  //           count: (prev?.count ?? 0) + 1,
-  //           message: `Your deposit request was successful but not confirmed yet. Please wait for a while to confirm the transaction and notice your balance will be updated after that.`,
-  //         }));
-  //         queryClient.invalidateQueries(['ListAssets']);
-  //       } else {
-  //         setErrorResult((prev) => ({
-  //           count: (prev?.count ?? 0) + 1,
-  //           message: `Your deposit has been failed. Please check your transaction and contact us.`,
-  //         }));
-  //       }
-  //     };
-  //   }
-  // }, [connection, tokenData]);
+    return () => connection_deposit.close();
+  }, []);
+
+  useEffect(() => {
+    if (connection && tokenData) {
+      connection.onopen = (socket) => {
+        setNetworkError(false);
+      };
+
+      connection.onmessage = (message) => {
+        const json = JSON.parse(message.data);
+        if (json?.status === 'confirmed') {
+          setSuccessResult((prev) => ({
+            count: (prev?.count ?? 0) + 1,
+            message: `${json?.amount} ${
+              tokenData?.find((a: any) => a.id === json?.token_id)?.name
+            } was successfully deposited and confirmed! Please check your balance now.`,
+          }));
+          queryClient.invalidateQueries(['ListAssets']);
+        } else if (json?.status === 'not-confirmed') {
+          setSuccessResult((prev) => ({
+            count: (prev?.count ?? 0) + 1,
+            message: `Your deposit request was successful but not confirmed yet. Please wait for a while to confirm the transaction and notice your balance will be updated after that.`,
+          }));
+          queryClient.invalidateQueries(['ListAssets']);
+        } else {
+          setErrorResult((prev) => ({
+            count: (prev?.count ?? 0) + 1,
+            message: `Your deposit has been failed. Please check your transaction and contact us.`,
+          }));
+        }
+      };
+    }
+  }, [connection, tokenData]);
 
   return (
     <SocketContext.Provider

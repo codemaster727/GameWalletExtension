@@ -1,5 +1,11 @@
 import React from 'react';
 
+export enum AuthState {
+  LOADING,
+  UNAUTHED,
+  AUTHED,
+}
+
 interface Scansites {
   [id: string]: string;
 }
@@ -33,12 +39,12 @@ export const scansites_test: Scansites = {
 export const token_types = ['ERC20', 'BEP20', 'TRC20', 'Polygon'];
 export const token_types_eth = ['Ethereum', 'Arbitrum'];
 
-const ITEM_HEIGHT = 25;
+const ITEM_HEIGHT = 33;
 const ITEM_PADDING_TOP = 8;
 export const MenuProps = {
   PaperProps: {
     style: {
-      height: ITEM_HEIGHT * 7 + ITEM_PADDING_TOP,
+      height: ITEM_HEIGHT * 7,
       width: 140,
     },
   },

@@ -290,7 +290,7 @@ const Withdraw = () => {
   return (
     <Box p='20px 20px 10px'>
       <Box>
-        <Box p='10px 20px'>
+        <Box p='10px 20px' position='relative'>
           <div style={{ height: 'fit-content' }}>
             <PrevButtonForSwiper />
             <NextButtonForSwiper />

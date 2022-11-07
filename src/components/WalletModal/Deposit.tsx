@@ -214,56 +214,54 @@ const Deposit = () => {
 
   return (
     <Box p='20px'>
-      <Box p='10px 20px'>
-        <div style={{ height: 'fit-content' }}>
-          <PrevButtonForSwiper />
-          <NextButtonForSwiper />
-          <SwiperReact
-            modules={[Pagination, Navigation]}
-            pagination={{ clickable: false, el: '.pagination' }}
-            spaceBetween={1}
-            slidesPerView={6}
-            allowSlideNext
-            centeredSlides={false}
-            cardsEffect={{ perSlideOffset: 0 }}
-            virtual
-            navigation={{
-              nextEl: '.hl-swiper-next',
-              prevEl: '.hl-swiper-prev',
-            }}
-            breakpoints={{
-              360: {
-                slidesPerView: 3,
-              },
-              576: {
-                slidesPerView: 4,
-              },
-              720: {
-                slidesPerView: 5,
-              },
-              992: {
-                slidesPerView: 6,
-              },
-            }}
-            style={{ margin: '0 45px 0 43px' }}
-          >
-            {tokenData &&
-              'map' in tokenData &&
-              tokenData?.map((token: any, index: any) => (
-                <SwiperSlide key={token.name} virtualIndex={index}>
-                  <Button
-                    key={token.name}
-                    variant='contained'
-                    startIcon={Icon(token.icon)}
-                    style={index === activeTokenIndex ? style_btn_active : style_btn}
-                    onClick={(e) => handleTokenChange(index)}
-                  >
-                    {token.name}
-                  </Button>
-                </SwiperSlide>
-              ))}
-          </SwiperReact>
-        </div>
+      <Box p='10px 20px' position='relative'>
+        <PrevButtonForSwiper />
+        <NextButtonForSwiper />
+        <SwiperReact
+          modules={[Pagination, Navigation]}
+          pagination={{ clickable: false, el: '.pagination' }}
+          spaceBetween={1}
+          slidesPerView={6}
+          allowSlideNext
+          centeredSlides={false}
+          cardsEffect={{ perSlideOffset: 0 }}
+          virtual
+          navigation={{
+            nextEl: '.hl-swiper-next',
+            prevEl: '.hl-swiper-prev',
+          }}
+          breakpoints={{
+            360: {
+              slidesPerView: 3,
+            },
+            576: {
+              slidesPerView: 4,
+            },
+            720: {
+              slidesPerView: 5,
+            },
+            992: {
+              slidesPerView: 6,
+            },
+          }}
+          style={{ margin: '0 45px 0 43px' }}
+        >
+          {tokenData &&
+            'map' in tokenData &&
+            tokenData?.map((token: any, index: any) => (
+              <SwiperSlide key={token.name} virtualIndex={index}>
+                <Button
+                  key={token.name}
+                  variant='contained'
+                  startIcon={Icon(token.icon)}
+                  style={index === activeTokenIndex ? style_btn_active : style_btn}
+                  onClick={(e) => handleTokenChange(index)}
+                >
+                  {token.name}
+                </Button>
+              </SwiperSlide>
+            ))}
+        </SwiperReact>
       </Box>
       {(activeTokenIndex === 2 || activeTokenIndex === 3) && (
         <div

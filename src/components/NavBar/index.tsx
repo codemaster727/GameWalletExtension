@@ -91,7 +91,7 @@ const NavBar = () => {
         onClose={handleClose}
       >
         {tabs.map((tab, index) => (
-          <Link to={'/' + tab.to} key={tab.name}>
+          <Link to={tab.to} key={tab.name}>
             <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
               {Icon(tab.active_icon)}
               {tab.name}

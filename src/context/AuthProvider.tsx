@@ -3,9 +3,10 @@ import React, { createContext, ReactNode, useContext, useEffect, useRef, useStat
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { getQuery, getPrice, postQuery } from '../apis/api';
 import { useNavigate } from 'react-router-dom';
+import { AuthState } from '~/constants';
 
 interface AuthContextType {
-  authed: boolean;
+  authed: AuthState;
   signIn: (password: string) => Promise<boolean>;
   signUp: () => void;
   signOut: () => Promise<void>;
@@ -16,7 +17,7 @@ const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [authed, setAuthed] = useState<boolean>(false);
+  const [authed, setAuthed] = useState<AuthState>(AuthState.LOADING);
   // const navigate = useNavigate();
   // Access the client
   const queryClient = useQueryClient();
@@ -30,13 +31,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (password: string) => {
-    await createPW('123');
+    await createPW('');
     const { hash } = await chrome.storage?.local.get('hash');
     console.log(hash);
     // const unlock_result = await bcrypt.compare(password, hash.hash);
     const unlock_result = password === hash;
     if (unlock_result) {
-      setAuthed(true);
+      setAuthed(AuthState.AUTHED);
       await chrome.storage?.session.set({ authed: unlock_result });
       const { authed: authed_set } = await chrome.storage?.session.get('authed');
       console.log('auth_session: ', authed_set);
@@ -46,11 +47,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signUp = () => {
-    setAuthed(true);
+    setAuthed(AuthState.AUTHED);
   };
 
   const signOut = async () => {
-    setAuthed(false);
+    setAuthed(AuthState.UNAUTHED);
     await chrome.storage?.session.remove('authed');
   };
 
@@ -58,7 +59,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const loadAuthSession = async () => {
       const { authed } = await chrome.storage?.session.get('authed');
       console.log('auth_session: ', authed);
-      if (authed) setAuthed(true);
+      if (authed) setAuthed(AuthState.AUTHED);
+      else setAuthed(AuthState.UNAUTHED);
     };
     loadAuthSession();
   }, []);

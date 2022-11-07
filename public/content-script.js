@@ -2,7 +2,7 @@ let count = 1;
 count++;
 console.log(count);
 
-document.body.style.background = '#A2B885';
+document.body.style.background = '#71C562';
 
 chrome.notifications.create({
   type: 'basic',

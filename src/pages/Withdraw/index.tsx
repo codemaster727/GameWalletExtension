@@ -12,8 +12,9 @@ import {
   ToggleButton,
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-
+import { Swiper as SwiperReact, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
+import Swiper, { Virtual, Pagination, Navigation } from 'swiper';
 import { NumericFormat } from 'react-number-format';
 
 import { useSocket } from 'src/context/SocketProvider';
@@ -22,26 +23,11 @@ import Icon from '~/components/Icon';
 import { MenuProps } from '~/constants';
 import { style_box_address, style_menuitem, style_select } from '~/components/styles';
 import { useTheme } from '@mui/material';
+import { style_type_btn_ext, style_type_btn_active_ext } from 'src/components/styles';
+import { Link } from 'react-router-dom';
+import { NextButtonForSwiper, PrevButtonForSwiper } from '~/components/Buttons/ImageButton';
 
-const style_type_btn_ext = {
-  backgroundColor: '#282b31',
-  color: '#F2F2F288',
-  fontSize: '14px',
-  boxShadow: 'none',
-  borderRadius: '10px',
-  width: '80px',
-  margin: '0 5px',
-  paddingTop: '8px',
-  paddingBottom: '8px',
-};
-
-const style_type_btn_active_ext = {
-  ...style_type_btn_ext,
-  backgroundColor: '#374b21',
-  border: '1px solid #84d309',
-  fontWeight: 'bold',
-  color: 'white',
-};
+Swiper.use([Virtual, Navigation, Pagination]);
 
 const style_btn_toggle = {
   color: '#AAAAAA',
@@ -147,6 +133,12 @@ const Withdraw = () => {
 
   const sendRequestWithdraw = () => {
     if (validate(address, amount, activeNet)) {
+      chrome.notifications.create({
+        type: 'basic',
+        iconUrl: 'favicon-32x32.png',
+        title: 'Your withdrawal request',
+        message: 'After a success withdraw process, you will get tokens soon. Good luck.',
+      });
       withdrawMutate({
         user: '1',
         net: activeNet.toString(),
@@ -190,52 +182,71 @@ const Withdraw = () => {
   return (
     <Box className='base-box'>
       <ScrollBox>
-        <Box className='currency_select'>
-          <Select
-            value={activeTokenIndex}
-            onChange={handleTokenChange}
-            input={<OutlinedInput />}
-            renderValue={(selected: number) => {
-              const token = tokenData[selected];
-              return (
-                token && (
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {Icon(token?.icon, 18)}
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          alignItems='center'
+          sx={{ margin: '5px 20px' }}
+        >
+          <Link to='/balances'>
+            <Button
+              variant='contained'
+              size='medium'
+              color='secondary'
+              className='balance-btn'
+              sx={{ color: theme.palette.text.secondary, fontSize: '14px' }}
+            >
+              Balances
+            </Button>
+          </Link>
+          <Box className='currency_select' sx={{ margin: 0 }}>
+            <Select
+              value={activeTokenIndex}
+              onChange={handleTokenChange}
+              input={<OutlinedInput />}
+              renderValue={(selected: number) => {
+                const token = tokenData[selected];
+                return (
+                  token && (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      {Icon(token?.icon, 18)}
+                      &nbsp;
+                      {token?.name}
+                    </Box>
+                  )
+                );
+              }}
+              MenuProps={MenuProps}
+              // IconComponent={() => DownIcon(DownArrowImage, 12)}
+              // IconComponent={() => <ExpandMoreIcon />}
+              // IconComponent={() => <Person />}
+              sx={{ ...style_select }}
+              inputProps={{ 'aria-label': 'Without label' }}
+            >
+              {tokenData &&
+                'map' in tokenData &&
+                tokenData?.map((token: any, index: number) => (
+                  <MenuItem
+                    className='menuitem-currency'
+                    key={token?.id}
+                    value={index}
+                    sx={style_menuitem}
+                  >
+                    {Icon(token.icon, 15)}
                     &nbsp;
                     {token?.name}
-                  </Box>
-                )
-              );
-            }}
-            MenuProps={MenuProps}
-            // IconComponent={() => DownIcon(DownArrowImage, 12)}
-            // IconComponent={() => <ExpandMoreIcon />}
-            // IconComponent={() => <Person />}
-            sx={{ ...style_select, marginLeft: '20px', marginTop: '15px' }}
-            inputProps={{ 'aria-label': 'Without label' }}
-          >
-            {tokenData &&
-              'map' in tokenData &&
-              tokenData?.map((token: any, index: number) => (
-                <MenuItem
-                  className='menuitem-currency'
-                  key={token?.id}
-                  value={index}
-                  sx={style_menuitem}
-                >
-                  {Icon(token.icon, 15)}
-                  &nbsp;
-                  {token?.name}
-                </MenuItem>
-              ))}
-          </Select>
+                  </MenuItem>
+                ))}
+            </Select>
+          </Box>
         </Box>
+        <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
         <Box>
           <Typography
             variant='h5'
             component='article'
             textAlign='left'
-            fontWeight='bold'
+            fontWeight='normal'
             fontSize='16px'
             alignItems='center'
             mt={2}
@@ -254,24 +265,70 @@ const Withdraw = () => {
                 margin: 'auto',
                 marginTop: '20px',
                 alignItems: 'center',
-                width: 'fit-content',
               }}
             >
-              {token_types.map((token_type, index) => (
-                <Button
-                  key={token_type}
-                  variant='contained'
-                  size='medium'
-                  style={
-                    index === activeTokenTypeIndex ? style_type_btn_active_ext : style_type_btn_ext
-                  }
-                  onClick={() => handleTokenTypeChange(index)}
+              <Box m='10px 20px' position='relative'>
+                <PrevButtonForSwiper />
+                <NextButtonForSwiper />
+                <SwiperReact
+                  modules={[Pagination, Navigation]}
+                  pagination={{ clickable: false, el: '.pagination' }}
+                  spaceBetween={1}
+                  slidesPerView={3}
+                  allowSlideNext
+                  centeredSlides={false}
+                  cardsEffect={{ perSlideOffset: 0 }}
+                  virtual
+                  draggable={false}
+                  allowTouchMove={false}
+                  navigation={{
+                    nextEl: '.hl-swiper-next',
+                    prevEl: '.hl-swiper-prev',
+                  }}
+                  breakpoints={{
+                    360: {
+                      slidesPerView: 3,
+                    },
+                    576: {
+                      slidesPerView: 4,
+                    },
+                    720: {
+                      slidesPerView: 5,
+                    },
+                    992: {
+                      slidesPerView: 6,
+                    },
+                  }}
+                  style={{ margin: '0 35px' }}
                 >
-                  <Typography variant='h5' fontWeight='bold'>
-                    {token_type}
-                  </Typography>
-                </Button>
-              ))}
+                  {token_types.map((token_type: string, index: number) => (
+                    <SwiperSlide key={'swiper' + token_type} virtualIndex={index}>
+                      <Button
+                        key={token_type}
+                        variant={index === activeTokenTypeIndex ? 'outlined' : 'contained'}
+                        color={index === activeTokenTypeIndex ? 'primary' : 'secondary'}
+                        size='medium'
+                        style={
+                          index === activeTokenTypeIndex
+                            ? style_type_btn_active_ext
+                            : style_type_btn_ext
+                        }
+                        sx={{
+                          backgroundColor:
+                            index === activeTokenTypeIndex
+                              ? theme.palette.primary.main + '20'
+                              : theme.palette.secondary.main,
+                        }}
+                        onClick={() => handleTokenTypeChange(index)}
+                      >
+                        <Typography variant='h5' component='span' fontWeight='bold'>
+                          {token_type}
+                        </Typography>
+                      </Button>
+                    </SwiperSlide>
+                  ))}
+                </SwiperReact>
+              </Box>
             </div>
           )}
           {activeTokenIndex === 1 && (
@@ -286,13 +343,20 @@ const Withdraw = () => {
               {token_types_eth.map((token_type, index) => (
                 <Button
                   key={token_type}
-                  variant='contained'
+                  variant={index === activeTokenTypeEthIndex ? 'outlined' : 'contained'}
+                  color={index === activeTokenTypeEthIndex ? 'primary' : 'secondary'}
                   size='medium'
                   style={
                     index === activeTokenTypeEthIndex
                       ? style_type_btn_active_ext
                       : style_type_btn_ext
                   }
+                  sx={{
+                    backgroundColor:
+                      index === activeTokenTypeEthIndex
+                        ? theme.palette.primary.main + '20'
+                        : theme.palette.secondary.main,
+                  }}
                   onClick={() => handleTokenTypeEthChange(index)}
                 >
                   <Typography variant='h5' fontWeight='bold'>
@@ -305,7 +369,7 @@ const Withdraw = () => {
           {networkError ? (
             <Box>Network error...</Box>
           ) : (
-            <Box mt={2} style={{ ...style_box_address, backgroundColor: 'transparent' }}>
+            <Box margin='20px 20px 0' style={{ backgroundColor: 'transparent' }}>
               <Typography variant='h5' component='h5' textAlign='left' color='#AAAAAA' mb={1}>
                 Withdraw address
                 <span style={{ color: '#0abab5' }}>
@@ -354,7 +418,8 @@ const Withdraw = () => {
                     border: 'none',
                     paddingLeft: '0',
                     width: '100px',
-                    marginRight: '1rem',
+                    marginLeft: '-2rem',
+                    fontSize: '11px',
                   }}
                   thousandSeparator
                   decimalScale={5}
@@ -387,7 +452,7 @@ const Withdraw = () => {
                   aria-label='text alignment'
                   color='success'
                   sx={{
-                    marginRight: '0',
+                    marginRight: '4px',
                     borderRadius: '15px',
                     color: 'white',
                     backgroundColor: 'transparent',
@@ -453,7 +518,6 @@ const Withdraw = () => {
       </ScrollBox>
       <Box className='bottom-box'>
         <Button
-          color='primary'
           variant='contained'
           sx={{
             backgroundSize: 'stretch',
@@ -465,6 +529,7 @@ const Withdraw = () => {
             display: 'block',
             fontSize: '12px',
             fontWeight: 'bold',
+            backgroundColor: '#0e9d9a',
             // ':hover': {
             //   backgroundColor: '#7eca0b88',
             // },
