@@ -284,4 +284,15 @@ export default createGlobalStyle<ITheme>`
     box-shadow: none;
     font-size: 14px;
 	}
+
+	.react-switch {
+		border: 1px solid white;
+		vertical-align: middle !important;
+		border-radius: 20px !important;
+		align-items: center !important;
+		position: absolute !important;
+		top: 50%;
+    transform: translateY(-50%);
+    left: 10px;
+	}
 `;

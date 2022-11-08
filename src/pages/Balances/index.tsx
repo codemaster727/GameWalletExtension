@@ -10,6 +10,7 @@ import {
   TableRow,
   TableCell,
 } from '@mui/material';
+import Switch from 'react-switch';
 import { useSocket } from '../../context/SocketProvider';
 import './balances.scss';
 import Icon from '~/components/Icon';
@@ -31,8 +32,8 @@ const style_type_btn = {
   borderRadius: '10px',
   width: '80px',
   margin: '10px 5px',
-  paddingTop: '4px',
-  paddingBottom: '4px',
+  paddingTop: '8px',
+  paddingBottom: '8px',
 };
 
 const style_type_btn_active = {
@@ -53,7 +54,8 @@ const style_total_price = {
 };
 
 const Balances = () => {
-  const [isUSD, setIsUSD] = useState<string>('USD');
+  const [isUSD, setIsUSD] = useState<boolean>(true);
+  const [isNFT, setIsNFT] = useState<boolean>(false);
   const [token, setToken] = useState<number>(0);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { loading, priceData, balanceData, tokenData } = useSocket();
@@ -103,9 +105,9 @@ const Balances = () => {
     NFT: total_NFT_price,
   };
 
-  const handleCurrencyChange = (value: string) => {
-    if (value !== isUSD) {
-      setIsUSD(value);
+  const handleCurrencyChange = (value: boolean) => {
+    if (value !== isNFT) {
+      setIsNFT(value);
     }
   };
 
@@ -116,6 +118,10 @@ const Balances = () => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleChange = (currency_select: boolean) => {
+    setIsUSD(!currency_select);
   };
 
   return (
@@ -130,37 +136,102 @@ const Balances = () => {
         >
           <div
             style={{
+              position: 'relative',
               margin: 'auto',
               textAlign: 'center',
               width: '100%',
               borderBottom: '1px solid grey',
             }}
           >
+            {!isNFT && (
+              <Switch
+                onChange={handleChange}
+                checked={!isUSD}
+                borderRadius={40}
+                className={`react-switch ${!isUSD ? 'bg-white' : 'bg-black'}`}
+                offColor='black'
+                onColor='white'
+                offHandleColor='white'
+                onHandleColor='black'
+                height={20}
+                width={36}
+                uncheckedIcon={
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      height: '100%',
+                      fontSize: 14,
+                      color: 'white',
+                      paddingRight: 2,
+                    }}
+                  >
+                    &euro;
+                  </div>
+                }
+                checkedIcon={
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      height: '100%',
+                      fontSize: 14,
+                      color: 'black',
+                      paddingRight: 2,
+                    }}
+                  >
+                    $
+                  </div>
+                }
+                uncheckedHandleIcon={
+                  <div
+                    style={{
+                      position: 'absolute',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: 18,
+                      height: 18,
+                      borderRadius: 20,
+                      backgroundColor: 'black',
+                      outline: '1px solid white',
+                    }}
+                  />
+                }
+                checkedHandleIcon={
+                  <div
+                    style={{
+                      position: 'absolute',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      width: 18,
+                      height: 18,
+                      borderRadius: 20,
+                      backgroundColor: 'black',
+                      outline: '1px solid black',
+                    }}
+                  />
+                }
+              />
+            )}
             <Button
               variant='contained'
               size='small'
-              style={isUSD === 'USD' ? style_type_btn_active : style_type_btn}
-              onClick={() => handleCurrencyChange('USD')}
+              style={!isNFT ? style_type_btn_active : style_type_btn}
+              onClick={() => handleCurrencyChange(false)}
             >
               <Typography variant='h5' fontWeight='bold'>
-                USD
+                Balance
               </Typography>
             </Button>
             <Button
               variant='contained'
               size='large'
-              style={isUSD === 'EUR' ? style_type_btn_active : style_type_btn}
-              onClick={() => handleCurrencyChange('EUR')}
-            >
-              <Typography variant='h5' fontWeight='bold'>
-                EUR
-              </Typography>
-            </Button>
-            <Button
-              variant='contained'
-              size='large'
-              style={isUSD === 'NFT' ? style_type_btn_active : style_type_btn}
-              onClick={() => handleCurrencyChange('NFT')}
+              style={isNFT ? style_type_btn_active : style_type_btn}
+              onClick={() => handleCurrencyChange(true)}
             >
               <Typography variant='h5' fontWeight='bold'>
                 NFT
@@ -193,7 +264,7 @@ const Balances = () => {
                     </MenuItem>
                   </Link>
                 </StyledMenu>
-                {isUSD !== 'NFT' ? (
+                {!isNFT ? (
                   <Table aria-label='simple table'>
                     <TableBody>
                       {!loading &&
@@ -236,7 +307,7 @@ const Balances = () => {
                                   {token.name}
                                 </Typography>
                               </TableCell>
-                              {isUSD !== 'EUR' ? (
+                              {isUSD ? (
                                 <TableCell sx={style_row} align='center'>
                                   <Typography
                                     variant='h5'
@@ -342,11 +413,13 @@ const Balances = () => {
                 component='h5'
                 textAlign='center'
                 fontWeight='bold'
-                color={isUSD === 'EUR' ? '#FFFF80' : 'white'}
+                color={isUSD || isNFT ? 'white' : '#FFFF80'}
                 mx={1}
               >
-                $&nbsp;
-                {!loading && total_price[isUSD] ? total_price[isUSD]?.toFixed(2) : 'Loading...'}
+                {isUSD || isNFT ? <>$&nbsp;</> : <>&euro;&nbsp;</>}
+                {!loading && total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT']
+                  ? total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT']?.toFixed(2)
+                  : 'Loading...'}
               </Typography>
             </>
           }
