@@ -71,12 +71,7 @@ const Signup = () => {
         value={password_1}
         onChange={handleChange}
       />
-      <Button
-        className='login-button'
-        sx={{ marginTop: 8 }}
-        variant='contained'
-        onClick={signUpHere}
-      >
+      <Button className='login-btn' sx={{ marginTop: 8 }} variant='contained' onClick={signUpHere}>
         Create
       </Button>
     </Box>

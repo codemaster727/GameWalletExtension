@@ -33,6 +33,8 @@ import Withdraw from './pages/Withdraw';
 import Forgot from './pages/auth/forgot';
 import AuthPage from './pages/auth';
 import { AuthState } from './constants';
+import Transactions from './pages/Transactions';
+import BuyCrypto from './pages/BuyCrypto';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -113,6 +115,22 @@ const App = () => {
           element: (
             <PrivateRoute>
               <Withdraw />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: '/transactions',
+          element: (
+            <PrivateRoute>
+              <Transactions />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: '/buy-crypto',
+          element: (
+            <PrivateRoute>
+              <BuyCrypto />
             </PrivateRoute>
           ),
         },

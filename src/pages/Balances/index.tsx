@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { styled, alpha } from '@mui/material/styles';
 import {
   Button,
   Box,
@@ -19,38 +18,12 @@ import { Rings } from 'react-loading-icons';
 import StyledMenu from '~/components/Menu/StyledMenu';
 import { Link } from 'react-router-dom';
 import { style_menu_item } from '~/components/styles';
-import DepositIcon from '../../assets/coingroup/deposit.png';
 import DepositActiveIcon from '../../assets/coingroup/deposit_active.png';
-import WithdrawIcon from '../../assets/coingroup/withdraw.png';
 import WithdrawActiveIcon from '../../assets/coingroup/withdraw_active.png';
-
-const style_type_btn = {
-  backgroundColor: '#282b31',
-  color: '#F2F2F288',
-  fontSize: '14px',
-  boxShadow: 'none',
-  borderRadius: '10px',
-  width: '80px',
-  margin: '10px 5px',
-  paddingTop: '8px',
-  paddingBottom: '8px',
-};
-
-const style_type_btn_active = {
-  ...style_type_btn,
-  backgroundColor: '#1c4043',
-  border: '1px solid #0da3a0',
-  fontWeight: 'bold',
-  color: 'white',
-};
+import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
 
 const style_row = {
   padding: '2px 10px',
-};
-
-const style_total_price = {
-  top: -12,
-  right: 12,
 };
 
 const Balances = () => {
@@ -134,14 +107,12 @@ const Balances = () => {
             width: '100%',
           }}
         >
-          <div
-            style={{
-              position: 'relative',
-              margin: 'auto',
-              textAlign: 'center',
-              width: '100%',
-              borderBottom: '1px solid grey',
-            }}
+          <Box
+            position='relative'
+            display='flex'
+            justifyContent='center'
+            alignItems='center'
+            sx={{ margin: '8px 20px' }}
           >
             {!isNFT && (
               <Switch
@@ -217,27 +188,22 @@ const Balances = () => {
                 }
               />
             )}
-            <Button
-              variant='contained'
-              size='small'
-              style={!isNFT ? style_type_btn_active : style_type_btn}
-              onClick={() => handleCurrencyChange(false)}
-            >
-              <Typography variant='h5' fontWeight='bold'>
-                Balance
-              </Typography>
-            </Button>
-            <Button
-              variant='contained'
+            <ButtonWithActive
+              isActive={!isNFT}
               size='large'
-              style={isNFT ? style_type_btn_active : style_type_btn}
-              onClick={() => handleCurrencyChange(true)}
-            >
-              <Typography variant='h5' fontWeight='bold'>
-                NFT
-              </Typography>
-            </Button>
-          </div>
+              width={80}
+              handleFn={() => handleCurrencyChange(false)}
+              label='Balance'
+            />
+            <ButtonWithActive
+              isActive={isNFT}
+              size='large'
+              width={80}
+              handleFn={() => handleCurrencyChange(true)}
+              label='NFT'
+            />
+          </Box>
+          <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
           {loading ? (
             <Rings style={{ marginTop: '50%' }} />
           ) : (
@@ -319,7 +285,7 @@ const Balances = () => {
                                     color='white'
                                   >
                                     $&nbsp;
-                                    {loading && 'Loading...'}
+                                    {loading && <Rings style={{ marginTop: '50%' }} />}
                                     {!loading && USD_price ? USD_price.toFixed(2) : ''}
                                   </Typography>
                                 </TableCell>
@@ -335,7 +301,7 @@ const Balances = () => {
                                     color='#FFFF80'
                                   >
                                     &euro;&nbsp;
-                                    {loading && 'Loading...'}
+                                    {loading && <Rings style={{ marginTop: '50%' }} />}
                                     {!loading && EUR_price ? EUR_price.toFixed(2) : ''}
                                   </Typography>
                                 </TableCell>
@@ -417,9 +383,11 @@ const Balances = () => {
                 mx={1}
               >
                 {isUSD || isNFT ? <>$&nbsp;</> : <>&euro;&nbsp;</>}
-                {!loading && total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT']
-                  ? total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT']?.toFixed(2)
-                  : 'Loading...'}
+                {!loading && total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT'] ? (
+                  total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT']?.toFixed(2)
+                ) : (
+                  <Rings style={{ marginTop: '50%' }} />
+                )}
               </Typography>
             </>
           }

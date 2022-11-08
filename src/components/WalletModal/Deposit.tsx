@@ -19,6 +19,7 @@ import PaymentImage from '../../assets/coingroup/payment.png';
 import { useSocket } from '../../context/SocketProvider';
 import { PrevButtonForSwiper, NextButtonForSwiper } from '../Buttons/ImageButton';
 import { style_btn } from '../styles';
+import { Rings } from 'react-loading-icons';
 
 Swiper.use([Virtual, Navigation, Pagination]);
 
@@ -290,16 +291,7 @@ const Deposit = () => {
       {activeTokenIndex !== 2 &&
       activeTokenIndex !== 3 &&
       (loading || priceData[activeToken.name.concat('-USD')] === undefined) ? (
-        <Typography
-          variant='h4'
-          component='h4'
-          textAlign='center'
-          mt={2.6}
-          mb={2.7}
-          color='#A9ADBD'
-        >
-          Loading...
-        </Typography>
+        <Rings style={{ marginTop: '50%' }} />
       ) : (
         activeTokenIndex !== 2 &&
         activeTokenIndex !== 3 && (

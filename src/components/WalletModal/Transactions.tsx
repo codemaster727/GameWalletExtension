@@ -28,6 +28,7 @@ import { scansites_test as scansites } from '../../constants';
 import DownArrowImage from '../../assets/utils/line-angle-down-icon.svg';
 import { MenuProps, MenuProps_page, page_limits } from '../../constants';
 import { style_menuitem, style_select } from '../styles';
+import { Rings } from 'react-loading-icons';
 
 Swiper.use([Virtual, Navigation, Pagination]);
 
@@ -268,7 +269,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                 const token = tokenData[selected - 1];
                 return token ? (
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {Icon(token?.icon, 15)}
+                    {Icon(token?.icon, 18)}
                     &nbsp;
                     {token?.name}
                   </Box>
@@ -295,7 +296,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                     value={index + 1}
                     sx={style_menuitem}
                   >
-                    {Icon(token.icon, 15)}
+                    {Icon(token.icon, 18)}
                     &nbsp;
                     {token?.name}
                   </MenuItem>
@@ -455,7 +456,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                     );
                   })
                 : 'No transaction data')}
-            {transactionIsLoading && 'Loading...'}
+            {transactionIsLoading && <Rings style={{ marginTop: '50%' }} />}
           </Box>
         </Box>
         <Modal

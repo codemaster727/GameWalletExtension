@@ -77,19 +77,17 @@ export const style_menuitem = {
 };
 
 export const style_type_btn_ext = {
-  color: '#F2F2F288',
   fontSize: '14px',
   boxShadow: 'none',
   borderRadius: '10px',
-  width: 'fit-content',
+  height: '30px',
+  padding: '8px',
   margin: '0 4px',
-  padding: '4px 8px',
 };
 
 export const style_type_btn_active_ext = {
   ...style_type_btn_ext,
   fontWeight: 'bold',
-  color: 'white',
 };
 
 export const style_btn_buy_ext = {

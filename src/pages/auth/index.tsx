@@ -21,7 +21,7 @@ const AuthPage = () => {
     fetchStorage();
   }, []);
 
-  if (authed === AuthState.LOADING) return <Rings />;
+  if (authed === AuthState.LOADING) return <Rings style={{ marginTop: '50%' }} />;
   else {
     if (authed === AuthState.UNAUTHED) {
       if (!email && email !== '') {

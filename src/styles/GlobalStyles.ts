@@ -273,16 +273,13 @@ export default createGlobalStyle<ITheme>`
 	}
 
 	.balance-btn {
-		width: 80px;
-    height: 30px;
-    background: inherit;
-    background-color: rgba(40, 43, 49, 1);
-    border: none;
-    border-radius: 15px;
-    -moz-box-shadow: none;
-    -webkit-box-shadow: none;
-    box-shadow: none;
-    font-size: 14px;
+		width: 80px !important;
+    height: 30px !important;
+    border-radius: 15px !important;
+    -moz-box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    font-size: 14px !important;
 	}
 
 	.react-switch {
@@ -292,7 +289,7 @@ export default createGlobalStyle<ITheme>`
 		align-items: center !important;
 		position: absolute !important;
 		top: 50%;
+    left: -10px;
     transform: translateY(-50%);
-    left: 10px;
 	}
 `;

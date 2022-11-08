@@ -12,6 +12,7 @@ import {
   Paper,
 } from '@mui/material';
 import { useSocket } from '../../context/SocketProvider';
+import { Rings } from 'react-loading-icons';
 
 const style_type_btn = {
   backgroundColor: '#282b31',
@@ -110,7 +111,11 @@ const Balances = () => {
               color='#95F204'
             >
               $&nbsp;
-              {!loading && total_USD_price ? total_USD_price.toFixed(2) : 'Loading...'}
+              {!loading && total_USD_price ? (
+                total_USD_price.toFixed(2)
+              ) : (
+                <Rings style={{ marginTop: '50%' }} />
+              )}
             </Typography>
           ) : (
             <Typography
@@ -121,7 +126,11 @@ const Balances = () => {
               color='#FFFF80'
             >
               &euro;&nbsp;
-              {!loading && total_EUR_price ? total_EUR_price.toFixed(2) : 'Loading...'}
+              {!loading && total_EUR_price ? (
+                total_EUR_price.toFixed(2)
+              ) : (
+                <Rings style={{ marginTop: '50%' }} />
+              )}
             </Typography>
           )}
         </Box>
@@ -212,7 +221,7 @@ const Balances = () => {
                             color='#95F204'
                           >
                             $&nbsp;
-                            {loading && 'Loading...'}
+                            {loading && <Rings style={{ marginTop: '50%' }} />}
                             {!loading && USD_Price ? USD_Price.toFixed(2) : ''}
                           </Typography>
                         </TableCell>
@@ -228,7 +237,7 @@ const Balances = () => {
                             color='#FFFF80'
                           >
                             &euro;&nbsp;
-                            {loading && 'Loading...'}
+                            {loading && <Rings style={{ marginTop: '50%' }} />}
                             {!loading && EUR_Price ? EUR_Price.toFixed(2) : ''}
                           </Typography>
                         </TableCell>

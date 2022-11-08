@@ -5,8 +5,8 @@ import { green } from '@mui/material/colors';
 const defaultTheme: Theme = createTheme({
   palette: {
     primary: {
-      main: '#0abab5',
-      light: '#0abab5',
+      main: '#0da3a0',
+      light: '#0da3a0',
       dark: '#0abab5aa',
     },
     secondary: {

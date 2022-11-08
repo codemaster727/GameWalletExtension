@@ -100,13 +100,13 @@ const NavBar = () => {
         ))}
 
         <Divider sx={{ my: 0.5, backgroundColor: 'white' }} />
-        <Link to='transactions'>
+        <Link to='/transactions'>
           <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
             {Icon(TransactionsIcon)}
             Transactions
           </MenuItem>
         </Link>
-        <Link to='#'>
+        <Link to='/buy-crypto'>
           <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
             {Icon(CartIcon)}
             Buy Cryptos

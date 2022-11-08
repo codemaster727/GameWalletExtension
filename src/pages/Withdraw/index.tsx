@@ -26,6 +26,7 @@ import { useTheme } from '@mui/material';
 import { style_type_btn_ext, style_type_btn_active_ext } from 'src/components/styles';
 import { Link, useParams } from 'react-router-dom';
 import { NextButtonForSwiper, PrevButtonForSwiper } from '~/components/Buttons/ImageButton';
+import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
 
 Swiper.use([Virtual, Navigation, Pagination]);
 
@@ -192,7 +193,7 @@ const Withdraw = () => {
           display='flex'
           justifyContent='space-between'
           alignItems='center'
-          sx={{ margin: '5px 20px' }}
+          sx={{ margin: '8px 20px' }}
         >
           <Link to='/balances'>
             <Button
@@ -202,7 +203,7 @@ const Withdraw = () => {
               className='balance-btn'
               sx={{ color: theme.palette.text.secondary, fontSize: '14px' }}
             >
-              Balances
+              Balance
             </Button>
           </Link>
           <Box className='currency_select' sx={{ margin: 0 }}>
@@ -238,7 +239,7 @@ const Withdraw = () => {
                     value={index}
                     sx={style_menuitem}
                   >
-                    {Icon(token.icon, 15)}
+                    {Icon(token.icon, 18)}
                     &nbsp;
                     {token?.name}
                   </MenuItem>
@@ -309,28 +310,13 @@ const Withdraw = () => {
                 >
                   {token_types.map((token_type: string, index: number) => (
                     <SwiperSlide key={'swiper' + token_type} virtualIndex={index}>
-                      <Button
-                        key={token_type}
-                        variant={index === activeTokenTypeIndex ? 'outlined' : 'contained'}
-                        color={index === activeTokenTypeIndex ? 'primary' : 'secondary'}
-                        size='medium'
-                        style={
-                          index === activeTokenTypeIndex
-                            ? style_type_btn_active_ext
-                            : style_type_btn_ext
-                        }
-                        sx={{
-                          backgroundColor:
-                            index === activeTokenTypeIndex
-                              ? theme.palette.primary.main + '20'
-                              : theme.palette.secondary.main,
-                        }}
-                        onClick={() => handleTokenTypeChange(index)}
-                      >
-                        <Typography variant='h5' component='span' fontWeight='bold'>
-                          {token_type}
-                        </Typography>
-                      </Button>
+                      <ButtonWithActive
+                        isActive={index === activeTokenTypeIndex}
+                        size='large'
+                        width={60}
+                        handleFn={() => handleTokenTypeChange(index)}
+                        label={token_type}
+                      />
                     </SwiperSlide>
                   ))}
                 </SwiperReact>
@@ -347,28 +333,13 @@ const Withdraw = () => {
               }}
             >
               {token_types_eth.map((token_type, index) => (
-                <Button
-                  key={token_type}
-                  variant={index === activeTokenTypeEthIndex ? 'outlined' : 'contained'}
-                  color={index === activeTokenTypeEthIndex ? 'primary' : 'secondary'}
-                  size='medium'
-                  style={
-                    index === activeTokenTypeEthIndex
-                      ? style_type_btn_active_ext
-                      : style_type_btn_ext
-                  }
-                  sx={{
-                    backgroundColor:
-                      index === activeTokenTypeEthIndex
-                        ? theme.palette.primary.main + '20'
-                        : theme.palette.secondary.main,
-                  }}
-                  onClick={() => handleTokenTypeEthChange(index)}
-                >
-                  <Typography variant='h5' fontWeight='bold'>
-                    {token_type}
-                  </Typography>
-                </Button>
+                <ButtonWithActive
+                  isActive={index === activeTokenTypeEthIndex}
+                  size='large'
+                  width={80}
+                  handleFn={() => handleTokenTypeEthChange(index)}
+                  label={token_type}
+                />
               ))}
             </div>
           )}

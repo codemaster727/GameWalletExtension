@@ -47,7 +47,7 @@ const Forgot = () => {
             disableUnderline
           />
           <Button
-            className='login-button'
+            className='login-btn'
             variant='contained'
             sx={{
               borderRadius: '10px',
@@ -75,7 +75,7 @@ const Forgot = () => {
           disableUnderline
         />
         <Button
-          className='login-button'
+          className='login-btn'
           sx={{ marginTop: '5rem' }}
           variant='contained'
           onClick={() => {}}

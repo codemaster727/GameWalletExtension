@@ -61,7 +61,7 @@ const Login = () => {
         onChange={handlePasswordChange}
       />
       <Button
-        className='login-button'
+        className='login-btn'
         sx={{ marginTop: 5, textTransform: 'unset' }}
         variant='contained'
         onClick={signInHere}

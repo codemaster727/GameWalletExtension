@@ -35,6 +35,8 @@ import ScrollBox from '~/components/Layout/ScrollBox';
 import {} from 'src/components/styles';
 import { Link, useParams } from 'react-router-dom';
 import { useTheme } from '@mui/material';
+import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
+import { Rings } from 'react-loading-icons';
 
 Swiper.use([Virtual, Navigation, Pagination]);
 
@@ -176,7 +178,7 @@ const Deposit = () => {
           display='flex'
           justifyContent='space-between'
           alignItems='center'
-          sx={{ margin: '5px 20px' }}
+          sx={{ margin: '8px 20px' }}
         >
           <Link to='/balances'>
             <Button
@@ -185,7 +187,7 @@ const Deposit = () => {
               className='balance-btn'
               sx={{ color: theme.palette.text.secondary, fontSize: '14px' }}
             >
-              Balances
+              Balance
             </Button>
           </Link>
           <Box className='currency_select'>
@@ -221,7 +223,7 @@ const Deposit = () => {
                     value={index}
                     sx={style_menuitem}
                   >
-                    {Icon(token.icon, 15)}
+                    {Icon(token.icon, 18)}
                     &nbsp;
                     {token?.name}
                   </MenuItem>
@@ -274,28 +276,13 @@ const Deposit = () => {
               >
                 {token_types.map((token_type, index) => (
                   <SwiperSlide key={'swiper' + token_type} virtualIndex={index}>
-                    <Button
-                      key={token_type}
-                      variant={index === activeTokenTypeIndex ? 'outlined' : 'contained'}
-                      color={index === activeTokenTypeIndex ? 'primary' : 'secondary'}
-                      size='medium'
-                      style={
-                        index === activeTokenTypeIndex
-                          ? style_type_btn_active_ext
-                          : style_type_btn_ext
-                      }
-                      sx={{
-                        backgroundColor:
-                          index === activeTokenTypeIndex
-                            ? theme.palette.primary.main + '20'
-                            : theme.palette.secondary.main,
-                      }}
-                      onClick={() => handleTokenTypeChange(index)}
-                    >
-                      <Typography variant='h5' component='span' fontWeight='bold'>
-                        {token_type}
-                      </Typography>
-                    </Button>
+                    <ButtonWithActive
+                      isActive={index === activeTokenTypeIndex}
+                      size='large'
+                      width={60}
+                      handleFn={() => handleTokenTypeChange(index)}
+                      label={token_type}
+                    />
                   </SwiperSlide>
                 ))}
               </SwiperReact>
@@ -305,16 +292,7 @@ const Deposit = () => {
         {activeTokenIndex !== 2 &&
         activeTokenIndex !== 3 &&
         (loading || priceData[activeToken.name.concat('-USD')] === undefined) ? (
-          <Typography
-            variant='h4'
-            component='h4'
-            textAlign='center'
-            pt={2}
-            pb={0.5}
-            color='#A9ADBD'
-          >
-            Loading...
-          </Typography>
+          <Rings style={{ marginTop: '50%' }} />
         ) : (
           activeTokenIndex !== 2 &&
           activeTokenIndex !== 3 && (
@@ -325,6 +303,7 @@ const Deposit = () => {
               pt={2}
               pb={0.5}
               color='#A9ADBD'
+              fontSize='15px'
             >
               {`1 ${activeToken.name} = $${priceData[activeToken.name.concat('-USD')]} USD`}
             </Typography>
@@ -340,31 +319,24 @@ const Deposit = () => {
             }}
           >
             {token_types_eth.map((token_type: string, index: number) => (
-              <Button
-                key={token_type}
-                variant={index === activeTokenTypeEthIndex ? 'outlined' : 'contained'}
-                color={index === activeTokenTypeEthIndex ? 'primary' : 'secondary'}
-                size='medium'
-                style={
-                  index === activeTokenTypeEthIndex ? style_type_btn_active_ext : style_type_btn_ext
-                }
-                sx={{
-                  backgroundColor:
-                    index === activeTokenTypeEthIndex
-                      ? theme.palette.primary.main + '20'
-                      : theme.palette.secondary.main,
-                }}
-                onClick={() => handleTokenTypeEthChange(index)}
-              >
-                <Typography variant='h5' fontWeight='bold'>
-                  {token_type}
-                </Typography>
-              </Button>
+              <ButtonWithActive
+                isActive={index === activeTokenTypeEthIndex}
+                size='large'
+                width={80}
+                handleFn={() => handleTokenTypeEthChange(index)}
+                label={token_type}
+              />
             ))}
           </div>
         )}
         <Box style={style_box_address}>
-          <Typography variant='h5' component='h5' textAlign='center' color='#AAAAAA'>
+          <Typography
+            variant='h5'
+            component='h5'
+            textAlign='center'
+            color='#AAAAAA'
+            fontSize='14px'
+          >
             Deposit address
           </Typography>
           <Box
@@ -378,8 +350,11 @@ const Deposit = () => {
               variant='h5'
               component='article'
               textAlign='left'
-              fontWeight='bold'
+              fontWeight='normal'
+              fontFamily='Arial, sans-serif'
+              letterSpacing={0.5}
               width={230}
+              fontSize='14px'
               style={{ overflowWrap: 'break-word' }}
             >
               <span style={{ color: '#0abab5' }}>{address?.slice(0, 4)}</span>
@@ -410,10 +385,11 @@ const Deposit = () => {
             component='article'
             color='#AAAAAA'
             width='100%'
+            fontSize='11px'
           >
-            Send the amount of
+            Send
             {` ${activeToken.name} `}
-            of your choice to the following address to receive the equivalent in Coins.
+            to the above address to deposit the equivalent token.
           </Typography>
         </Box>
       </ScrollBox>
