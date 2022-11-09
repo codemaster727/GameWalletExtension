@@ -12,6 +12,7 @@ import SolIcon from '../assets/coingroup/sol.png';
 import TezosIcon from '../assets/coingroup/tezos.png';
 import OptimismIcon from '../assets/coingroup/optimism.svg';
 import { array2object } from '../utils/helper';
+import { TransactionMutateParams } from './types';
 
 interface SocketContextType {
   loading: boolean;
@@ -160,7 +161,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     mutate: transactionMutate,
     data: transactionData,
   } = useMutation(
-    (data) => {
+    (data: TransactionMutateParams) => {
       return postQuery('/ListTransactions', data);
     },
     {

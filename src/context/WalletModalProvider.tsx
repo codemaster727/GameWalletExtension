@@ -1,11 +1,4 @@
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 import WalletModal from '../components/WalletModal';
 
 interface WalletModalContextType {
@@ -16,9 +9,7 @@ interface WalletModalContextType {
   setModalType: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const WalletModalContext = createContext<WalletModalContextType>(
-  {} as WalletModalContextType,
-);
+const WalletModalContext = createContext<WalletModalContextType>({} as WalletModalContextType);
 
 export const useWalletModal = () => useContext(WalletModalContext);
 

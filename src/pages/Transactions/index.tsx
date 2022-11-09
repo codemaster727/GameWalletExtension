@@ -28,6 +28,7 @@ import './transactions.scss';
 import { useTheme } from '@mui/material';
 import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
 import { Rings } from 'react-loading-icons';
+import { TransactionMutateParams } from '~/context/types';
 
 const style_type_btn = {
   fontSize: '14px',
@@ -87,16 +88,18 @@ const Transactions = () => {
   const [detailShow, setDetailShow] = useState<boolean>(false);
   const [detailIndex, setDetailIndex] = useState<number>(0);
   const [transactionCount, setTransactionCount] = useState<number>(10);
-  const [hasMore, setHasMore] = useState<boolean>(true);
-  const [totalTransactions, setTotalTransactions] = useState<number>(100);
+  // const [hasMore, setHasMore] = useState<boolean>(true);
+  // const [transactionTotal, setTotalTransactions] = useState<number>(100);
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const {
     balanceData,
+    transactionIsLoading,
     transactionData,
     transactionTotal,
     transactionMutate,
     priceData,
     tokenData,
-    transactionIsLoading,
     networkError,
   } = useSocket();
 
@@ -115,20 +118,22 @@ const Transactions = () => {
     }
   };
 
-  const fetchData = (count: number) => {
-    console.log(totalTransactions);
-    if (count >= (totalTransactions ?? 100) && totalTransactions != 0) {
-      setHasMore(false);
-      return;
-    }
-    const data = {
+  const fetchData = () => {
+    const count =
+      transactionCount + 10 >= (transactionTotal ?? 0) ? transactionTotal : transactionCount + 10;
+    const data: TransactionMutateParams = {
       user_id: '1',
-      limit: count,
+      limit: count ?? 0,
+      page: 0,
       type: transactionTypes[transactionType],
     };
-    setTransactionCount(transactionCount + 10);
-    setTotalTransactions(transactionTotal ?? 100);
+    setTransactionCount(count as number);
+    setLoading(false);
+    // setTotalTransactions(transactionTotal??0);
     transactionMutate(data);
+    // if (count === (transactionTotal ?? 100) && transactionTotal != 0) {
+    //   setHasMore(false);
+    // }
   };
   let transactionStatus = (value: string) => {
     if (value === 'success') {
@@ -140,16 +145,25 @@ const Transactions = () => {
   useEffect(() => {
     const data = {
       user_id: '1',
-      limit: 20,
+      limit: 10,
+      page: 0,
       type: transactionTypes[transactionType],
     };
-    setTransactionCount(transactionCount + 10);
+    setTransactionCount(10);
+    // setLoading(true);
+    // setHasMore(true);
+    setItems([]);
     transactionMutate(data);
   }, [transactionType]);
 
   useEffect(() => {
-    console.log('here');
-  }, [transactionData, transactionIsLoading]);
+    if (!transactionIsLoading) {
+      // setLoading(false);
+      if (transactionData?.length !== items?.length)
+        setTimeout(() => setItems(transactionData), 1000);
+    }
+  }, [transactionIsLoading]);
+  console.log('transactionTotal:', transactionData);
 
   return (
     <Box className='base-box'>
@@ -179,123 +193,137 @@ const Transactions = () => {
         ))}
       </Box>
       <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
-      <InfiniteScroll
-        dataLength={transactionCount}
-        height={420}
-        next={() => {
-          fetchData(transactionCount);
-        }}
-        hasMore={hasMore}
-        loader={<Rings style={{ marginTop: '50%' }} />}
-        endMessage={
-          <p style={{ textAlign: 'center' }}>
-            <b>No more</b>
-          </p>
-        }
-      >
-        <Box padding='15px'>
-          {!transactionIsLoading &&
-            (transactionData?.length
-              ? transactionData?.map((tx: any, index: number) => {
-                  return (
+      {!(!transactionIsLoading && (transactionTotal ?? 0) === 0) ? (
+        <InfiniteScroll
+          dataLength={items?.length}
+          height={420}
+          next={() => fetchData()}
+          hasMore={!transactionIsLoading && items?.length < (transactionTotal ?? 0)}
+          loader={<Rings style={{ marginBottom: '10px' }} />}
+          scrollThreshold={0.9}
+          endMessage={
+            <p style={{ textAlign: 'center' }}>
+              {!transactionIsLoading &&
+              transactionData !== undefined &&
+              transactionData?.length > 0 &&
+              !loading ? (
+                <b>No more</b>
+              ) : (
+                <Rings style={{ marginBottom: '50%' }} />
+              )}
+            </p>
+          }
+        >
+          {/* {!loading ? ( */}
+          <Box padding='15px'>
+            {items?.length ? (
+              items?.map((tx: any, index: number) => {
+                return (
+                  <Grid
+                    key={tx.hash + tx.created_at + Math.random()}
+                    container
+                    spacing={1.4}
+                    alignItems='center'
+                    sx={{
+                      color: 'white',
+                      fontSize: '12px',
+                      textAlign: 'center',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                    }}
+                  >
                     <Grid
-                      key={tx.hash + tx.created_at + Math.random()}
-                      container
-                      spacing={1.4}
-                      alignItems='center'
-                      sx={{
-                        color: 'white',
-                        fontSize: '12px',
-                        textAlign: 'center',
-                        alignItems: 'center',
-                        cursor: 'pointer',
-                      }}
+                      item
+                      xs={4}
+                      sx={{ ...style_row, color: '#AAAAAA' }}
+                      onClick={() => handleDetailClick(index)}
                     >
-                      <Grid
-                        item
-                        xs={4}
-                        sx={{ ...style_row, color: '#AAAAAA' }}
-                        onClick={() => handleDetailClick(index)}
+                      <Typography
+                        variant='h5'
+                        component='h5'
+                        textAlign='center'
+                        color='#AAAAAA'
+                        mt={1}
+                        mb={1}
                       >
-                        <Typography
-                          variant='h5'
-                          component='h5'
-                          textAlign='center'
-                          color='#AAAAAA'
-                          mt={1}
-                          mb={1}
-                        >
-                          {new Date(tx.created_at).toLocaleString()}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={4} sx={style_row} onClick={() => handleDetailClick(index)}>
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'end',
-                          }}
-                        >
-                          <Typography
-                            variant='h4'
-                            component='h4'
-                            textAlign='right'
-                            fontWeight='bold'
-                            color='white'
-                            mt={1}
-                            mb={1}
-                          >
-                            {tx.amount}
-                          </Typography>
-                          &nbsp;&nbsp;
-                          {Icon(tokenData.find((token: any) => token.id === tx.token_id)?.icon, 25)}
-                        </div>
-                      </Grid>
-                      <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
+                        {new Date(tx.created_at).toLocaleString()}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={4} sx={style_row} onClick={() => handleDetailClick(index)}>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'end',
+                        }}
+                      >
                         <Typography
                           variant='h4'
                           component='h4'
-                          textAlign='center'
+                          textAlign='right'
                           fontWeight='bold'
                           color='white'
-                          alignItems='end'
                           mt={1}
                           mb={1}
                         >
-                          $
-                          {(
-                            tx.amount *
-                            priceData[
-                              `${
-                                tokenData.find((token: any) => token.id === tx.token_id)?.name
-                              }-USD`
-                            ]
-                          )?.toFixed(2)}
+                          {tx.amount}
                         </Typography>
-                      </Grid>
-                      <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
-                        <Typography
-                          variant='h5'
-                          component='h5'
-                          textAlign='center'
-                          fontWeight='bold'
-                          mt={1}
-                          mb={1}
-                          color={
-                            tx.state === 'success'
-                              ? theme.palette.primary.main
-                              : theme.palette.error.main
-                          }
-                        >
-                          {transactionStatus(tx.state)}
-                        </Typography>
-                      </Grid>
+                        &nbsp;&nbsp;
+                        {Icon(tokenData.find((token: any) => token.id === tx.token_id)?.icon, 25)}
+                      </div>
                     </Grid>
-                  );
-                })
-              : 'No transaction data')}
-        </Box>
-      </InfiniteScroll>
+                    <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
+                      <Typography
+                        variant='h4'
+                        component='h4'
+                        textAlign='center'
+                        fontWeight='bold'
+                        color='white'
+                        alignItems='end'
+                        mt={1}
+                        mb={1}
+                      >
+                        $
+                        {(
+                          tx.amount *
+                          priceData[
+                            `${tokenData.find((token: any) => token.id === tx.token_id)?.name}-USD`
+                          ]
+                        )?.toFixed(2)}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
+                      <Typography
+                        variant='h5'
+                        component='h5'
+                        textAlign='center'
+                        fontWeight='bold'
+                        mt={1}
+                        mb={1}
+                        color={
+                          tx.state === 'success'
+                            ? theme.palette.primary.main
+                            : theme.palette.error.main
+                        }
+                      >
+                        {transactionStatus(tx.state)}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                );
+              })
+            ) : (
+              <></>
+            )}
+          </Box>
+          {/* ) : ( */}
+          {/* // <Rings style={{ marginTop: '50%' }} /> */}
+          <></>
+          {/* )} */}
+        </InfiniteScroll>
+      ) : (
+        'No transaction data'
+      )}
       <Modal
         open={detailShow}
         onClose={() => setDetailShow(false)}

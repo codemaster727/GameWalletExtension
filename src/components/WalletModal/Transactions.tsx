@@ -152,9 +152,9 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
     transactionData,
     transactionTotal,
     transactionMutate,
+    transactionIsLoading,
     priceData,
     tokenData,
-    transactionIsLoading,
     networkError,
   } = useSocket();
   const totalPage = Math.ceil((transactionTotal ?? 0) / page_limits[pageLimit]);

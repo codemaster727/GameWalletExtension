@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Box, Grid, Typography } from '@mui/material';
 import QRCode from 'qrcode';
 import { url } from 'inspector';

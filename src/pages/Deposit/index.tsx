@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Box, Grid, Select, Typography, MenuItem, OutlinedInput } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';

@@ -1,27 +1,20 @@
 import React from 'react';
 import {
-  createBrowserRouter,
+  // createBrowserRouter,
   RouterProvider,
-  Route,
-  Routes,
-  createMemoryRouter,
+  // createMemoryRouter,
   createHashRouter,
-  MemoryRouter,
   Outlet,
   Navigate,
-  useNavigate,
-  useLocation,
   useLoaderData,
 } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-// import { ThemeProvider } from 'styled-components';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import defaultTheme from 'src/styles/theme/defaultTheme';
 import GlobalStyles from 'src/styles/GlobalStyles';
 import Home from 'src/pages/Home';
-import Login from 'src/pages/auth/login';
 import Balances from 'src/pages/Balances';
 import { AuthProvider, useAuth } from './context/AuthProvider';
 import { SocketProvider } from './context/SocketProvider';

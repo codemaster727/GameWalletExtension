@@ -1,18 +1,5 @@
-let count = 0;
-count++;
-console.log(count);
 let tokenData;
-// working well
-// const connection_price = new WebSocket(
-//   'wss://eoul92hqui.execute-api.eu-west-1.amazonaws.com/production/',
-// );
-// console.log(connection_price);
-// connection_price.onopen = function () {
-//   console.log('connected');
-// };
-// connection_price.connection_price.onmessage = function (data) {
-//   console.log(data);
-// };
+
 let connection_deposit;
 
 const connect = () => {
