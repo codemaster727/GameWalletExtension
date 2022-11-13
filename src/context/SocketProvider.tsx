@@ -11,17 +11,19 @@ import LtcIcon from '../assets/coingroup/litecoin.svg';
 import SolIcon from '../assets/coingroup/sol.png';
 import TezosIcon from '../assets/coingroup/tezos.png';
 import OptimismIcon from '../assets/coingroup/optimism.svg';
+import NFTIcon from '../assets/coingroup/NFT_Icon.png';
 import { array2object } from '../utils/helper';
 import { TransactionMutateParams } from './types';
 
 interface SocketContextType {
   loading: boolean;
   networkError: boolean;
-  refetch: (query: string) => void;
+  refetch: (query: string[]) => void;
   priceData: any;
   balanceData?: any;
   walletData?: any;
   tokenData?: any;
+  netData?: any;
   transactionIsLoading?: boolean;
   transactionData?: any;
   transactionTotal?: number;
@@ -105,6 +107,11 @@ const init_tokens = [
     USD: 1115.57,
     EUR: 1159.92,
   },
+  {
+    id: '10',
+    name: 'NFT',
+    icon: NFTIcon,
+  },
 ];
 
 const SocketContext = createContext<SocketContextType>({} as SocketContextType);
@@ -137,6 +144,13 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   } = useQuery(['/GetSupportedAssets'], getQuery);
 
   const {
+    status: netStatus,
+    isLoading: netIsLoading,
+    isError: netIsError,
+    data: netData,
+  } = useQuery(['/GetSupportedNets'], getQuery);
+
+  const {
     status: balanceStatus,
     isLoading: balanceIsLoading,
     isError: balanceIsError,
@@ -150,8 +164,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     data: walletData,
   } = useQuery(['/ListWallets', `?user=${user}`], getQuery);
 
-  const refetch = (query: string) => {
-    queryClient.invalidateQueries(query);
+  const refetch = (query: string[]) => {
+    queryClient.invalidateQueries();
   };
 
   const {
@@ -183,12 +197,14 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     data: withdrawData,
   } = useMutation(
     (data) => {
+      console.log(data);
       return postQuery('/WithdrawAsset', data);
     },
     {
       onSuccess: (data) => {
         if (data?.success) {
           const { withdrawal } = data;
+          console.log('data', data);
           setSuccessResult((prev) => ({
             count: (prev?.count ?? 0) + 1,
             message: `Your withdraw request of ${withdrawal.amount} ${
@@ -212,7 +228,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         }));
       },
       onSettled: () => {
-        refetch('ListAssets');
+        refetch(['ListAssets']);
       },
     },
   );
@@ -261,30 +277,32 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     console.log(successResult?.count);
-    // if (successResult?.count ?? 0 > 0) {
-    //   chrome.runtime.sendMessage(successResult, function (response) {
-    //     console.log(response);
-    //   });
-    // }
+    if (successResult?.count ?? 0 > 0) {
+      console.log('success');
+      // chrome.runtime.sendMessage(successResult, function (response) {
+      //   console.log(response);
+      // });
+      refetch(['ListAssets']);
+    }
   }, [successResult]);
 
   useEffect(() => {
     console.log(successResult?.count);
-    // if (errorResult?.count ?? 0 > 0) {
-    //   chrome.runtime.sendMessage(errorResult, function (response) {
-    //     console.log(response);
-    //   });
-    // }
+    if (errorResult?.count ?? 0 > 0) {
+      // chrome.runtime.sendMessage(errorResult, function (response) {
+      //   console.log(response);
+      // });
+    }
   }, [errorResult]);
 
-  useEffect(() => {
-    const connection_deposit = new WebSocket(
-      'wss://80halgu2p0.execute-api.eu-west-1.amazonaws.com/production/',
-    );
-    setConnection(connection_deposit);
+  // useEffect(() => {
+  //   const connection_deposit = new WebSocket(
+  //     'wss://80halgu2p0.execute-api.eu-west-1.amazonaws.com/production/',
+  //   );
+  //   setConnection(connection_deposit);
 
-    return () => connection_deposit.close();
-  }, []);
+  //   return () => connection_deposit.close();
+  // }, []);
 
   useEffect(() => {
     if (connection && tokenData) {
@@ -340,12 +358,14 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         tokenData:
           tokenData && 'sort' in tokenData
             ? tokenData
+                ?.filter((token: any) => token.id !== '10')
                 ?.sort((a: any, b: any) => a.id - b.id)
                 .map((token: any) => ({
                   ...token,
                   icon: init_tokens?.find((tk) => tk.id === token.id)?.icon,
                 }))
             : [],
+        netData,
         errorResult,
         successResult,
         withdrawMutate,

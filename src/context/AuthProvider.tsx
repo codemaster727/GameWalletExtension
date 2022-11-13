@@ -33,14 +33,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signIn = async (password: string) => {
     await createPW('');
     const { hash } = await chrome.storage?.local.get('hash');
-    console.log(hash);
     // const unlock_result = await bcrypt.compare(password, hash.hash);
     const unlock_result = password === hash;
     if (unlock_result) {
       setAuthed(AuthState.AUTHED);
       await chrome.storage?.session.set({ authed: unlock_result });
       const { authed: authed_set } = await chrome.storage?.session.get('authed');
-      console.log('auth_session: ', authed_set);
     }
     return unlock_result;
     // navigate('/balances');
@@ -58,7 +56,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const loadAuthSession = async () => {
       const { authed } = await chrome.storage?.session.get('authed');
-      console.log('auth_session: ', authed);
       if (authed) setAuthed(AuthState.AUTHED);
       else setAuthed(AuthState.UNAUTHED);
     };

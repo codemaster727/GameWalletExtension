@@ -163,7 +163,6 @@ const Transactions = () => {
         setTimeout(() => setItems(transactionData), 1000);
     }
   }, [transactionIsLoading]);
-  console.log('transactionTotal:', transactionData);
 
   return (
     <Box className='base-box'>
@@ -199,7 +198,7 @@ const Transactions = () => {
           height={420}
           next={() => fetchData()}
           hasMore={!transactionIsLoading && items?.length < (transactionTotal ?? 0)}
-          loader={<Rings style={{ marginBottom: '10px' }} />}
+          loader={<Rings style={{ marginBottom: loading ? '50%' : '10px' }} />}
           scrollThreshold={0.9}
           endMessage={
             <p style={{ textAlign: 'center' }}>
@@ -220,7 +219,7 @@ const Transactions = () => {
               items?.map((tx: any, index: number) => {
                 return (
                   <Grid
-                    key={tx.hash + tx.created_at + Math.random()}
+                    key={tx.hash + tx.id}
                     container
                     spacing={1.4}
                     alignItems='center'

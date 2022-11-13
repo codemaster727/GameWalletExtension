@@ -1,6 +1,12 @@
+/*global chrome*/
+console.log('started');
 let tokenData;
 
 let connection_deposit;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 const connect = () => {
   connection_deposit?.close();
@@ -16,8 +22,8 @@ const connect = () => {
       chrome.notifications.create({
         type: 'basic',
         iconUrl: './favicon-32x32.png',
-        title: 'Your Deposit Result',
-        message: 'Your deposit was successfully confirmed! Please check your balance now.',
+        title: `Your ${json.type.charAt(0).toUpperCase() + json.type.slice(1)} Result`,
+        message: `Your ${json.type} was successfully confirmed! Please check your balance now.`,
       });
     } else if (json?.status === 'not-confirmed') {
       // chrome.notifications.create({
@@ -31,26 +37,23 @@ const connect = () => {
       chrome.notifications.create({
         type: 'basic',
         iconUrl: './favicon-32x32.png',
-        title: 'Your Deposit Result',
-        message: 'Your deposit has been failed. Please check your transaction and contact us.',
+        title: `Your ${json.type.charAt(0).toUpperCase() + json.type.slice(1)} Result`,
+        message: `Your ${json.type} has been failed. Please check your transaction and contact us.`,
       });
     }
   };
 
-  connection_deposit.onclose = (message) => {
-    connect();
-  };
+  // connection_deposit.onclose = (message) => {
+  //   connect();
+  // };
 };
 
-connect();
-
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log('request:', request);
-  chrome.notifications.create({
-    type: 'basic',
-    iconUrl: './favicon-32x32.png',
-    title: 'Your withdrawal result',
-    message: request?.message,
-  });
-  sendResponse({ result: 'ok' });
+chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
+  if (!connection_deposit || connection_deposit.readyState !== 1) connect();
+  console.log('connection_deposit:', connection_deposit);
+  // await sleep(10000);
+  // setTimeout(() => {
+  sendResponse({ result: 'connect' });
+  // }, 10000);
+  return true;
 });

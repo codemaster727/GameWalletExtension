@@ -9,7 +9,6 @@ import Signup from './signup';
 const AuthPage = () => {
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState<string>();
-  console.log('here:', window.location);
   const { authed, signIn } = useAuth();
 
   useEffect(() => {
@@ -30,7 +29,7 @@ const AuthPage = () => {
         return <Signup />;
       }
     } else {
-      return <Navigate to='balances' />;
+      return <Navigate to='/balances/0' />;
     }
   }
 };

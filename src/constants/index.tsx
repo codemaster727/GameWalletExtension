@@ -36,8 +36,8 @@ export const scansites_test: Scansites = {
   '10': 'https://ghostnet.tzkt.io/', // ?cluster=devnet
 };
 
-export const token_types = ['ERC20', 'BEP20', 'TRC20', 'Polygon'];
-export const token_types_eth = ['Ethereum', 'Arbitrum'];
+export const nft_types = ['BYAC', 'CryptoPunkc', 'MekaVerse'];
+// export const token_types_eth = ['Ethereum', 'Arbitrum'];
 
 const ITEM_HEIGHT = 33;
 const ITEM_PADDING_TOP = 8;

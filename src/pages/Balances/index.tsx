@@ -16,7 +16,7 @@ import Icon from '~/components/Icon';
 import ScrollBox from '~/components/Layout/ScrollBox';
 import { Rings } from 'react-loading-icons';
 import StyledMenu from '~/components/Menu/StyledMenu';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { style_menu_item } from '~/components/styles';
 import DepositActiveIcon from '../../assets/coingroup/deposit_active.png';
 import WithdrawActiveIcon from '../../assets/coingroup/withdraw_active.png';
@@ -26,13 +26,26 @@ const style_row = {
   padding: '2px 10px',
 };
 
+export const token_images = [
+  'https://s.yimg.com/os/creatr-uploaded-images/2021-12/9908fc00-5398-11ec-b7bf-8dded52a981b',
+  'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKku5IPCzxbRJIP6VUcUkR4dezJxakOIH6-Q&usqp=CAU',
+  'https://thumbor.forbes.com/thumbor/fit-in/900x510/https://www.forbes.com/advisor/in/wp-content/uploads/2022/03/monkey-g412399084_1280.jpg',
+  'https://img.freepik.com/premium-vector/mutant-ape-yacht-club-nft-artwork-collection-set-unique-bored-monkey-character-nfts-variant_361671-259.jpg?w=2000',
+  'https://static.ffx.io/images/$zoom_0.473%2C$multiply_1.545%2C$ratio_1%2C$width_378%2C$x_0%2C$y_0/t_crop_custom/q_86%2Cf_auto/d22d363b42bd80403a8a0847e21360116d15edfa',
+];
+
 const Balances = () => {
   const [isUSD, setIsUSD] = useState<boolean>(true);
-  const [isNFT, setIsNFT] = useState<boolean>(false);
+  // const [isNFT, setIsNFT] = useState<boolean>(false);
   const [token, setToken] = useState<number>(0);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const { loading, priceData, balanceData, tokenData } = useSocket();
+  const { loading, priceData, balanceData, tokenData: tokenDataOrigin } = useSocket();
+  const tokenData = tokenDataOrigin.slice(0, tokenDataOrigin.length - 1);
   const open = Boolean(anchorEl);
+
+  const navigate = useNavigate();
+  const { tab } = useParams();
+  const isNFT = parseInt(tab ?? '0') ? true : false;
 
   const total_USD_price: number =
     !loading &&
@@ -45,7 +58,7 @@ const Balances = () => {
           parseFloat(priceData[token.name.concat('-USD')]);
         return USD_price;
       })
-      ?.reduce((a: number, b: number) => a + b, 0);
+      ?.reduce((a: number, b: number) => a + (b ?? 0), 0);
   // const total_EUR_price =
   //   !loading &&
   //   tokenData &&
@@ -78,10 +91,11 @@ const Balances = () => {
     NFT: total_NFT_price,
   };
 
-  const handleCurrencyChange = (value: boolean) => {
-    if (value !== isNFT) {
-      setIsNFT(value);
-    }
+  const handleCurrencyChange = (value: number) => {
+    navigate(`/balances/${value}`);
+    // if (value !== isNFT) {
+    // setIsNFT(value);
+    // }
   };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>, token_id: number) => {
@@ -192,14 +206,14 @@ const Balances = () => {
               isActive={!isNFT}
               size='large'
               width={80}
-              handleFn={() => handleCurrencyChange(false)}
+              handleFn={() => handleCurrencyChange(0)}
               label='Balance'
             />
             <ButtonWithActive
               isActive={isNFT}
               size='large'
               width={80}
-              handleFn={() => handleCurrencyChange(true)}
+              handleFn={() => handleCurrencyChange(1)}
               label='NFT'
             />
           </Box>
@@ -312,47 +326,19 @@ const Balances = () => {
                     </TableBody>
                   </Table>
                 ) : (
-                  <Box
-                    display='flex'
-                    justifyContent='space-between'
-                    flexWrap='wrap'
-                    sx={{ rowGap: '15px' }}
-                  >
-                    <img
-                      src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
-                      alt='CryptoPunks'
-                      width={125}
-                      height={125}
-                      data-xblocker='passed'
-                    />
-                    <img
-                      src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
-                      alt='CryptoPunks'
-                      width={125}
-                      height={125}
-                      data-xblocker='passed'
-                    />
-                    <img
-                      src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
-                      alt='CryptoPunks'
-                      width={125}
-                      height={125}
-                      data-xblocker='passed'
-                    />
-                    <img
-                      src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
-                      alt='CryptoPunks'
-                      width={125}
-                      height={125}
-                      data-xblocker='passed'
-                    />
-                    <img
-                      src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
-                      alt='CryptoPunks'
-                      width={125}
-                      height={125}
-                      data-xblocker='passed'
-                    />
+                  <Box display='flex' justifyContent='space-between' flexWrap='wrap' rowGap={2}>
+                    {token_images.map((image, index) => (
+                      <Button sx={{ padding: '0' }} component={Link} to={`/withdrawNFT/${index}`}>
+                        <img
+                          key={image}
+                          src={token_images[index]}
+                          alt='CryptoPunks'
+                          width={125}
+                          height={125}
+                          data-xblocker='passed'
+                        />
+                      </Button>
+                    ))}
                   </Box>
                 )}
               </Box>
@@ -382,11 +368,11 @@ const Balances = () => {
                 color={isUSD || isNFT ? 'white' : '#FFFF80'}
                 mx={1}
               >
-                {isUSD || isNFT ? <>$&nbsp;</> : <>&euro;&nbsp;</>}
+                {!loading && (isUSD || isNFT ? <>$&nbsp;</> : <>&euro;&nbsp;</>)}
                 {!loading && total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT'] ? (
                   total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT']?.toFixed(2)
                 ) : (
-                  <Rings style={{ marginTop: '50%' }} />
+                  <Rings />
                 )}
               </Typography>
             </>

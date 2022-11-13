@@ -28,6 +28,7 @@ import AuthPage from './pages/auth';
 import { AuthState } from './constants';
 import Transactions from './pages/Transactions';
 import BuyCrypto from './pages/BuyCrypto';
+import WithdrawNFT from './pages/WithdrawNFT';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -46,7 +47,7 @@ const App = () => {
   const AuthRoute = ({ children }: { children: React.ReactElement }) => {
     const { authed } = useAuth();
     const origin: string = useLoaderData() as string;
-    console.log(origin);
+    console.log('origin:', origin);
     return authed ? <Navigate to={origin} replace={true} /> : children;
   };
 
@@ -88,7 +89,7 @@ const App = () => {
           loader: signInLoader,
         },
         {
-          path: '/balances',
+          path: '/balances/:tab',
           element: (
             <PrivateRoute>
               <Balances />
@@ -108,6 +109,14 @@ const App = () => {
           element: (
             <PrivateRoute>
               <Withdraw />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: '/withdrawNFT/:token',
+          element: (
+            <PrivateRoute>
+              <WithdrawNFT />
             </PrivateRoute>
           ),
         },

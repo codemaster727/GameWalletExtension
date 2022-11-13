@@ -1,6 +1,6 @@
 {
-  "short_name": "GameWallet React App",
-  "name": "GameWallet React App",
+  "short_name": "GameWallet",
+  "name": "GameWallet",
   "manifest_version": 3,
   "version": "1.0",
   "icons": {

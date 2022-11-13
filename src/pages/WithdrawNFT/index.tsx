@@ -16,17 +16,18 @@ import { Swiper as SwiperReact, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
 import Swiper, { Virtual, Pagination, Navigation } from 'swiper';
 import { NumericFormat } from 'react-number-format';
-
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useSocket } from 'src/context/SocketProvider';
 import ScrollBox from '~/components/Layout/ScrollBox';
 import Icon from '~/components/Icon';
-import { MenuProps } from '~/constants';
+import { MenuProps, nft_types } from '~/constants';
 import { style_box_address, style_menuitem, style_select } from '~/components/styles';
 import { useTheme } from '@mui/material';
 import { style_type_btn_ext, style_type_btn_active_ext } from 'src/components/styles';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { NextButtonForSwiper, PrevButtonForSwiper } from '~/components/Buttons/ImageButton';
 import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
+import { token_images } from '../Balances';
 
 Swiper.use([Virtual, Navigation, Pagination]);
 
@@ -58,7 +59,7 @@ const style_input_paper = {
   height: '40px',
 };
 
-const Withdraw = () => {
+const WithdrawNFT = () => {
   const [activeTokenIndex, setActiveTokenIndex] = useState(0);
   const [percent, setPercent] = useState<string>('');
   const [activeTokenTypeIndex, setActiveTokenTypeIndex] = useState(0);
@@ -141,25 +142,20 @@ const Withdraw = () => {
   };
 
   const sendRequestWithdraw = () => {
-    if (validate(address, amount, activeNet?.id ?? '0', activeToken.id)) {
-      balanceData[activeToken.id] -= parseFloat(amount);
-      chrome.runtime.sendMessage('test', function (response) {
-        console.log(response);
-      });
-      // chrome.notifications.create({
-      //   type: 'basic',
-      //   iconUrl: 'favicon-32x32.png',
-      //   title: 'Your withdrawal request',
-      //   message: 'After a success withdraw process, you will get tokens soon. Good luck.',
-      // });
-      withdrawMutate({
-        user: '1',
-        net: activeNet.id,
-        asset: activeToken.id,
-        amount: parseFloat(amount),
-        receiver: address, // SOL address
-      });
-    }
+    alert('Cannot withdraw NFT yet.');
+    // if (validate(address, amount, activeNet?.id ?? '0', activeToken.id)) {
+    //   balanceData[activeToken.id] -= parseFloat(amount);
+    //   chrome.runtime.sendMessage('test', function (response) {
+    //     console.log(response);
+    //   });
+    //   withdrawMutate({
+    //     user: '1',
+    //     net: activeNet.id,
+    //     asset: activeToken.id,
+    //     amount: parseFloat(amount),
+    //     receiver: address, // SOL address
+    //   });
+    // }
   };
 
   useEffect(() => {
@@ -187,81 +183,21 @@ const Withdraw = () => {
           sx={{ margin: '8px 20px' }}
         >
           <Button
-            variant='contained'
-            size='medium'
+            variant='text'
+            size='large'
             color='secondary'
-            className='balance-btn'
-            sx={{ color: theme.palette.text.secondary, fontSize: '14px' }}
+            sx={{ color: theme.palette.text.secondary, fontSize: '14px', minWidth: 'fit-content' }}
             onClick={() => navigate(-1)}
           >
-            Balance
+            <ArrowBackIcon />
           </Button>
-
-          <Box className='currency_select' sx={{ margin: 0 }}>
-            <Select
-              value={activeTokenIndex}
-              onChange={handleTokenChange}
-              input={<OutlinedInput />}
-              renderValue={(selected: number) => {
-                const token = tokenData[selected];
-                return (
-                  token && (
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      {Icon(token?.icon, 18)}
-                      &nbsp;
-                      {token?.name}
-                    </Box>
-                  )
-                );
-              }}
-              MenuProps={MenuProps}
-              // IconComponent={() => DownIcon(DownArrowImage, 12)}
-              // IconComponent={() => <ExpandMoreIcon />}
-              // IconComponent={() => <Person />}
-              sx={{ ...style_select }}
-              inputProps={{ 'aria-label': 'Without label' }}
-            >
-              {tokenData &&
-                'map' in tokenData &&
-                tokenData?.map((token: any, index: number) => (
-                  <MenuItem
-                    className='menuitem-currency'
-                    key={token?.id}
-                    value={index}
-                    sx={style_menuitem}
-                  >
-                    {Icon(token.icon, 18)}
-                    &nbsp;
-                    {token?.name}
-                  </MenuItem>
-                ))}
-            </Select>
-          </Box>
         </Box>
         <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
         <Box>
-          <Typography
-            variant='h5'
-            component='article'
-            textAlign='left'
-            fontWeight='normal'
-            fontSize='16px'
-            alignItems='center'
-            mt={2}
-            style={{ overflowWrap: 'break-word', textAlign: 'center' }}
-          >
-            Current balance:&nbsp;
-            <span style={{ color: '#0abab5' }}>
-              {balanceData[activeToken?.id] ?? '0'}
-              &nbsp;
-              {activeToken?.name}
-            </span>
-          </Typography>
-          {token_nets.length > 2 && (
+          {
             <div
               style={{
-                margin: 'auto',
-                marginTop: '20px',
+                margin: '10px auto',
                 alignItems: 'center',
               }}
             >
@@ -272,7 +208,7 @@ const Withdraw = () => {
                   modules={[Pagination, Navigation]}
                   pagination={{ clickable: false, el: '.pagination' }}
                   spaceBetween={1}
-                  slidesPerView={3}
+                  slidesPerView={2}
                   allowSlideNext
                   centeredSlides={false}
                   cardsEffect={{ perSlideOffset: 0 }}
@@ -283,60 +219,25 @@ const Withdraw = () => {
                     nextEl: '.hl-swiper-next',
                     prevEl: '.hl-swiper-prev',
                   }}
-                  breakpoints={{
-                    360: {
-                      slidesPerView: 3,
-                    },
-                    576: {
-                      slidesPerView: 4,
-                    },
-                    720: {
-                      slidesPerView: 5,
-                    },
-                    992: {
-                      slidesPerView: 6,
-                    },
-                  }}
                   style={{ margin: '0 35px' }}
                 >
-                  {token_nets.map((net: any, index: number) => (
-                    <SwiperSlide key={'swiper' + net.name} virtualIndex={index}>
+                  {nft_types.map((net, index) => (
+                    <SwiperSlide key={'swiper' + net} virtualIndex={index}>
                       <ButtonWithActive
                         isActive={index === activeNetIndex}
                         size='large'
-                        width={60}
                         handleFn={() => handleNetChange(index)}
-                        label={net.name?.replace('Ethereum', 'ERC20')?.replace('Binance', 'BEP20')}
+                        label={net}
                       />
                     </SwiperSlide>
                   ))}
                 </SwiperReact>
               </Box>
             </div>
-          )}
-          {token_nets.length === 2 && (
-            <div
-              style={{
-                margin: 'auto',
-                marginTop: '10px',
-                alignItems: 'center',
-                width: 'fit-content',
-              }}
-            >
-              {token_nets.map((net: any, index: number) => (
-                <ButtonWithActive
-                  isActive={index === activeNetIndex}
-                  size='large'
-                  width={80}
-                  handleFn={() => handleNetChange(index)}
-                  label={net.name}
-                />
-              ))}
-            </div>
-          )}
-          {!networkError && activeToken.id === '10' && (
+          }
+          {!networkError && (
             <img
-              src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
+              src={token_images[parseInt(token ?? '0')]}
               alt='CryptoPunks'
               width={125}
               height={125}
@@ -346,7 +247,7 @@ const Withdraw = () => {
           {networkError ? (
             <Box>Network error...</Box>
           ) : (
-            <Box margin='20px 20px 0' style={{ backgroundColor: 'transparent' }}>
+            <Box margin='10px 20px 0' style={{ backgroundColor: 'transparent' }}>
               <Typography variant='h5' component='h5' textAlign='left' color='#AAAAAA' mb={1}>
                 Withdraw address
                 <span style={{ color: '#0abab5' }}>
@@ -365,102 +266,6 @@ const Withdraw = () => {
                   onChange={handleChangeAddressInput}
                 />
               </Paper>
-              {activeToken.id !== '10' && (
-                <>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography
-                      variant='h5'
-                      component='h5'
-                      textAlign='left'
-                      color='#AAAAAA'
-                      mt={2}
-                      mb={1}
-                    >
-                      Withdraw amount
-                    </Typography>
-                    <Typography
-                      variant='h5'
-                      component='h5'
-                      textAlign='left'
-                      color='#AAAAAA'
-                      mt={2}
-                      mb={1}
-                    >
-                      Min: 0.00001
-                    </Typography>
-                  </div>
-                  <Paper component='form' sx={style_input_paper}>
-                    <NumericFormat
-                      style={{
-                        backgroundColor: 'transparent',
-                        color: 'white',
-                        border: 'none',
-                        paddingLeft: '0',
-                        width: '100px',
-                        fontSize: '11px',
-                      }}
-                      thousandSeparator
-                      decimalScale={5}
-                      value={amount}
-                      onChange={handleChangeAmountInput}
-                      // prefix="$"
-                    />
-                    {/* <InputBase
-              sx={style_textfield}
-              placeholder="Amount to withdraw"
-              inputProps={{
-                'aria-label': 'amount to withdraw',
-              }}
-              value={amount}
-              componentsProps={{
-                root: (
-                  <NumericFormat
-                    value="20020220"
-                    allowLeadingZeros
-                    thousandSeparator=","
-                  />
-                ),
-              }}
-              onChange={handleChangeAmountInput}
-            /> */}
-                    <ToggleButtonGroup
-                      value={percent}
-                      exclusive
-                      onChange={handlePercentChange}
-                      aria-label='text alignment'
-                      color='success'
-                      sx={{
-                        marginRight: '-2px',
-                        borderRadius: '15px',
-                        color: 'white',
-                        backgroundColor: 'transparent',
-                        fontSize: '11px',
-                      }}
-                    >
-                      <ToggleButton
-                        value='0.01'
-                        aria-label='left aligned'
-                        sx={{ ...style_btn_toggle, borderRadius: '15px' }}
-                      >
-                        Min
-                      </ToggleButton>
-                      <ToggleButton value='25' aria-label='centered' sx={style_btn_toggle}>
-                        25%
-                      </ToggleButton>
-                      <ToggleButton value='50' aria-label='right aligned' sx={style_btn_toggle}>
-                        50%
-                      </ToggleButton>
-                      <ToggleButton
-                        value='100'
-                        aria-label='justified'
-                        sx={{ ...style_btn_toggle, borderRadius: '15px' }}
-                      >
-                        Max
-                      </ToggleButton>
-                    </ToggleButtonGroup>
-                  </Paper>
-                </>
-              )}
               <Typography
                 variant='h5'
                 component='article'
@@ -468,15 +273,14 @@ const Withdraw = () => {
                 fontWeight='bold'
                 fontSize='18px'
                 alignItems='center'
-                mt={3}
-                mb={2}
+                mt={2}
+                mb={0}
                 style={{ overflowWrap: 'break-word', textAlign: 'center' }}
               >
                 Fee&nbsp;
                 <span style={{ color: '#0abab5' }}>
                   {1}
-                  &nbsp;
-                  {activeToken?.name}
+                  &nbsp; USD
                 </span>
               </Typography>
               <Typography
@@ -524,4 +328,4 @@ const Withdraw = () => {
   );
 };
 
-export default Withdraw;
+export default WithdrawNFT;
