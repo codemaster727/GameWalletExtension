@@ -1,8 +1,8 @@
-let count = 1;
-count++;
-console.log(count);
+// let count = 1;
+// count++;
+console.log('content script here');
 
-document.body.style.background = '#09a33a';
+// document.body.style.background = '#09a33a';
 
 // chrome.notifications.create({
 //   type: 'basic',

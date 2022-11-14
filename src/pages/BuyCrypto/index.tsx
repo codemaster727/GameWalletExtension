@@ -89,7 +89,7 @@ const BuyCrypto = ({ handleClose }: any) => {
         alignItems='center'
         sx={{ margin: '8px 20px' }}
       >
-        <Link to='/balances'>
+        <Link to='/balances/0'>
           <Button
             variant='contained'
             color='secondary'

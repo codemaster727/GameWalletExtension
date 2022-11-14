@@ -24,7 +24,7 @@ const Login = () => {
   };
 
   // useEffect(() => {
-  //   if (authed) navigate('/balances');
+  //   if (authed) navigate('/balances/0');
   // }, [authed]);
 
   return (

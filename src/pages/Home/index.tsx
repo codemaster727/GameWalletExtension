@@ -43,7 +43,7 @@ const Home = () => {
         <Warning>"Don't hesitate"</Warning>
       </Section>
       <Link to='/login'>To Login</Link>
-      <Link to='/balances'>To Balances</Link>
+      <Link to='/balances/0'>To Balances</Link>
       <Button onClick={handleOpen} variant='contained' size='large' sx={{ fontSize: 16 }}>
         Deposit here
       </Button>

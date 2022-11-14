@@ -312,7 +312,7 @@ const Balances = () => {
                                     fontWeight='bold'
                                     mt={2}
                                     mb={2}
-                                    color='#FFFF80'
+                                    color='white'
                                   >
                                     &euro;&nbsp;
                                     {loading && <Rings style={{ marginTop: '50%' }} />}
@@ -365,7 +365,7 @@ const Balances = () => {
                 component='h5'
                 textAlign='center'
                 fontWeight='bold'
-                color={isUSD || isNFT ? 'white' : '#FFFF80'}
+                color={isUSD || isNFT ? 'white' : 'white'}
                 mx={1}
               >
                 {!loading && (isUSD || isNFT ? <>$&nbsp;</> : <>&euro;&nbsp;</>)}

@@ -178,7 +178,7 @@ const Transactions = () => {
           className='balance-btn'
           sx={{ color: theme.palette.text.secondary, marginRight: 'auto' }}
           component={Link}
-          to='/balances'
+          to='/balances/0'
         >
           Balance
         </Button>

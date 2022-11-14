@@ -31,7 +31,7 @@ const Signup = () => {
 
   const signUpHere = () => {
     signUp();
-    navigate('/balances');
+    navigate('/balances/0');
   };
 
   return (

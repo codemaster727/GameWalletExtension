@@ -2,10 +2,10 @@ import React from 'react';
 import LockIcon from '@mui/icons-material/Lock';
 import { Button, MenuItem } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import Logo from 'src/assets/logo/128px_Logo.png';
-import Setting from 'src/assets/logo/setting.jpg';
+import Logo from 'src/assets/logo/logo128.png';
 import StyledMenu from '../Menu/StyledMenu';
 import Divider from '@mui/material/Divider';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { style_menu_item } from '../styles';
 import BuyIcon from '../../assets/coingroup/buy.png';
@@ -24,7 +24,7 @@ const tabs = [
     name: 'Balance',
     icon: BuyIcon,
     active_icon: BuyActiveIcon,
-    to: 'balances',
+    to: 'balances/0',
   },
   {
     name: 'Deposit',
@@ -75,11 +75,11 @@ const NavBar = () => {
         alt='logo32'
         width={40}
         height={40}
-        style={{ cursor: 'pointer' }}
-        onClick={() => navigate('/balances')}
+        style={{ cursor: 'pointer', borderRadius: '20px' }}
+        onClick={() => navigate('/balances/0')}
       />
       <Button sx={{ marginLeft: 'auto', minWidth: '40px', padding: 0 }} onClick={handleClick}>
-        <img src={Setting} alt='logo32' width={40} />
+        <MoreVertIcon fill='white' sx={{ path: { fill: 'white' }, fontSize: '4rem' }} />
       </Button>
       <StyledMenu
         id='demo-customized-menu'

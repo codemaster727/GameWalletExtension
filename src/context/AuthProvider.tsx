@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { authed: authed_set } = await chrome.storage?.session.get('authed');
     }
     return unlock_result;
-    // navigate('/balances');
+    // navigate('/balances/0');
   };
 
   const signUp = () => {

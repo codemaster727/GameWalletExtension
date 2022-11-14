@@ -180,16 +180,22 @@ const WithdrawNFT = () => {
           display='flex'
           justifyContent='space-between'
           alignItems='center'
-          sx={{ margin: '8px 20px' }}
+          height='30px'
+          sx={{ margin: '8px 10px' }}
         >
           <Button
             variant='text'
             size='large'
             color='secondary'
-            sx={{ color: theme.palette.text.secondary, fontSize: '14px', minWidth: 'fit-content' }}
+            sx={{
+              color: theme.palette.text.secondary,
+              fontSize: '20px',
+              minWidth: 'fit-content',
+              padding: '5px',
+            }}
             onClick={() => navigate(-1)}
           >
-            <ArrowBackIcon />
+            <ArrowBackIcon sx={{ fontSize: '20px' }} />
           </Button>
         </Box>
         <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
@@ -238,7 +244,7 @@ const WithdrawNFT = () => {
           {!networkError && (
             <img
               src={token_images[parseInt(token ?? '0')]}
-              alt='CryptoPunks'
+              alt={token_images[parseInt(token ?? '0')]}
               width={125}
               height={125}
               data-xblocker='passed'
