@@ -4,6 +4,7 @@ import React, { useEffect, useState, ChangeEvent } from 'react';
 import { Link, useNavigate, Navigate } from 'react-router-dom';
 import { AuthState } from '~/constants';
 import { useAuth } from '~/context/AuthProvider';
+import Logo from 'src/assets/logo/logo512.png';
 import './auth.scss';
 
 const Login = () => {
@@ -29,21 +30,7 @@ const Login = () => {
 
   return (
     <Box className='extension-box' sx={{ backgroundColor: '#202328' }}>
-      <div
-        style={{
-          backgroundColor: '#ffff80',
-          borderRadius: '50%',
-          width: 170,
-          height: 170,
-          margin: 'auto',
-          marginTop: '80px',
-          textAlign: 'center',
-          verticalAlign: 'center',
-          paddingTop: '25%',
-          color: 'black',
-          fontSize: '30px',
-        }}
-      ></div>
+      <img src={Logo} width={170} height={170} style={{ borderRadius: '50%', marginTop: '70px' }} />
       <Typography variant='h3' component={'article'} fontWeight='bold' marginTop={2}>
         Welcome back!
       </Typography>
