@@ -41,8 +41,8 @@ const Deposit = () => {
   const { loading, networkError, priceData, walletData, tokenData, netData } = useSocket();
   const theme = useTheme();
 
-  const activeToken = tokenData[activeTokenIndex];
-  const token_net_ids = Object.keys(activeToken?.address) ?? [];
+  const activeToken = tokenData[activeTokenIndex] ?? {};
+  const token_net_ids = Object.keys(activeToken?.address ?? {}) ?? [];
   const token_nets = netData?.filter((net: any) => token_net_ids.includes(net.id));
   const activeNet = token_nets[activeNetIndex];
 
@@ -83,20 +83,6 @@ const Deposit = () => {
     }
   }, [address, networkError, loading]);
 
-  // useEffect(() => {
-  //   let net = 1;
-  //   if (activeTokenIndex === 0) net = 6;
-  //   else if (activeTokenIndex === 1 || activeTokenIndex === 4 || activeTokenIndex === 8) net = 1;
-  //   else if (activeTokenIndex === 2 || activeTokenIndex === 3) {
-  //     net = activeNetIndex === 2 ? 7 : 1;
-  //   } else if (activeTokenIndex === 5) net = 8;
-  //   else if (activeTokenIndex === 6) net = 9;
-  //   else if (activeTokenIndex === 7) net = 10;
-  //   if (net !== activeNet) {
-  //     setActiveNet(net);
-  //   }
-  // }, [activeTokenIndex, activeNetIndex, activeTokenTypeEthIndex]);
-
   console.log(tokenData);
 
   useEffect(() => {
@@ -131,14 +117,17 @@ const Deposit = () => {
                 input={<OutlinedInput />}
                 renderValue={(selected: number) => {
                   const token = tokenData[selected];
-                  return (
-                    token && (
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        {Icon(token?.icon, 18)}
-                        &nbsp;
-                        {token?.name}
-                      </Box>
-                    )
+                  return token ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      {Icon(token?.icon, 18)}
+                      &nbsp;
+                      {token?.name}
+                    </Box>
+                  ) : (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      {Icon(NFTIcon, 18)}
+                      &nbsp; NFT
+                    </Box>
                   );
                 }}
                 MenuProps={MenuProps}
@@ -162,7 +151,12 @@ const Deposit = () => {
                       {token?.name}
                     </MenuItem>
                   ))}
-                <MenuItem className='menuitem-currency' value={9} sx={style_menuitem}>
+                <MenuItem
+                  className='menuitem-currency'
+                  key='0'
+                  value={tokenData?.length ?? 0}
+                  sx={style_menuitem}
+                >
                   {Icon(NFTIcon, 18)}
                   &nbsp; NFT
                 </MenuItem>
@@ -313,7 +307,7 @@ const Deposit = () => {
               color='#A9ADBD'
               fontSize='15px'
             >
-              {`1 ${activeToken.name} = $${priceData[activeToken.name.concat('-USD')]} USD`}
+              {`1 ${activeToken?.name} = $${priceData[activeToken?.name.concat('-USD')]} USD`}
             </Typography>
           )}
 
@@ -376,7 +370,7 @@ const Deposit = () => {
               fontSize='11px'
             >
               Send
-              {` ${activeToken.name} `}
+              {` ${activeToken?.name ?? 'NFT'} `}
               to the above address to deposit the equivalent token.
             </Typography>
           </Box>

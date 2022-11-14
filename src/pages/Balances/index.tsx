@@ -39,8 +39,8 @@ const Balances = () => {
   // const [isNFT, setIsNFT] = useState<boolean>(false);
   const [token, setToken] = useState<number>(0);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const { loading, priceData, balanceData, tokenData: tokenDataOrigin } = useSocket();
-  const tokenData = tokenDataOrigin.slice(0, tokenDataOrigin.length - 1);
+  const { loading, priceData, balanceData, tokenData } = useSocket();
+  // const tokenData = tokenDataOrigin.slice(0, tokenDataOrigin.length - 1);
   const open = Boolean(anchorEl);
 
   const navigate = useNavigate();
