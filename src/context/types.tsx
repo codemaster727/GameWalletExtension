@@ -4,3 +4,8 @@ export type TransactionMutateParams = {
   page: number;
   type: string;
 };
+
+export type ActionType = {
+  type: string;
+  payload: any;
+};

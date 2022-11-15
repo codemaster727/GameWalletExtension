@@ -13,7 +13,6 @@ const Login = () => {
   const navigate = useNavigate();
   const signInHere = async () => {
     const unlock_result = await signIn(password);
-    console.log(unlock_result);
 
     if (unlock_result) {
       console.log('go to balances');

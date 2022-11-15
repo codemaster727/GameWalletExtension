@@ -608,7 +608,7 @@ const Withdraw = () => {
                 onClick={sendRequestWithdraw}
               />
             )}
-            <Typography
+            {/* <Typography
               variant='h6'
               textAlign='left'
               padding='0'
@@ -619,7 +619,7 @@ const Withdraw = () => {
             >
               For security purposes, large or suspicious withdrawal may take 1-6 hours for audit
               process. We appreciate your patience!
-            </Typography>
+            </Typography> */}
           </Box>
         )}
       </Box>

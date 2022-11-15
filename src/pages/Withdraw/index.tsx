@@ -62,7 +62,7 @@ const Withdraw = () => {
   const [activeTokenIndex, setActiveTokenIndex] = useState(0);
   const [percent, setPercent] = useState<string>('');
   const [activeTokenTypeIndex, setActiveTokenTypeIndex] = useState(0);
-  const [address, setAddress] = useState<string>('0x0fbd6e14566A30906Bc0c927a75b1498aE87Fd43');
+  const [address, setAddress] = useState<string>('');
   const [amount, setAmount] = useState<string>('0.0001');
   const [error, setError] = useState<any>({});
   const [activeNetIndex, setActiveNetIndex] = useState<number>(0);
@@ -479,7 +479,7 @@ const Withdraw = () => {
                   {activeToken?.name}
                 </span>
               </Typography>
-              <Typography
+              {/* <Typography
                 variant='h6'
                 textAlign='left'
                 padding='0'
@@ -491,7 +491,7 @@ const Withdraw = () => {
                 For security purposes, large or suspicious withdrawal may take 1-6 hours for audit
                 process. <br />
                 We appreciate your patience!
-              </Typography>
+              </Typography> */}
             </Box>
           )}
         </Box>

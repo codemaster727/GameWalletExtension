@@ -17,6 +17,7 @@ import GlobalStyles from 'src/styles/GlobalStyles';
 import Home from 'src/pages/Home';
 import Balances from 'src/pages/Balances';
 import { AuthProvider, useAuth } from './context/AuthProvider';
+import { StateProvider } from './context/StateProvider';
 import { SocketProvider } from './context/SocketProvider';
 import { WalletModalProvider } from './context/WalletModalProvider';
 import ErrorPage from './pages/error-page';
@@ -47,7 +48,6 @@ const App = () => {
   const AuthRoute = ({ children }: { children: React.ReactElement }) => {
     const { authed } = useAuth();
     const origin: string = useLoaderData() as string;
-    console.log('origin:', origin);
     return authed ? <Navigate to={origin} replace={true} /> : children;
   };
 
@@ -145,11 +145,13 @@ const App = () => {
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <SocketProvider>
-              <WalletModalProvider>
-                <RouterProvider router={router} />
-                <GlobalStyles />
-                <ToastContainer />
-              </WalletModalProvider>
+              <StateProvider>
+                <WalletModalProvider>
+                  <RouterProvider router={router} />
+                  <GlobalStyles />
+                  <ToastContainer />
+                </WalletModalProvider>
+              </StateProvider>
             </SocketProvider>
           </AuthProvider>
         </QueryClientProvider>

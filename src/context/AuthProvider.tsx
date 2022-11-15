@@ -27,7 +27,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // const hash = await bcrypt.hash(pw, 10);
     const hash = pw;
     const create_pw_result = await chrome.storage?.local.set({ hash });
-    console.log(hash, create_pw_result);
   };
 
   const signIn = async (password: string) => {

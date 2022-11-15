@@ -83,8 +83,6 @@ const Deposit = () => {
     }
   }, [address, networkError, loading]);
 
-  console.log(tokenData);
-
   useEffect(() => {
     setActiveTokenIndex(parseInt(token ?? '0'));
   }, [token]);

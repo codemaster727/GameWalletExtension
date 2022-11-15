@@ -197,14 +197,12 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     data: withdrawData,
   } = useMutation(
     (data) => {
-      console.log(data);
       return postQuery('/WithdrawAsset', data);
     },
     {
       onSuccess: (data) => {
         if (data?.success) {
           const { withdrawal } = data;
-          console.log('data', data);
           setSuccessResult((prev) => ({
             count: (prev?.count ?? 0) + 1,
             message: `Your withdraw request of ${withdrawal.amount} ${
@@ -276,7 +274,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    console.log(successResult?.count);
     if (successResult?.count ?? 0 > 0) {
       console.log('success');
       // chrome.runtime.sendMessage(successResult, function (response) {
@@ -287,7 +284,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   }, [successResult]);
 
   useEffect(() => {
-    console.log(successResult?.count);
     if (errorResult?.count ?? 0 > 0) {
       // chrome.runtime.sendMessage(errorResult, function (response) {
       //   console.log(response);

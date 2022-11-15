@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import Switch from 'react-switch';
 import { useSocket } from '../../context/SocketProvider';
+import { useStateContext } from '../../context/StateProvider';
 import './balances.scss';
 import Icon from '~/components/Icon';
 import ScrollBox from '~/components/Layout/ScrollBox';
@@ -21,6 +22,7 @@ import { style_menu_item } from '~/components/styles';
 import DepositActiveIcon from '../../assets/coingroup/deposit_active.png';
 import WithdrawActiveIcon from '../../assets/coingroup/withdraw_active.png';
 import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
+import { balance_actions } from '~/context/StateProvider/Actions/BalanceAction';
 
 const style_row = {
   padding: '2px 10px',
@@ -35,11 +37,13 @@ export const token_images = [
 ];
 
 const Balances = () => {
-  const [isUSD, setIsUSD] = useState<boolean>(true);
+  // const [isUSD, setIsUSD] = useState<boolean>(true);
   // const [isNFT, setIsNFT] = useState<boolean>(false);
   const [token, setToken] = useState<number>(0);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const { loading, priceData, balanceData, tokenData } = useSocket();
+  const { state, dispatch } = useStateContext();
+  const { isUSD } = state.balance_states;
   // const tokenData = tokenDataOrigin.slice(0, tokenDataOrigin.length - 1);
   const open = Boolean(anchorEl);
 
@@ -108,7 +112,8 @@ const Balances = () => {
   };
 
   const handleChange = (currency_select: boolean) => {
-    setIsUSD(!currency_select);
+    // setIsUSD(!currency_select);
+    dispatch({ type: balance_actions.TOGGLE_IS_USD });
   };
 
   return (
@@ -133,11 +138,11 @@ const Balances = () => {
                 onChange={handleChange}
                 checked={!isUSD}
                 borderRadius={40}
-                className={`react-switch ${!isUSD ? 'bg-white' : 'bg-black'}`}
+                className={`react-switch ${!isUSD ? 'bg-white' : 'bg-white'}`}
                 offColor='black'
-                onColor='white'
+                onColor='black'
                 offHandleColor='white'
-                onHandleColor='black'
+                onHandleColor='white'
                 height={20}
                 width={36}
                 uncheckedIcon={
@@ -148,7 +153,7 @@ const Balances = () => {
                       alignItems: 'center',
                       height: '100%',
                       fontSize: 14,
-                      color: 'white',
+                      color: 'black',
                       paddingRight: 2,
                     }}
                   >
