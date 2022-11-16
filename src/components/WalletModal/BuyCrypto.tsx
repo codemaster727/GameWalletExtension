@@ -8,7 +8,7 @@ import PaybisIcon from '../../assets/coingroup/paybis.png';
 const style_btn = {
   backgroundColor: 'white',
   color: '#F2F2F288',
-  fontSize: '12px',
+  fontSize: '14px',
   borderRadius: '10px',
   padding: 0,
   height: 'fit-content',
@@ -18,7 +18,7 @@ const style_btn = {
 const style_btn_active = {
   backgroundColor: 'white',
   color: '#F2F2F288',
-  fontSize: '12px',
+  fontSize: '14px',
   fontWeight: 'bold',
   borderRadius: '10px',
   padding: 0,
@@ -66,11 +66,11 @@ const BuyCrypto = ({ handleClose }: any) => {
 
   return (
     <Box p='20px 40px 40px 40px'>
-      <Typography variant='h4' fontWeight='bold' fontStyle='italic' margin={0}>
+      <Typography variant='h5' fontWeight='bold' fontStyle='italic' margin={0}>
         BUY CRYPTO USING CARDS
       </Typography>
       <Typography
-        variant='h5'
+        variant='h6'
         component='article'
         textAlign='left'
         mt={2}
@@ -78,9 +78,8 @@ const BuyCrypto = ({ handleClose }: any) => {
         color='white'
         fontWeight='bold'
       >
-        While we look for a reliable card payment processor, you can purchase crypto using your card
-        via the recommended third-party services below. After purchasing the crypto, you can deposit
-        it directly to your Rollbit account.
+        You can purchase crypto using your card via the recommended third-party services below.
+        After purchasing the crypto, you can deposit it directly to your wallet account.
       </Typography>
       <div style={{ display: 'flex', gap: '40px' }}>
         {payments?.map((payment, index) => (

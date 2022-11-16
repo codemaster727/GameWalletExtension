@@ -93,8 +93,8 @@ const Balances = () => {
         {loading && 'loading'}
         <Box style={style_total_price} position='absolute'>
           <Typography
-            variant='h4'
-            component='h4'
+            variant='h5'
+            component='h5'
             textAlign='center'
             fontWeight='bold'
             color='#0abab5'
@@ -104,8 +104,8 @@ const Balances = () => {
           </Typography>
           {isUSD ? (
             <Typography
-              variant='h4'
-              component='h4'
+              variant='h5'
+              component='h5'
               textAlign='center'
               fontWeight='bold'
               color='#95F204'
@@ -119,8 +119,8 @@ const Balances = () => {
             </Typography>
           ) : (
             <Typography
-              variant='h4'
-              component='h4'
+              variant='h5'
+              component='h5'
               textAlign='center'
               fontWeight='bold'
               color='#FFFF80'
@@ -148,7 +148,7 @@ const Balances = () => {
             style={isUSD ? style_type_btn_active : style_type_btn}
             onClick={() => handleCurrencyChange(true)}
           >
-            <Typography variant='h5' fontWeight='bold'>
+            <Typography variant='h6' fontWeight='bold'>
               USD
             </Typography>
           </Button>
@@ -158,7 +158,7 @@ const Balances = () => {
             style={!isUSD ? style_type_btn_active : style_type_btn}
             onClick={() => handleCurrencyChange(false)}
           >
-            <Typography variant='h5' fontWeight='bold'>
+            <Typography variant='h6' fontWeight='bold'>
               EUR
             </Typography>
           </Button>
@@ -191,8 +191,8 @@ const Balances = () => {
                       </TableCell>
                       <TableCell sx={style_row} align='center'>
                         <Typography
-                          variant='h4'
-                          component='h4'
+                          variant='h5'
+                          component='h5'
                           textAlign='center'
                           fontWeight='bold'
                           mt={2}
@@ -212,8 +212,8 @@ const Balances = () => {
                       {isUSD ? (
                         <TableCell sx={style_row} align='center'>
                           <Typography
-                            variant='h4'
-                            component='h4'
+                            variant='h5'
+                            component='h5'
                             textAlign='center'
                             fontWeight='bold'
                             mt={2}
@@ -228,8 +228,8 @@ const Balances = () => {
                       ) : (
                         <TableCell sx={style_row} align='center'>
                           <Typography
-                            variant='h4'
-                            component='h4'
+                            variant='h5'
+                            component='h5'
                             textAlign='center'
                             fontWeight='bold'
                             mt={2}

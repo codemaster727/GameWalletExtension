@@ -20,7 +20,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useSocket } from 'src/context/SocketProvider';
 import ScrollBox from '~/components/Layout/ScrollBox';
 import Icon from '~/components/Icon';
-import { MenuProps, nft_types } from '~/constants';
+import { MenuProps } from '~/constants';
 import { style_box_address, style_menuitem, style_select } from '~/components/styles';
 import { useTheme } from '@mui/material';
 import { style_type_btn_ext, style_type_btn_active_ext } from 'src/components/styles';
@@ -33,7 +33,7 @@ Swiper.use([Virtual, Navigation, Pagination]);
 
 const style_btn_toggle = {
   color: '#AAAAAA',
-  fontSize: '12px',
+  fontSize: '14px',
   margin: '2px',
   backgroundColor: '#333333',
   height: '20px',
@@ -42,7 +42,7 @@ const style_btn_toggle = {
 
 const style_textfield = {
   color: 'white',
-  fontSize: '11px',
+  fontSize: '12px',
   fontWeight: 'bold',
 };
 
@@ -201,52 +201,52 @@ const WithdrawNFT = () => {
         <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
         <Box>
           {
-            <div
-              style={{
-                margin: '10px auto',
-                alignItems: 'center',
-              }}
-            >
-              <Box m='10px 20px' position='relative'>
-                <PrevButtonForSwiper />
-                <NextButtonForSwiper />
-                <SwiperReact
-                  modules={[Pagination, Navigation]}
-                  pagination={{ clickable: false, el: '.pagination' }}
-                  spaceBetween={1}
-                  slidesPerView={2}
-                  allowSlideNext
-                  centeredSlides={false}
-                  cardsEffect={{ perSlideOffset: 0 }}
-                  virtual
-                  draggable={false}
-                  allowTouchMove={false}
-                  navigation={{
-                    nextEl: '.hl-swiper-next',
-                    prevEl: '.hl-swiper-prev',
-                  }}
-                  style={{ margin: '0 35px' }}
-                >
-                  {nft_types.map((net, index) => (
-                    <SwiperSlide key={'swiper' + net} virtualIndex={index}>
-                      <ButtonWithActive
-                        isActive={index === activeNetIndex}
-                        size='large'
-                        handleFn={() => handleNetChange(index)}
-                        label={net}
-                      />
-                    </SwiperSlide>
-                  ))}
-                </SwiperReact>
-              </Box>
-            </div>
+            // <div
+            //   style={{
+            //     margin: '10px auto',
+            //     alignItems: 'center',
+            //   }}
+            // >
+            //   <Box m='10px 20px' position='relative'>
+            //     <PrevButtonForSwiper />
+            //     <NextButtonForSwiper />
+            //     <SwiperReact
+            //       modules={[Pagination, Navigation]}
+            //       pagination={{ clickable: false, el: '.pagination' }}
+            //       spaceBetween={1}
+            //       slidesPerView={2}
+            //       allowSlideNext
+            //       centeredSlides={false}
+            //       cardsEffect={{ perSlideOffset: 0 }}
+            //       virtual
+            //       draggable={false}
+            //       allowTouchMove={false}
+            //       navigation={{
+            //         nextEl: '.hl-swiper-next',
+            //         prevEl: '.hl-swiper-prev',
+            //       }}
+            //       style={{ margin: '0 35px' }}
+            //     >
+            //       {nft_types.map((net, index) => (
+            //         <SwiperSlide key={'swiper' + net} virtualIndex={index}>
+            //           <ButtonWithActive
+            //             isActive={index === activeNetIndex}
+            //             size='large'
+            //             handleFn={() => handleNetChange(index)}
+            //             label={net}
+            //           />
+            //         </SwiperSlide>
+            //       ))}
+            //     </SwiperReact>
+            //   </Box>
+            // </div>
           }
           {!networkError && (
             <img
               src={token_images[parseInt(token ?? '0')]}
               alt={token_images[parseInt(token ?? '0')]}
-              width={125}
-              height={125}
+              width={145}
+              height={145}
               data-xblocker='passed'
             />
           )}
@@ -254,7 +254,7 @@ const WithdrawNFT = () => {
             <Box>Network error...</Box>
           ) : (
             <Box margin='10px 20px 0' style={{ backgroundColor: 'transparent' }}>
-              <Typography variant='h5' component='h5' textAlign='left' color='#AAAAAA' mb={1}>
+              <Typography variant='h6' component='h6' textAlign='left' color='#AAAAAA' mb={1}>
                 Withdraw address
                 <span style={{ color: '#0abab5' }}>
                   (Note: Only {tokenData[activeTokenIndex]?.label})
@@ -277,7 +277,6 @@ const WithdrawNFT = () => {
                 component='article'
                 textAlign='left'
                 fontWeight='bold'
-                fontSize='18px'
                 alignItems='center'
                 mt={2}
                 mb={0}
@@ -289,19 +288,6 @@ const WithdrawNFT = () => {
                   &nbsp; USD
                 </span>
               </Typography>
-              {/* <Typography
-                variant='h6'
-                textAlign='left'
-                padding='0'
-                fontSize='12px'
-                component='article'
-                color='#AAAAAA'
-                mt={2}
-              >
-                For security purposes, large or suspicious withdrawal may take 1-6 hours for audit
-                process. <br />
-                We appreciate your patience!
-              </Typography> */}
             </Box>
           )}
         </Box>
@@ -317,7 +303,7 @@ const WithdrawNFT = () => {
             margin: 'auto',
             borderRadius: '8px',
             display: 'block',
-            fontSize: '12px',
+            fontSize: '14px',
             fontWeight: 'bold',
             backgroundColor: '#0e9d9a',
             // ':hover': {

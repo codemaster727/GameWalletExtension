@@ -43,7 +43,7 @@ interface CustomProps {
 const style_btn = {
   backgroundColor: '#282b31',
   color: '#F2F2F288',
-  fontSize: '15px',
+  fontSize: '16px',
   fontWeight: 'bold',
   boxShadow: 'none',
   borderRadius: '10px',
@@ -87,7 +87,7 @@ const style_box_address = {
 
 const style_btn_buy = {
   color: 'white',
-  fontSize: '15px',
+  fontSize: '16px',
   fontWeight: 'bold',
   padding: '10px 20px',
   backgroundColor: '#1e202d',
@@ -98,7 +98,7 @@ const style_btn_buy = {
 
 const style_btn_toggle = {
   color: '#AAAAAA',
-  fontSize: '12px',
+  fontSize: '14px',
   margin: '2px',
   backgroundColor: '#333333',
   height: '30px',
@@ -342,7 +342,7 @@ const Withdraw = () => {
           </div>
         </Box>
         <Typography
-          variant='h5'
+          variant='h6'
           component='article'
           textAlign='left'
           fontWeight='bold'
@@ -375,7 +375,7 @@ const Withdraw = () => {
                 style={index === activeTokenTypeIndex ? style_type_btn_active : style_type_btn}
                 onClick={() => handleTokenTypeChange(index)}
               >
-                <Typography variant='h5' fontWeight='bold'>
+                <Typography variant='h6' fontWeight='bold'>
                   {token_type}
                 </Typography>
               </Button>
@@ -399,7 +399,7 @@ const Withdraw = () => {
                 style={index === activeTokenTypeEthIndex ? style_type_btn_active : style_type_btn}
                 onClick={() => handleTokenTypeEthChange(index)}
               >
-                <Typography variant='h5' fontWeight='bold'>
+                <Typography variant='h6' fontWeight='bold'>
                   {token_type}
                 </Typography>
               </Button>
@@ -410,7 +410,7 @@ const Withdraw = () => {
           <Box>Network error...</Box>
         ) : (
           <Box mt={2} style={style_box_address}>
-            <Typography variant='h5' component='h5' textAlign='left' color='#AAAAAA' mb={1}>
+            <Typography variant='h6' component='h6' textAlign='left' color='#AAAAAA' mb={1}>
               Withdraw address
             </Typography>
             <Paper
@@ -441,8 +441,8 @@ const Withdraw = () => {
             </Paper>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography
-                variant='h5'
-                component='h5'
+                variant='h6'
+                component='h6'
                 textAlign='left'
                 color='#AAAAAA'
                 mt={2}
@@ -451,8 +451,8 @@ const Withdraw = () => {
                 Withdraw amount
               </Typography>
               <Typography
-                variant='h5'
-                component='h5'
+                variant='h6'
+                component='h6'
                 textAlign='left'
                 color='#AAAAAA'
                 mt={2}
@@ -518,7 +518,7 @@ const Withdraw = () => {
                   borderRadius: '15px',
                   color: 'white',
                   backgroundColor: 'transparent',
-                  fontSize: '15px',
+                  fontSize: '16px',
                 }}
               >
                 <ToggleButton
@@ -548,7 +548,6 @@ const Withdraw = () => {
               component='article'
               textAlign='left'
               fontWeight='bold'
-              fontSize='1.8rem'
               alignItems='center'
               mt={3}
               mb={2}

@@ -41,7 +41,7 @@ export const Link = styled.a`
 export const style_btn = {
   backgroundColor: '#282b31',
   color: '#F2F2F288',
-  fontSize: '15px',
+  fontSize: '16px',
   fontWeight: 'bold',
   boxShadow: 'none',
   borderRadius: '10px',
@@ -51,7 +51,7 @@ export const style_btn = {
 };
 
 export const style_menu_item = {
-  fontSize: '15px',
+  fontSize: '16px',
   fontWeight: 'bold',
   paddingY: '10px',
   gap: '20px',
@@ -92,7 +92,7 @@ export const style_type_btn_active_ext = {
 
 export const style_btn_buy_ext = {
   color: 'white',
-  fontSize: '15px',
+  fontSize: '16px',
   fontWeight: 'bold',
   padding: '5px',
   backgroundColor: '#1e202d',

@@ -57,7 +57,7 @@ const style_modal_content = {
 const style_btn = {
   backgroundColor: 'transparent',
   color: '#F2F2F288',
-  fontSize: '15px',
+  fontSize: '16px',
   fontWeight: 'bold',
   boxShadow: 'none',
   borderRadius: '10px',
@@ -96,7 +96,7 @@ const style_modal = {
   padding: '50px 30px',
   backgroundColor: '#393a3e',
   borderRadius: '10px',
-  fontSize: '12px',
+  fontSize: '14px',
 };
 
 const style_pagination = {
@@ -254,7 +254,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                 style={index === transactionType ? style_btn_active : style_btn}
                 onClick={() => setTransactionType(index)}
               >
-                <Typography variant='h5' fontWeight='bold'>
+                <Typography variant='h6' fontWeight='bold'>
                   {tab.name}
                 </Typography>
               </Button>
@@ -321,7 +321,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
             sx={{
               border: 'none',
               color: '#AAAAAA',
-              fontSize: '12px',
+              fontSize: '14px',
               textAlign: 'center',
               paddingBottom: '20px',
               paddingX: '60px',
@@ -355,7 +355,7 @@ const Transactions = ({ transactionsClose, handleClose }: Props) => {
                         alignItems='center'
                         sx={{
                           color: 'white',
-                          fontSize: '12px',
+                          fontSize: '14px',
                           textAlign: 'center',
                           alignItems: 'center',
                         }}

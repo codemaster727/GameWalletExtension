@@ -42,7 +42,7 @@ const Signup = () => {
       <Input
         className='pw-input'
         name='email'
-        sx={{ color: 'white', width: '80%', fontSize: 12, mt: '6rem' }}
+        sx={{ color: 'white', width: '80%', fontSize: 14, mt: '6rem' }}
         size='medium'
         placeholder='Your email'
         value={email}
@@ -53,7 +53,7 @@ const Signup = () => {
         className='pw-input'
         name='password'
         disableUnderline
-        sx={{ color: 'white', width: '80%', fontSize: 12 }}
+        sx={{ color: 'white', width: '80%', fontSize: 14 }}
         size='medium'
         placeholder='Password'
         type='password'
@@ -64,7 +64,7 @@ const Signup = () => {
         className='pw-input'
         name='password_1'
         disableUnderline
-        sx={{ color: 'white', width: '80%', fontSize: 12 }}
+        sx={{ color: 'white', width: '80%', fontSize: 14 }}
         size='medium'
         placeholder='Confirm password'
         type='password'

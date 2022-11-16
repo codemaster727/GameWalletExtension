@@ -71,7 +71,7 @@ const style_btn_copy = {
 
 const style_btn_buy = {
   color: 'white',
-  fontSize: '15px',
+  fontSize: '16px',
   fontWeight: 'bold',
   padding: '10px 20px',
   backgroundColor: '#1e202d',
@@ -281,7 +281,7 @@ const Deposit = () => {
               style={index === activeTokenTypeIndex ? style_type_btn_active : style_type_btn}
               onClick={() => handleTokenTypeChange(index)}
             >
-              <Typography variant='h5' fontWeight='bold'>
+              <Typography variant='h6' fontWeight='bold'>
                 {token_type}
               </Typography>
             </Button>
@@ -296,8 +296,8 @@ const Deposit = () => {
         activeTokenIndex !== 2 &&
         activeTokenIndex !== 3 && (
           <Typography
-            variant='h4'
-            component='h4'
+            variant='h5'
+            component='h5'
             textAlign='center'
             mt={2.6}
             mb={2.7}
@@ -324,7 +324,7 @@ const Deposit = () => {
               style={index === activeTokenTypeEthIndex ? style_type_btn_active : style_type_btn}
               onClick={() => handleTokenTypeEthChange(index)}
             >
-              <Typography variant='h5' fontWeight='bold'>
+              <Typography variant='h6' fontWeight='bold'>
                 {token_type}
               </Typography>
             </Button>
@@ -333,11 +333,11 @@ const Deposit = () => {
       )}
       <Box mt={2} style={style_box_address}>
         <div style={{ width: 'calc(100% - 248px)' }}>
-          <Typography variant='h5' component='h5' textAlign='left' color='#AAAAAA'>
+          <Typography variant='h6' component='h6' textAlign='left' color='#AAAAAA'>
             Deposit address
           </Typography>
           <Typography
-            variant='h5'
+            variant='h6'
             component='article'
             textAlign='left'
             fontWeight='bold'
@@ -381,7 +381,7 @@ const Deposit = () => {
       <Grid container justifyContent='center' alignItems='center' mt={4}>
         <Grid item xs={4}>
           <Typography
-            variant='h5'
+            variant='h6'
             component='article'
             textAlign='center'
             color='#A9ADBD'

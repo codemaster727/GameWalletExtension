@@ -39,7 +39,7 @@ const Login = () => {
         sx={{
           color: 'white',
           width: '80%',
-          fontSize: 12,
+          fontSize: 14,
         }}
         size='medium'
         placeholder='Type your password'
@@ -69,7 +69,7 @@ const Login = () => {
                 url: 'index.html#/forgot',
               });
             }}
-            style={{ fontSize: '12px', textDecoration: 'underline' }}
+            style={{ fontSize: '14px', textDecoration: 'underline' }}
           >
             Forgot Password?
           </a>

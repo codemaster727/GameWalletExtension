@@ -63,7 +63,7 @@ const style_modal = {
   padding: '50px 30px',
   backgroundColor: '#393a3e',
   borderRadius: '10px',
-  fontSize: '12px',
+  fontSize: '14px',
   fontFamily: 'Arial, sans-serif',
 };
 
@@ -225,7 +225,7 @@ const Transactions = () => {
                     alignItems='center'
                     sx={{
                       color: 'white',
-                      fontSize: '12px',
+                      fontSize: '14px',
                       textAlign: 'center',
                       alignItems: 'center',
                       cursor: 'pointer',
@@ -238,8 +238,8 @@ const Transactions = () => {
                       onClick={() => handleDetailClick(index)}
                     >
                       <Typography
-                        variant='h5'
-                        component='h5'
+                        variant='h6'
+                        component='h6'
                         textAlign='center'
                         color='#AAAAAA'
                         mt={1}
@@ -257,8 +257,8 @@ const Transactions = () => {
                         }}
                       >
                         <Typography
-                          variant='h4'
-                          component='h4'
+                          variant='h5'
+                          component='h5'
                           textAlign='right'
                           fontWeight='bold'
                           color='white'
@@ -273,8 +273,8 @@ const Transactions = () => {
                     </Grid>
                     <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
                       <Typography
-                        variant='h4'
-                        component='h4'
+                        variant='h5'
+                        component='h5'
                         textAlign='center'
                         fontWeight='bold'
                         color='white'
@@ -293,8 +293,8 @@ const Transactions = () => {
                     </Grid>
                     <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
                       <Typography
-                        variant='h5'
-                        component='h5'
+                        variant='h6'
+                        component='h6'
                         textAlign='center'
                         fontWeight='bold'
                         mt={1}

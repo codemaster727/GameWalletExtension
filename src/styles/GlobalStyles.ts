@@ -44,7 +44,7 @@ export default createGlobalStyle<ITheme>`
     height: 100vh;
     margin: auto;
     overflow: initial;
-		width: 330px;
+		width: 390px;
 		height: 550px;
 		border: 1px dash white;
   }
@@ -76,7 +76,7 @@ export default createGlobalStyle<ITheme>`
 
 	h1, .h1 {
 		margin: 24px 0;
-		font-size: 3.20px;
+		font-size: 32px;
 		font-weight: 700;
 		line-height: 1.1;
 	}
@@ -86,7 +86,7 @@ export default createGlobalStyle<ITheme>`
 	}
 
 	h3,	.h3 {
-		font-size: 2.40px;
+		font-size: 24px;
 	}
 
 	h4,	.h4 {
@@ -94,11 +94,11 @@ export default createGlobalStyle<ITheme>`
 	}
 
 	h5,	.h5 {
-		font-size: 18px;
+		font-size: 16px !important;
 	}
 
 	h6,	.h6 {
-		font-size: 16px;
+		font-size: 14px !important;
 	}
 
   button, a {

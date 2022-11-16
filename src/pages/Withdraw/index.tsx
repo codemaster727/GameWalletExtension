@@ -32,7 +32,7 @@ Swiper.use([Virtual, Navigation, Pagination]);
 
 const style_btn_toggle = {
   color: '#AAAAAA',
-  fontSize: '12px',
+  fontSize: '14px',
   margin: '2px',
   backgroundColor: '#333333',
   height: '20px',
@@ -41,7 +41,7 @@ const style_btn_toggle = {
 
 const style_textfield = {
   color: 'white',
-  fontSize: '11px',
+  fontSize: '14px',
   fontWeight: 'bold',
 };
 
@@ -241,7 +241,7 @@ const Withdraw = () => {
         <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
         <Box>
           <Typography
-            variant='h5'
+            variant='h6'
             component='article'
             textAlign='left'
             fontWeight='normal'
@@ -334,20 +334,11 @@ const Withdraw = () => {
               ))}
             </div>
           )}
-          {!networkError && activeToken.id === '10' && (
-            <img
-              src='https://lh3.googleusercontent.com/4t_V3PZIWapc3QYlGh5IVgf9PVQh_HSJiheFzru2ZPK_9zl9zuIMknH2A8lyDwV6fj2vRooV7Z4sEW2CQW66w1C2P00YvryZ1KIUlDtvPLbiR6wD4qCb2H6kWl7mAjjjYILklrPu'
-              alt='CryptoPunks'
-              width={125}
-              height={125}
-              data-xblocker='passed'
-            />
-          )}
           {networkError ? (
             <Box>Network error...</Box>
           ) : (
             <Box margin='20px 20px 0' style={{ backgroundColor: 'transparent' }}>
-              <Typography variant='h5' component='h5' textAlign='left' color='#AAAAAA' mb={1}>
+              <Typography variant='h6' component='h6' textAlign='left' color='#AAAAAA' mb={1}>
                 Withdraw address
                 <span style={{ color: '#0abab5' }}>
                   (Note: Only {tokenData[activeTokenIndex]?.label})
@@ -369,8 +360,8 @@ const Withdraw = () => {
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography
-                      variant='h5'
-                      component='h5'
+                      variant='h6'
+                      component='h6'
                       textAlign='left'
                       color='#AAAAAA'
                       mt={2}
@@ -379,8 +370,8 @@ const Withdraw = () => {
                       Withdraw amount
                     </Typography>
                     <Typography
-                      variant='h5'
-                      component='h5'
+                      variant='h6'
+                      component='h6'
                       textAlign='left'
                       color='#AAAAAA'
                       mt={2}
@@ -397,7 +388,7 @@ const Withdraw = () => {
                         border: 'none',
                         paddingLeft: '0',
                         width: '100px',
-                        fontSize: '11px',
+                        fontSize: '14px',
                       }}
                       thousandSeparator
                       decimalScale={5}
@@ -434,7 +425,7 @@ const Withdraw = () => {
                         borderRadius: '15px',
                         color: 'white',
                         backgroundColor: 'transparent',
-                        fontSize: '11px',
+                        fontSize: '14px',
                       }}
                     >
                       <ToggleButton
@@ -466,7 +457,6 @@ const Withdraw = () => {
                 component='article'
                 textAlign='left'
                 fontWeight='bold'
-                fontSize='18px'
                 alignItems='center'
                 mt={3}
                 mb={2}
@@ -483,7 +473,7 @@ const Withdraw = () => {
                 variant='h6'
                 textAlign='left'
                 padding='0'
-                fontSize='12px'
+                fontSize='14px'
                 component='article'
                 color='#AAAAAA'
                 mt={2}
@@ -507,7 +497,7 @@ const Withdraw = () => {
             margin: 'auto',
             borderRadius: '8px',
             display: 'block',
-            fontSize: '12px',
+            fontSize: '14px',
             fontWeight: 'bold',
             backgroundColor: '#0e9d9a',
             // ':hover': {

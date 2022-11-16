@@ -25,7 +25,7 @@ const Forgot = () => {
       >
         Forgot Password
       </Typography>
-      <Typography variant='h5' component={'article'} fontWeight='bold' color='grey'>
+      <Typography variant='h6' component={'article'} fontWeight='bold' color='grey'>
         Please input your email and verification code
       </Typography>
       <Box mt={3} sx={{ backgroundColor: '#202328', borderRadius: '20px', padding: '5rem 3rem' }}>
@@ -39,7 +39,7 @@ const Forgot = () => {
         >
           <Input
             className='pw-input'
-            sx={{ color: 'white', width: '80%', fontSize: 12, marginTop: '0' }}
+            sx={{ color: 'white', width: '80%', fontSize: 14, marginTop: '0' }}
             size='medium'
             placeholder='Your email'
             value={password}
@@ -67,7 +67,7 @@ const Forgot = () => {
         </Box>
         <Input
           className='pw-input'
-          sx={{ color: 'white', fontSize: 12 }}
+          sx={{ color: 'white', fontSize: 14 }}
           size='medium'
           placeholder='Your email'
           value={password}

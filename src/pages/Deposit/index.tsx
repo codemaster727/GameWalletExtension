@@ -11,7 +11,7 @@ import { useSocket } from 'src/context/SocketProvider';
 import { PrevButtonForSwiper, NextButtonForSwiper } from 'src/components/Buttons/ImageButton';
 import { style_box_address, style_menuitem, style_select } from 'src/components/styles';
 import Icon from '~/components/Icon';
-import { MenuProps, nft_types } from '~/constants';
+import { MenuProps } from '~/constants';
 import ScrollBox from '~/components/Layout/ScrollBox';
 import {} from 'src/components/styles';
 import { Link, Navigate, useParams, useNavigate } from 'react-router-dom';
@@ -239,7 +239,7 @@ const Deposit = () => {
               ))}
             </div>
           )}
-          {activeTokenIndex === 9 && (
+          {/* {activeTokenIndex === 9 && (
             <div
               style={{
                 margin: 'auto',
@@ -265,20 +265,6 @@ const Deposit = () => {
                     nextEl: '.hl-swiper-next',
                     prevEl: '.hl-swiper-prev',
                   }}
-                  // breakpoints={{
-                  //   360: {
-                  //     slidesPerView: 3,
-                  //   },
-                  //   576: {
-                  //     slidesPerView: 4,
-                  //   },
-                  //   720: {
-                  //     slidesPerView: 5,
-                  //   },
-                  //   992: {
-                  //     slidesPerView: 6,
-                  //   },
-                  // }}
                   style={{ margin: '0 35px' }}
                 >
                   {nft_types.map((net, index) => (
@@ -294,16 +280,16 @@ const Deposit = () => {
                 </SwiperReact>
               </Box>
             </div>
-          )}
+          )} */}
           {activeTokenIndex !== 2 && activeTokenIndex !== 3 && activeTokenIndex !== 9 && (
             <Typography
-              variant='h4'
-              component='h4'
+              variant='h5'
+              component='h5'
               textAlign='center'
               pt={2}
               pb={0.5}
               color='#A9ADBD'
-              fontSize='15px'
+              fontSize='16px'
             >
               {`1 ${activeToken?.name} = $${priceData[activeToken?.name.concat('-USD')]} USD`}
             </Typography>
@@ -311,8 +297,8 @@ const Deposit = () => {
 
           <Box style={style_box_address}>
             <Typography
-              variant='h5'
-              component='h5'
+              variant='h6'
+              component='h6'
               textAlign='center'
               color='#AAAAAA'
               fontSize='14px'
@@ -327,7 +313,7 @@ const Deposit = () => {
               mt={1}
             >
               <Typography
-                variant='h5'
+                variant='h6'
                 component='article'
                 textAlign='left'
                 fontWeight='normal'
@@ -365,7 +351,7 @@ const Deposit = () => {
               component='article'
               color='#AAAAAA'
               width='100%'
-              fontSize='11px'
+              fontSize='12px'
             >
               Send
               {` ${activeToken?.name ?? 'NFT'} `}

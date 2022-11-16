@@ -35,7 +35,7 @@ const style_modal_content = {
 
 const style_btn = {
   color: '#F2F2F288',
-  fontSize: '12px',
+  fontSize: '14px',
   minWidth: 'fit-content',
   borderColor: '#666666',
   padding: '8px',
@@ -43,7 +43,7 @@ const style_btn = {
 
 const style_btn_active = {
   color: 'white',
-  fontSize: '12px',
+  fontSize: '14px',
   fontWeight: 'bold',
   paddingY: '8px',
   backgroundColor: '#1e202d',
@@ -51,7 +51,7 @@ const style_btn_active = {
 
 const style_transactions_btn = {
   color: '#F2F2F288',
-  fontSize: '12px',
+  fontSize: '14px',
   marginLeft: 'auto',
   marginRight: '20px',
 };
@@ -124,7 +124,7 @@ const WalletModalMain = ({ transactionsOpen }: Props) => {
             style={style_transactions_btn}
             onClick={transactionsOpen}
           >
-            <Typography variant='h5'>Transactions</Typography>
+            <Typography variant='h6'>Transactions</Typography>
           </Button>
           <Button
             sx={{
@@ -146,7 +146,7 @@ const WalletModalMain = ({ transactionsOpen }: Props) => {
                 onClick={() => setModalType(index)}
               >
                 {index === modalType ? (
-                  <Typography variant='h5' fontWeight='bold'>
+                  <Typography variant='h6' fontWeight='bold'>
                     {tab.name}
                   </Typography>
                 ) : (

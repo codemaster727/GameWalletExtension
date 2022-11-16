@@ -274,8 +274,8 @@ const Balances = () => {
                               </TableCell>
                               <TableCell sx={style_row} align='center'>
                                 <Typography
-                                  variant='h5'
-                                  component='h5'
+                                  variant='h6'
+                                  component='h6'
                                   textAlign='center'
                                   fontWeight='bold'
                                   mt={2}
@@ -295,8 +295,8 @@ const Balances = () => {
                               {isUSD ? (
                                 <TableCell sx={style_row} align='center'>
                                   <Typography
-                                    variant='h5'
-                                    component='h5'
+                                    variant='h6'
+                                    component='h6'
                                     textAlign='center'
                                     fontWeight='bold'
                                     mt={2}
@@ -311,8 +311,8 @@ const Balances = () => {
                               ) : (
                                 <TableCell sx={style_row} align='center'>
                                   <Typography
-                                    variant='h5'
-                                    component='h5'
+                                    variant='h6'
+                                    component='h6'
                                     textAlign='center'
                                     fontWeight='bold'
                                     mt={2}
@@ -338,8 +338,8 @@ const Balances = () => {
                           key={image}
                           src={token_images[index]}
                           alt='CryptoPunks'
-                          width={125}
-                          height={125}
+                          width={145}
+                          height={145}
                           data-xblocker='passed'
                         />
                       </Button>
@@ -356,8 +356,8 @@ const Balances = () => {
           {
             <>
               <Typography
-                variant='h5'
-                component='h5'
+                variant='h6'
+                component='h6'
                 textAlign='center'
                 fontWeight='bold'
                 color='#0abab5'
@@ -366,8 +366,8 @@ const Balances = () => {
                 Total Balance
               </Typography>
               <Typography
-                variant='h5'
-                component='h5'
+                variant='h6'
+                component='h6'
                 textAlign='center'
                 fontWeight='bold'
                 color={isUSD || isNFT ? 'white' : 'white'}
