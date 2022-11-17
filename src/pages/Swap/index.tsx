@@ -58,7 +58,7 @@ const style_input_paper = {
   height: '40px',
 };
 
-const Withdraw = () => {
+const Swap = () => {
   const [activeTokenIndex, setActiveTokenIndex] = useState(0);
   const [percent, setPercent] = useState<string>('');
   const [activeTokenTypeIndex, setActiveTokenTypeIndex] = useState(0);
@@ -514,4 +514,4 @@ const Withdraw = () => {
   );
 };
 
-export default Withdraw;
+export default Swap;

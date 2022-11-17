@@ -9,7 +9,12 @@ import 'swiper/swiper-bundle.css';
 import Swiper, { Virtual, Pagination, Navigation } from 'swiper';
 import { useSocket } from 'src/context/SocketProvider';
 import { PrevButtonForSwiper, NextButtonForSwiper } from 'src/components/Buttons/ImageButton';
-import { style_box_address, style_menuitem, style_select } from 'src/components/styles';
+import {
+  style_box_address,
+  style_btn_copy,
+  style_menuitem,
+  style_select,
+} from 'src/components/styles';
 import Icon from '~/components/Icon';
 import { MenuProps } from '~/constants';
 import ScrollBox from '~/components/Layout/ScrollBox';
@@ -21,15 +26,6 @@ import { Rings } from 'react-loading-icons';
 import NFTIcon from 'src/assets/coingroup/NFT_Icon.png';
 
 Swiper.use([Virtual, Navigation, Pagination]);
-
-const style_btn_copy = {
-  borderRadius: '20px',
-  minWidth: 'fit-content',
-  color: '#7F7F7F',
-  backgroundColor: 'transparent',
-  fontSize: '24px',
-  padding: '0',
-};
 
 const Deposit = () => {
   const [activeTokenIndex, setActiveTokenIndex] = useState<number>(0);
@@ -62,7 +58,7 @@ const Deposit = () => {
     }
   };
 
-  const copyAddress = () => {
+  const copyContent = () => {
     navigator.clipboard.writeText(address);
   };
 
@@ -319,7 +315,7 @@ const Deposit = () => {
                 fontWeight='normal'
                 fontFamily='Arial, sans-serif'
                 letterSpacing={0.5}
-                width={230}
+                width={300}
                 fontSize='14px'
                 style={{ overflowWrap: 'break-word' }}
               >
@@ -327,7 +323,7 @@ const Deposit = () => {
                 {address?.slice(4, -4)}
                 <span style={{ color: '#0abab5' }}>{address?.slice(-4)}</span>
               </Typography>
-              <Button style={style_btn_copy} onClick={copyAddress}>
+              <Button style={style_btn_copy} onClick={copyContent}>
                 <ContentCopyIcon fontSize='large' color='info' />
               </Button>
             </Box>

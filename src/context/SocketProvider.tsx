@@ -22,6 +22,7 @@ interface SocketContextType {
   priceData: any;
   balanceData?: any;
   walletData?: any;
+  walletArray?: any;
   tokenData?: any;
   netData?: any;
   transactionIsLoading?: boolean;
@@ -351,6 +352,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             ? walletData?.map((a: any) => ({ [a.net_id]: a.address }))
             : [],
         ),
+        walletArray: walletData && 'map' in walletData ? walletData : [],
         tokenData:
           tokenData && 'sort' in tokenData
             ? tokenData

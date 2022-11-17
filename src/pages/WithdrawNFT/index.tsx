@@ -199,7 +199,7 @@ const WithdrawNFT = () => {
           </Button>
         </Box>
         <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
-        <Box>
+        <Box marginTop={2}>
           {
             // <div
             //   style={{
@@ -274,7 +274,7 @@ const WithdrawNFT = () => {
               </Paper>
               <Typography
                 variant='h5'
-                component='article'
+                component='h5'
                 textAlign='left'
                 fontWeight='bold'
                 alignItems='center'

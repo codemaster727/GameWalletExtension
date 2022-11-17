@@ -102,8 +102,9 @@ export default createGlobalStyle<ITheme>`
 	}
 
   button, a {
-    font-size: 15px;
+    font-size: 16px;
     cursor: pointer;
+		line-height: normal !important;
   }
 
   a {

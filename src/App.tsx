@@ -30,6 +30,8 @@ import { AuthState } from './constants';
 import Transactions from './pages/Transactions';
 import BuyCrypto from './pages/BuyCrypto';
 import WithdrawNFT from './pages/WithdrawNFT';
+import Account from './pages/Account';
+import Swap from './pages/Swap';
 
 // Create a client
 const queryClient = new QueryClient();
@@ -121,6 +123,14 @@ const App = () => {
           ),
         },
         {
+          path: '/swap',
+          element: (
+            <PrivateRoute>
+              <Swap />
+            </PrivateRoute>
+          ),
+        },
+        {
           path: '/transactions',
           element: (
             <PrivateRoute>
@@ -133,6 +143,14 @@ const App = () => {
           element: (
             <PrivateRoute>
               <BuyCrypto />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: '/account',
+          element: (
+            <PrivateRoute>
+              <Account />
             </PrivateRoute>
           ),
         },

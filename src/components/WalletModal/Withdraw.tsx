@@ -545,7 +545,7 @@ const Withdraw = () => {
             </Paper>
             <Typography
               variant='h5'
-              component='article'
+              component='h5'
               textAlign='left'
               fontWeight='bold'
               alignItems='center'

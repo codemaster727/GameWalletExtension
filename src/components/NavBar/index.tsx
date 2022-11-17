@@ -6,7 +6,8 @@ import Logo from 'src/assets/logo/logo128.png';
 import StyledMenu from '../Menu/StyledMenu';
 import Divider from '@mui/material/Divider';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
+import WindowIcon from '@mui/icons-material/Window';
 import { style_menu_item } from '../styles';
 import BuyIcon from '../../assets/coingroup/buy.png';
 import BuyActiveIcon from '../../assets/coingroup/buy_active.png';
@@ -37,6 +38,33 @@ const tabs = [
     icon: WithdrawIcon,
     active_icon: WithdrawActiveIcon,
     to: 'withdraw/0',
+  },
+  {
+    name: 'Swap',
+    icon: SwapVertIcon,
+    active_icon: SwapVertIcon,
+    to: 'swap',
+  },
+];
+
+const tabs_second = [
+  {
+    name: 'transactions',
+    icon: TransactionsIcon,
+    active_icon: TransactionsIcon,
+    to: 'transactions',
+  },
+  {
+    name: 'Buy Cryptos',
+    icon: CartIcon,
+    active_icon: CartIcon,
+    to: 'buy-cryptos',
+  },
+  {
+    name: 'Account',
+    icon: WindowIcon,
+    active_icon: WindowIcon,
+    to: 'account',
   },
 ];
 
@@ -93,25 +121,36 @@ const NavBar = () => {
         {tabs.map((tab, index) => (
           <Link to={tab.to} key={tab.name}>
             <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
-              {Icon(tab.active_icon)}
+              {typeof tab.active_icon === 'string' ? (
+                Icon(tab.active_icon)
+              ) : (
+                <tab.active_icon
+                  sx={{ width: '30px', path: { fill: 'white' } }}
+                  color='info'
+                  htmlColor='red'
+                />
+              )}
               {tab.name}
             </MenuItem>
           </Link>
         ))}
-
         <Divider sx={{ my: 0.5, backgroundColor: 'white' }} />
-        <Link to='/transactions'>
-          <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
-            {Icon(TransactionsIcon)}
-            Transactions
-          </MenuItem>
-        </Link>
-        <Link to='/buy-crypto'>
-          <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
-            {Icon(CartIcon)}
-            Buy Cryptos
-          </MenuItem>
-        </Link>
+        {tabs_second.map((tab, index) => (
+          <Link to={tab.to} key={tab.name}>
+            <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
+              {typeof tab.active_icon === 'string' ? (
+                Icon(tab.active_icon)
+              ) : (
+                <tab.active_icon
+                  sx={{ width: '30px', path: { fill: 'white' } }}
+                  color='info'
+                  htmlColor='red'
+                />
+              )}
+              {tab.name}
+            </MenuItem>
+          </Link>
+        ))}
         <Divider sx={{ my: 0.5, backgroundColor: 'white' }} />
         <MenuItem onClick={handleLock} disableRipple sx={style_menu_item}>
           <LockIcon sx={{ path: { fill: 'white' } }} />

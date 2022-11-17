@@ -178,7 +178,7 @@ const Deposit = () => {
     }
   };
 
-  const copyAddress = () => {
+  const copyContent = () => {
     navigator.clipboard.writeText(address);
   };
 
@@ -348,7 +348,7 @@ const Deposit = () => {
             {address?.slice(4, -4)}
             <span style={{ color: '#0abab5' }}>{address?.slice(-4)}</span>
           </Typography>
-          <Button style={style_btn_copy} onClick={copyAddress}>
+          <Button style={style_btn_copy} onClick={copyContent}>
             COPY
           </Button>
         </div>

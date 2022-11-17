@@ -108,3 +108,12 @@ export const style_box_address = {
   margin: '20px 20px 0',
   alignItems: 'center',
 };
+
+export const style_btn_copy = {
+  borderRadius: '20px',
+  minWidth: 'fit-content',
+  color: '#7F7F7F',
+  backgroundColor: 'transparent',
+  fontSize: '24px',
+  padding: '0',
+};
