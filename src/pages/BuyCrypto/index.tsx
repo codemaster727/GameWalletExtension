@@ -89,16 +89,16 @@ const BuyCrypto = ({ handleClose }: any) => {
         alignItems='center'
         sx={{ margin: '8px 20px' }}
       >
-        <Link to='/balances/0'>
-          <Button
-            variant='contained'
-            color='secondary'
-            className='balance-btn'
-            sx={{ color: theme.palette.text.secondary, fontSize: '14px' }}
-          >
-            Balance
-          </Button>
-        </Link>
+        <Button
+          variant='contained'
+          color='secondary'
+          className='balance-btn'
+          sx={{ color: theme.palette.text.secondary, fontSize: '14px' }}
+          component={Link}
+          to='/balances/0'
+        >
+          Balance
+        </Button>
       </Box>
       <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
       <Typography variant='h5' fontWeight='bold' margin={0} mt={2}>

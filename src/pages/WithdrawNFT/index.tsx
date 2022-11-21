@@ -186,7 +186,8 @@ const WithdrawNFT = () => {
               minWidth: 'fit-content',
               padding: '5px',
             }}
-            onClick={() => navigate(-1)}
+            component={Link}
+            to='/balances/0'
           >
             <ArrowBackIcon sx={{ fontSize: '20px' }} />
           </Button>

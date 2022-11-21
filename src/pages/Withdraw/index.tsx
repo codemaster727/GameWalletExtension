@@ -185,7 +185,8 @@ const Withdraw = () => {
             color='secondary'
             className='balance-btn'
             sx={{ color: theme.palette.text.secondary, fontSize: '14px' }}
-            onClick={() => navigate(-1)}
+            component={Link}
+            to='/balances/0'
           >
             Balance
           </Button>
