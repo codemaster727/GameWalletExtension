@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Box, Grid, Typography } from '@mui/material';
+import { grey } from '@mui/material/colors';
 import QRCode from 'qrcode';
 import { url } from 'inspector';
 import { Swiper as SwiperReact, SwiperSlide } from 'swiper/react';
@@ -50,7 +51,7 @@ const style_type_btn_active = {
 
 const style_box_address = {
   borderRadius: '10px',
-  backgroundColor: '#191c20',
+  backgroundColor: grey[900],
   padding: '30px 20px',
   width: '500px',
   margin: 'auto',
@@ -63,7 +64,7 @@ const style_box_address = {
 const style_btn_copy = {
   borderRadius: '20px',
   color: '#7F7F7F',
-  backgroundColor: '#333333',
+  backgroundColor: grey[800],
   fontSize: '16px',
   padding: '10px 20px',
   marginTop: '60px',

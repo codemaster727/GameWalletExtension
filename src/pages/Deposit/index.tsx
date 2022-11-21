@@ -85,277 +85,273 @@ const Deposit = () => {
 
   return (
     <Box className='base-box'>
-      {loading ? (
-        <Rings style={{ marginTop: '50%' }} />
-      ) : (
-        <ScrollBox height={480}>
+      <ScrollBox height={480}>
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          alignItems='center'
+          sx={{ margin: '8px 20px' }}
+        >
+          <Button
+            variant='contained'
+            color='secondary'
+            className='balance-btn'
+            sx={{ color: theme.palette.text.secondary, fontSize: '14px' }}
+            onClick={() => navigate(-1)}
+          >
+            Balance
+          </Button>
+          <Box className='currency_select'>
+            <Select
+              value={activeTokenIndex}
+              onChange={handleTokenChange}
+              input={<OutlinedInput />}
+              renderValue={(selected: number) => {
+                const token = tokenData[selected];
+                return token ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    {Icon(token?.icon, 18)}
+                    &nbsp;
+                    {token?.name}
+                  </Box>
+                ) : (
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    {Icon(NFTIcon, 18)}
+                    &nbsp; NFT
+                  </Box>
+                );
+              }}
+              MenuProps={MenuProps}
+              // IconComponent={() => DownIcon(DownArrowImage, 12)}
+              // IconComponent={() => <ExpandMoreIcon />}
+              // IconComponent={() => <Person />}
+              sx={style_select}
+              inputProps={{ 'aria-label': 'Without label' }}
+            >
+              {tokenData &&
+                'map' in tokenData &&
+                tokenData?.map((token: any, index: number) => (
+                  <MenuItem
+                    className='menuitem-currency'
+                    key={token?.id}
+                    value={index}
+                    sx={style_menuitem}
+                  >
+                    {Icon(token.icon, 18)}
+                    &nbsp;
+                    {token?.name}
+                  </MenuItem>
+                ))}
+              <MenuItem
+                className='menuitem-currency'
+                key='0'
+                value={tokenData?.length ?? 0}
+                sx={style_menuitem}
+              >
+                {Icon(NFTIcon, 18)}
+                &nbsp; NFT
+              </MenuItem>
+            </Select>
+          </Box>
+        </Box>
+        <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
+        {token_nets.length > 2 && (
+          <div
+            style={{
+              margin: 'auto',
+              marginTop: '20px',
+              alignItems: 'center',
+            }}
+          >
+            <Box m='10px 20px' position='relative'>
+              <PrevButtonForSwiper />
+              <NextButtonForSwiper />
+              <SwiperReact
+                modules={[Pagination, Navigation]}
+                pagination={{ clickable: false, el: '.pagination' }}
+                spaceBetween={1}
+                slidesPerView={3}
+                allowSlideNext
+                centeredSlides={false}
+                cardsEffect={{ perSlideOffset: 0 }}
+                virtual
+                draggable={false}
+                allowTouchMove={false}
+                navigation={{
+                  nextEl: '.hl-swiper-next',
+                  prevEl: '.hl-swiper-prev',
+                }}
+                breakpoints={{
+                  360: {
+                    slidesPerView: 3,
+                  },
+                  576: {
+                    slidesPerView: 4,
+                  },
+                  720: {
+                    slidesPerView: 5,
+                  },
+                  992: {
+                    slidesPerView: 6,
+                  },
+                }}
+                style={{ margin: '0 35px' }}
+              >
+                {token_nets.map((net: any, index: number) => (
+                  <SwiperSlide key={'swiper' + net.name} virtualIndex={index}>
+                    <ButtonWithActive
+                      isActive={index === activeNetIndex}
+                      size='large'
+                      width={60}
+                      handleFn={() => handleNetChange(index)}
+                      label={net.name?.replace('Ethereum', 'ERC20')?.replace('Binance', 'BEP20')}
+                    />
+                  </SwiperSlide>
+                ))}
+              </SwiperReact>
+            </Box>
+          </div>
+        )}
+        {token_nets.length === 2 && (
+          <div
+            style={{
+              margin: 'auto',
+              marginTop: '10px',
+              alignItems: 'center',
+              width: 'fit-content',
+            }}
+          >
+            {token_nets.map((net: any, index: number) => (
+              <ButtonWithActive
+                isActive={index === activeNetIndex}
+                size='large'
+                width={80}
+                handleFn={() => handleNetChange(index)}
+                label={net.name}
+              />
+            ))}
+          </div>
+        )}
+        {/* {activeTokenIndex === 9 && (
+          <div
+            style={{
+              margin: 'auto',
+              marginTop: '20px',
+              alignItems: 'center',
+            }}
+          >
+            <Box m='10px 20px' position='relative'>
+              <PrevButtonForSwiper />
+              <NextButtonForSwiper />
+              <SwiperReact
+                modules={[Pagination, Navigation]}
+                pagination={{ clickable: false, el: '.pagination' }}
+                spaceBetween={1}
+                slidesPerView={2}
+                allowSlideNext
+                centeredSlides={false}
+                cardsEffect={{ perSlideOffset: 0 }}
+                virtual
+                draggable={false}
+                allowTouchMove={false}
+                navigation={{
+                  nextEl: '.hl-swiper-next',
+                  prevEl: '.hl-swiper-prev',
+                }}
+                style={{ margin: '0 35px' }}
+              >
+                {nft_types.map((net, index) => (
+                  <SwiperSlide key={'swiper' + net} virtualIndex={index}>
+                    <ButtonWithActive
+                      isActive={index === activeNetIndex}
+                      size='large'
+                      handleFn={() => handleNetChange(index)}
+                      label={net}
+                    />
+                  </SwiperSlide>
+                ))}
+              </SwiperReact>
+            </Box>
+          </div>
+        )} */}
+        {activeTokenIndex !== 2 && activeTokenIndex !== 3 && activeTokenIndex !== 9 && (
+          <Typography
+            variant='h5'
+            component='h5'
+            textAlign='center'
+            pt={2}
+            pb={0.5}
+            color='#A9ADBD'
+            fontSize='16px'
+          >
+            {`1 ${activeToken?.name} = $${priceData[activeToken?.name.concat('-USD')]} USD`}
+          </Typography>
+        )}
+
+        <Box style={style_box_address}>
+          <Typography
+            variant='h6'
+            component='h6'
+            textAlign='center'
+            color='#AAAAAA'
+            fontSize='14px'
+          >
+            Deposit address
+          </Typography>
           <Box
             display='flex'
-            justifyContent='space-between'
+            justifyContent='center'
             alignItems='center'
-            sx={{ margin: '8px 20px' }}
+            sx={{ gap: '10px' }}
+            mt={1}
           >
-            <Button
-              variant='contained'
-              color='secondary'
-              className='balance-btn'
-              sx={{ color: theme.palette.text.secondary, fontSize: '14px' }}
-              onClick={() => navigate(-1)}
-            >
-              Balance
-            </Button>
-            <Box className='currency_select'>
-              <Select
-                value={activeTokenIndex}
-                onChange={handleTokenChange}
-                input={<OutlinedInput />}
-                renderValue={(selected: number) => {
-                  const token = tokenData[selected];
-                  return token ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      {Icon(token?.icon, 18)}
-                      &nbsp;
-                      {token?.name}
-                    </Box>
-                  ) : (
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      {Icon(NFTIcon, 18)}
-                      &nbsp; NFT
-                    </Box>
-                  );
-                }}
-                MenuProps={MenuProps}
-                // IconComponent={() => DownIcon(DownArrowImage, 12)}
-                // IconComponent={() => <ExpandMoreIcon />}
-                // IconComponent={() => <Person />}
-                sx={style_select}
-                inputProps={{ 'aria-label': 'Without label' }}
-              >
-                {tokenData &&
-                  'map' in tokenData &&
-                  tokenData?.map((token: any, index: number) => (
-                    <MenuItem
-                      className='menuitem-currency'
-                      key={token?.id}
-                      value={index}
-                      sx={style_menuitem}
-                    >
-                      {Icon(token.icon, 18)}
-                      &nbsp;
-                      {token?.name}
-                    </MenuItem>
-                  ))}
-                <MenuItem
-                  className='menuitem-currency'
-                  key='0'
-                  value={tokenData?.length ?? 0}
-                  sx={style_menuitem}
-                >
-                  {Icon(NFTIcon, 18)}
-                  &nbsp; NFT
-                </MenuItem>
-              </Select>
-            </Box>
-          </Box>
-          <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
-          {token_nets.length > 2 && (
-            <div
-              style={{
-                margin: 'auto',
-                marginTop: '20px',
-                alignItems: 'center',
-              }}
-            >
-              <Box m='10px 20px' position='relative'>
-                <PrevButtonForSwiper />
-                <NextButtonForSwiper />
-                <SwiperReact
-                  modules={[Pagination, Navigation]}
-                  pagination={{ clickable: false, el: '.pagination' }}
-                  spaceBetween={1}
-                  slidesPerView={3}
-                  allowSlideNext
-                  centeredSlides={false}
-                  cardsEffect={{ perSlideOffset: 0 }}
-                  virtual
-                  draggable={false}
-                  allowTouchMove={false}
-                  navigation={{
-                    nextEl: '.hl-swiper-next',
-                    prevEl: '.hl-swiper-prev',
-                  }}
-                  breakpoints={{
-                    360: {
-                      slidesPerView: 3,
-                    },
-                    576: {
-                      slidesPerView: 4,
-                    },
-                    720: {
-                      slidesPerView: 5,
-                    },
-                    992: {
-                      slidesPerView: 6,
-                    },
-                  }}
-                  style={{ margin: '0 35px' }}
-                >
-                  {token_nets.map((net: any, index: number) => (
-                    <SwiperSlide key={'swiper' + net.name} virtualIndex={index}>
-                      <ButtonWithActive
-                        isActive={index === activeNetIndex}
-                        size='large'
-                        width={60}
-                        handleFn={() => handleNetChange(index)}
-                        label={net.name?.replace('Ethereum', 'ERC20')?.replace('Binance', 'BEP20')}
-                      />
-                    </SwiperSlide>
-                  ))}
-                </SwiperReact>
-              </Box>
-            </div>
-          )}
-          {token_nets.length === 2 && (
-            <div
-              style={{
-                margin: 'auto',
-                marginTop: '10px',
-                alignItems: 'center',
-                width: 'fit-content',
-              }}
-            >
-              {token_nets.map((net: any, index: number) => (
-                <ButtonWithActive
-                  isActive={index === activeNetIndex}
-                  size='large'
-                  width={80}
-                  handleFn={() => handleNetChange(index)}
-                  label={net.name}
-                />
-              ))}
-            </div>
-          )}
-          {/* {activeTokenIndex === 9 && (
-            <div
-              style={{
-                margin: 'auto',
-                marginTop: '20px',
-                alignItems: 'center',
-              }}
-            >
-              <Box m='10px 20px' position='relative'>
-                <PrevButtonForSwiper />
-                <NextButtonForSwiper />
-                <SwiperReact
-                  modules={[Pagination, Navigation]}
-                  pagination={{ clickable: false, el: '.pagination' }}
-                  spaceBetween={1}
-                  slidesPerView={2}
-                  allowSlideNext
-                  centeredSlides={false}
-                  cardsEffect={{ perSlideOffset: 0 }}
-                  virtual
-                  draggable={false}
-                  allowTouchMove={false}
-                  navigation={{
-                    nextEl: '.hl-swiper-next',
-                    prevEl: '.hl-swiper-prev',
-                  }}
-                  style={{ margin: '0 35px' }}
-                >
-                  {nft_types.map((net, index) => (
-                    <SwiperSlide key={'swiper' + net} virtualIndex={index}>
-                      <ButtonWithActive
-                        isActive={index === activeNetIndex}
-                        size='large'
-                        handleFn={() => handleNetChange(index)}
-                        label={net}
-                      />
-                    </SwiperSlide>
-                  ))}
-                </SwiperReact>
-              </Box>
-            </div>
-          )} */}
-          {activeTokenIndex !== 2 && activeTokenIndex !== 3 && activeTokenIndex !== 9 && (
-            <Typography
-              variant='h5'
-              component='h5'
-              textAlign='center'
-              pt={2}
-              pb={0.5}
-              color='#A9ADBD'
-              fontSize='16px'
-            >
-              {`1 ${activeToken?.name} = $${priceData[activeToken?.name.concat('-USD')]} USD`}
-            </Typography>
-          )}
-
-          <Box style={style_box_address}>
             <Typography
               variant='h6'
-              component='h6'
-              textAlign='center'
-              color='#AAAAAA'
-              fontSize='14px'
-            >
-              Deposit address
-            </Typography>
-            <Box
-              display='flex'
-              justifyContent='center'
-              alignItems='center'
-              sx={{ gap: '10px' }}
-              mt={1}
-            >
-              <Typography
-                variant='h6'
-                component='article'
-                textAlign='left'
-                fontWeight='normal'
-                fontFamily='Arial, sans-serif'
-                letterSpacing={0.5}
-                width={300}
-                fontSize='14px'
-                style={{ overflowWrap: 'break-word' }}
-              >
-                <span style={{ color: '#0abab5' }}>{address?.slice(0, 4)}</span>
-                {address?.slice(4, -4)}
-                <span style={{ color: '#0abab5' }}>{address?.slice(-4)}</span>
-              </Typography>
-              <Button style={style_btn_copy} onClick={copyContent}>
-                <ContentCopyIcon fontSize='large' color='info' />
-              </Button>
-            </Box>
-            <Box textAlign='center' mt={1.5}>
-              <div
-                id='qrcode'
-                style={{
-                  margin: 'auto',
-                  padding: '10px',
-                  width: 'fit-content',
-                  paddingBottom: 'calc(10px - 4px)',
-                  borderRadius: '20px',
-                  backgroundColor: '#555555',
-                }}
-              />
-            </Box>
-            <Typography
-              variant='h6'
-              textAlign='center'
-              mt={1.5}
               component='article'
-              color='#AAAAAA'
-              width='100%'
-              fontSize='12px'
+              textAlign='left'
+              fontWeight='normal'
+              fontFamily='Arial, sans-serif'
+              letterSpacing={0.5}
+              width={300}
+              fontSize='14px'
+              style={{ overflowWrap: 'break-word' }}
             >
-              Send
-              {` ${activeToken?.name ?? 'NFT'} `}
-              to the above address to deposit the equivalent token.
+              <span style={{ color: '#0abab5' }}>{address?.slice(0, 4)}</span>
+              {address?.slice(4, -4)}
+              <span style={{ color: '#0abab5' }}>{address?.slice(-4)}</span>
             </Typography>
+            <Button style={style_btn_copy} onClick={copyContent}>
+              <ContentCopyIcon fontSize='large' color='info' />
+            </Button>
           </Box>
-        </ScrollBox>
-      )}
+          <Box textAlign='center' mt={1.5}>
+            <div
+              id='qrcode'
+              style={{
+                margin: 'auto',
+                padding: '10px',
+                width: 'fit-content',
+                paddingBottom: 'calc(10px - 4px)',
+                borderRadius: '20px',
+                backgroundColor: '#555555',
+              }}
+            />
+          </Box>
+          <Typography
+            variant='h6'
+            textAlign='center'
+            mt={1.5}
+            component='article'
+            color='#AAAAAA'
+            width='100%'
+            fontSize='12px'
+          >
+            Send
+            {` ${activeToken?.name ?? 'NFT'} `}
+            to the above address to deposit the equivalent token.
+          </Typography>
+        </Box>
+      </ScrollBox>
       {/* <hr style={{ background: 'grey', height: '0.1px', border: 'none' }} /> */}
       {/* <Box className='bottom-box'>
         <Button style={style_btn_buy_ext} onClick={() => alert('Working now. Please wait.')}>

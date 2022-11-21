@@ -19,10 +19,15 @@ const defaultTheme: Theme = createTheme({
     },
     background: {
       default: '#202328',
+      paper: '#191c20',
     },
     text: {
       primary: '#FFFFFF',
       secondary: '#AAAAAA',
+    },
+    grey: {
+      '800': '#333333',
+      '900': '#191c20',
     },
   },
 });

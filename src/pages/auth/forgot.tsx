@@ -6,23 +6,22 @@ import { useAuth } from '~/context/AuthProvider';
 import './auth.scss';
 
 const Forgot = () => {
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
   const { authed, signIn } = useAuth();
   const navigate = useNavigate();
 
-  const handlePasswordChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
-    setPassword(e.target.value);
+  const handleEmailChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
+  const handleCodeChange = (e: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    setCode(e.target.value);
   };
 
   return (
     <Box sx={{ backgroundColor: '#17181b', textAlign: 'center', marginTop: '8rem' }}>
-      <Typography
-        variant='h3'
-        component={'article'}
-        fontWeight='bold'
-        marginTop={2}
-        marginBottom={8}
-      >
+      <Typography variant='h3' component='article' fontWeight='bold' marginTop={2} marginBottom={8}>
         Forgot Password
       </Typography>
       <Typography variant='h6' component={'article'} fontWeight='bold' color='grey'>
@@ -42,8 +41,8 @@ const Forgot = () => {
             sx={{ color: 'white', width: '80%', fontSize: 14, marginTop: '0' }}
             size='medium'
             placeholder='Your email'
-            value={password}
-            onChange={handlePasswordChange}
+            value={email}
+            onChange={handleEmailChange}
             disableUnderline
           />
           <Button
@@ -69,9 +68,9 @@ const Forgot = () => {
           className='pw-input'
           sx={{ color: 'white', fontSize: 14 }}
           size='medium'
-          placeholder='Your email'
-          value={password}
-          onChange={handlePasswordChange}
+          placeholder='Verification code'
+          value={code}
+          onChange={handleCodeChange}
           disableUnderline
         />
         <Button

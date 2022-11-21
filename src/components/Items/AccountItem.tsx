@@ -4,7 +4,15 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { style_btn_copy } from 'src/components/styles';
 import { useTheme } from '@mui/material';
 
-const AccountItem = ({ label, copyFn }: { label: string; copyFn: () => void }) => {
+const AccountItem = ({
+  label,
+  value,
+  copyFn,
+}: {
+  label: string;
+  value: string;
+  copyFn: () => void;
+}) => {
   const theme = useTheme();
   return (
     <>
@@ -32,7 +40,7 @@ const AccountItem = ({ label, copyFn }: { label: string; copyFn: () => void }) =
             style={{ overflowWrap: 'break-word' }}
             color={theme.palette.primary.main}
           >
-            Private Key **************************************************
+            {value}
           </Typography>
           <Button style={style_btn_copy} onClick={copyFn}>
             <ContentCopyIcon fontSize='large' color='info' />

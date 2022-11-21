@@ -1,7 +1,6 @@
 import { getApi, postApi } from './DefaultRequest';
 
 export const getQuery = async (data: any) => {
-  console.log('getQuery');
   const { queryKey } = data;
   return getApi(queryKey.join(''));
 };

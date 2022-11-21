@@ -33,6 +33,8 @@ interface SocketContextType {
   successResult?: Result;
   withdrawMutate?: any;
   withdrawIsLoading?: boolean;
+  swapIsLoading?: boolean;
+  swapMutate?: any;
 }
 
 const init_tokens = [
@@ -223,7 +225,45 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
           count: (prev?.count ?? 0) + 1,
           message: `Your withdraw request of ${error.amount} ${
             tokenData?.find((a: any) => a.id === error.token_id)?.name
-          } has been failed. Check if amount is less than 0.01 for test mode. Or please contact to support team.`,
+          } has been failed. Check if amount is less than 0.01 for test mode. Or please contact to the support team.`,
+        }));
+      },
+      onSettled: () => {
+        refetch(['ListAssets']);
+      },
+    },
+  );
+
+  const {
+    status: swapStatus,
+    isLoading: swapIsLoading,
+    isError: swapIsError,
+    mutate: swapMutate,
+    data: swapData,
+  } = useMutation(
+    (data) => {
+      return postQuery('/Swap', data);
+    },
+    {
+      onSuccess: (data) => {
+        if (data?.success) {
+          const { swapData } = data;
+          setSuccessResult((prev) => ({
+            count: (prev?.count ?? 0) + 1,
+            message: `Your swap request from ${swapData.fromToken} to ${swapData.toToken} has been successful. Check your balance.`,
+          }));
+        } else {
+          setErrorResult((prev) => ({
+            count: (prev?.count ?? 0) + 1,
+            message: `${data?.message} Check your input is correct.`,
+          }));
+        }
+      },
+      onError: (data: any) => {
+        const { error } = data;
+        setErrorResult((prev) => ({
+          count: (prev?.count ?? 0) + 1,
+          message: `Your swap request from ${swapData.fromToken} to ${swapData.toToken} has been failed. Please contact to the support team.`,
         }));
       },
       onSettled: () => {
@@ -276,9 +316,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (successResult?.count ?? 0 > 0) {
-      console.log('success');
       // chrome.runtime.sendMessage(successResult, function (response) {
-      //   console.log(response);
       // });
       refetch(['ListAssets']);
     }
@@ -287,7 +325,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (errorResult?.count ?? 0 > 0) {
       // chrome.runtime.sendMessage(errorResult, function (response) {
-      //   console.log(response);
       // });
     }
   }, [errorResult]);
@@ -372,6 +409,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         transactionData: transactionData?.rows,
         transactionTotal: transactionData?.total ? transactionData?.total[0].Total : 0,
         transactionMutate,
+        swapIsLoading,
+        swapMutate,
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useDeferredValue } from 'react';
 import {
   Button,
   Box,
@@ -12,7 +12,7 @@ import {
   ToggleButton,
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import { Swiper as SwiperReact, SwiperSlide } from 'swiper/react';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
 import 'swiper/swiper-bundle.css';
 import Swiper, { Virtual, Pagination, Navigation } from 'swiper';
 import { NumericFormat } from 'react-number-format';
@@ -21,97 +21,95 @@ import { useSocket } from 'src/context/SocketProvider';
 import ScrollBox from '~/components/Layout/ScrollBox';
 import Icon from '~/components/Icon';
 import { MenuProps } from '~/constants';
-import { style_box_address, style_menuitem, style_select } from '~/components/styles';
+import {
+  style_box_address,
+  style_input_paper,
+  style_menuitem,
+  style_select,
+} from '~/components/styles';
 import { useTheme } from '@mui/material';
 import { style_type_btn_ext, style_type_btn_active_ext } from 'src/components/styles';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { NextButtonForSwiper, PrevButtonForSwiper } from '~/components/Buttons/ImageButton';
 import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
+import { grey } from '@mui/material/colors';
+import { precision } from '~/utils/helper';
+import { useAuth } from '~/context/AuthProvider';
 
-Swiper.use([Virtual, Navigation, Pagination]);
+enum Focus {
+  From,
+  To,
+}
 
 const style_btn_toggle = {
   color: '#AAAAAA',
   fontSize: '14px',
   margin: '2px',
-  backgroundColor: '#333333',
+  backgroundColor: grey[900],
   height: '20px',
   width: '40px',
 };
 
-const style_textfield = {
-  color: 'white',
-  fontSize: '14px',
-  fontWeight: 'bold',
-};
-
-const style_input_paper = {
-  padding: '2px 8px',
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  backgroundColor: '#191c20',
-  boxSizing: 'border-box',
-  border: '3px solid #333333',
-  borderRadius: '10px',
-  boxShadow: 'none',
-  height: '40px',
-};
+MenuProps.PaperProps.style.width = 120;
 
 const Swap = () => {
-  const [activeTokenIndex, setActiveTokenIndex] = useState(0);
-  const [percent, setPercent] = useState<string>('');
-  const [activeTokenTypeIndex, setActiveTokenTypeIndex] = useState(0);
-  const [address, setAddress] = useState<string>('');
-  const [amount, setAmount] = useState<string>('0.0001');
+  const [fromTokenIndex, setFromTokenIndex] = useState(0);
+  const [toTokenIndex, setToTokenIndex] = useState(2);
+  const [fromAmount, setFromAmount] = useState<string>('0');
+  const [toAmount, setToAmount] = useState<string>('0');
+  const [focus, setFocus] = useState<Focus>(Focus.From);
+  const [rate, setRate] = useState<number>(1);
   const [error, setError] = useState<any>({});
-  const [activeNetIndex, setActiveNetIndex] = useState<number>(0);
+
+  const fromDeferredAmount = useDeferredValue(fromAmount);
+  const toDeferredAmount = useDeferredValue(toAmount);
 
   const navigate = useNavigate();
-  const { token } = useParams();
 
-  const { networkError, balanceData, tokenData, netData, withdrawMutate, withdrawIsLoading } =
+  const { networkError, balanceData, tokenData, netData, swapMutate, swapIsLoading, priceData } =
     useSocket();
+
+  const { user } = useAuth();
 
   const theme = useTheme();
 
-  const activeToken = tokenData[activeTokenIndex];
-  const token_net_ids = Object.keys(activeToken?.address) ?? [];
-  const token_nets = netData?.filter((net: any) => token_net_ids.includes(net.id));
-  const activeNet = token_nets[activeNetIndex];
+  const fromToken = tokenData[fromTokenIndex];
+  const toToken = tokenData[toTokenIndex];
 
-  const handleTokenChange = (event: SelectChangeEvent<typeof activeTokenIndex>) => {
+  const handleFromTokenChange = (event: SelectChangeEvent<typeof fromTokenIndex>) => {
     const {
       target: { value },
     } = event;
-    setActiveTokenIndex(value as number);
-    setActiveNetIndex(0);
+    setFromTokenIndex(value as number);
   };
 
-  const handleNetChange = (index: number) => {
-    if (index !== activeNetIndex) {
-      setActiveNetIndex(index);
-    }
+  const handleToTokenChange = (event: SelectChangeEvent<typeof toTokenIndex>) => {
+    const {
+      target: { value },
+    } = event;
+    setToTokenIndex(value as number);
   };
 
-  const handlePercentChange = (e: any) => {
-    const p = e.target.value;
-    setPercent(p);
-  };
-
-  const handleChangeAddressInput = (e: any) => {
-    const { value } = e.target;
-    if (address !== value) {
-      setAddress(value);
-    }
-  };
-
-  const handleChangeAmountInput = (e: any) => {
+  const handleChangeFromInput = (e: any) => {
     const { value }: { value: string } = e.target;
-    if (amount !== value) {
-      setAmount(value);
-      setPercent('');
-    }
+    setFromAmount(value);
+    setFocus(Focus.From);
+  };
+
+  const handleChangeToInput = (e: any) => {
+    const { value }: { value: string } = e.target;
+    setToAmount(value);
+    setFocus(Focus.To);
+  };
+
+  const handleConvert = () => {
+    const temp = fromTokenIndex;
+    setFromTokenIndex(toTokenIndex);
+    setToTokenIndex(temp);
+  };
+
+  const setMax = () => {
+    setFromAmount(balanceData[fromToken.id]);
   };
 
   const validate = (
@@ -125,7 +123,7 @@ const Swap = () => {
       alert('Invalid input.');
       return false;
     }
-    if (!am || am <= 0 || am > Math.min(balanceData[activeToken?.id], 0.01)) {
+    if (!am || am <= 0 || am > Math.min(balanceData[fromToken?.id], 0.01)) {
       alert('Invalid input.');
       return false;
     }
@@ -140,348 +138,254 @@ const Swap = () => {
     return true;
   };
 
-  const sendRequestWithdraw = () => {
-    if (validate(address, amount, activeNet?.id ?? '0', activeToken.id)) {
-      balanceData[activeToken.id] -= parseFloat(amount);
-      chrome.runtime.sendMessage('test', function (response) {
-        console.log(response);
-      });
-      // chrome.notifications.create({
-      //   type: 'basic',
-      //   iconUrl: 'favicon-32x32.png',
-      //   title: 'Your withdrawal request',
-      //   message: 'After a success withdraw process, you will get tokens soon. Good luck.',
-      // });
-      withdrawMutate({
-        user: '1',
-        net: activeNet.id,
-        asset: activeToken.id,
-        amount: parseFloat(amount),
-        receiver: address, // SOL address
-      });
-    }
+  const sendRequestSwap = () => {
+    const data = {
+      user_id: user.id,
+      fromToken: fromToken.id,
+      toToken: toToken.id,
+      fromAmount,
+      toAmount,
+    };
+    swapMutate(data);
   };
 
   useEffect(() => {
-    if (percent === '' || percent === '0') return;
-    setAmount(
-      (
-        Math.floor(
-          ((parseFloat(balanceData[activeToken?.id]) * parseFloat(percent)) / 100) * 100000,
-        ) / 100000
-      ).toString(),
-    );
-  }, [percent]);
+    setFromAmount(balanceData[fromToken.id]);
+  }, [fromTokenIndex, toTokenIndex]);
 
   useEffect(() => {
-    setActiveTokenIndex(parseInt(token ?? '0'));
-  }, [token]);
+    if (!priceData) return;
+    const rate_curr =
+      Number(priceData[fromToken?.name?.concat('-USD')]) /
+      Number(priceData[toToken?.name?.concat('-USD')]);
+    setRate(rate_curr);
+    const timer = setTimeout(() => {
+      if (focus === Focus.From) {
+        const amount = (Number(fromAmount) * rate_curr).toFixed(
+          precision(Number(priceData[toToken?.name?.concat('-USD')])),
+        );
+        setToAmount(amount);
+      } else {
+        const amount = (Number(toAmount) / rate_curr).toFixed(
+          precision(Number(priceData[fromToken?.name?.concat('-USD')])),
+        );
+        setFromAmount(amount);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [fromDeferredAmount, toDeferredAmount, priceData]);
 
   return (
     <Box className='base-box'>
       <ScrollBox>
-        <Box
-          display='flex'
-          justifyContent='space-between'
-          alignItems='center'
-          sx={{ margin: '8px 20px' }}
-        >
-          <Button
-            variant='contained'
-            size='medium'
-            color='secondary'
-            className='balance-btn'
-            sx={{ color: theme.palette.text.secondary, fontSize: '14px' }}
-            onClick={() => navigate(-1)}
-          >
-            Balance
-          </Button>
-
-          <Box className='currency_select' sx={{ margin: 0 }}>
-            <Select
-              value={activeTokenIndex}
-              onChange={handleTokenChange}
-              input={<OutlinedInput />}
-              renderValue={(selected: number) => {
-                const token = tokenData[selected];
-                return (
-                  token && (
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      {Icon(token?.icon, 18)}
-                      &nbsp;
-                      {token?.name}
-                    </Box>
-                  )
-                );
-              }}
-              MenuProps={MenuProps}
-              // IconComponent={() => DownIcon(DownArrowImage, 12)}
-              // IconComponent={() => <ExpandMoreIcon />}
-              // IconComponent={() => <Person />}
-              sx={{ ...style_select }}
-              inputProps={{ 'aria-label': 'Without label' }}
-            >
-              {tokenData &&
-                'map' in tokenData &&
-                tokenData?.map((token: any, index: number) => (
-                  <MenuItem
-                    className='menuitem-currency'
-                    key={token?.id}
-                    value={index}
-                    sx={style_menuitem}
-                  >
-                    {Icon(token.icon, 18)}
-                    &nbsp;
-                    {token?.name}
-                  </MenuItem>
-                ))}
-            </Select>
-          </Box>
-        </Box>
-        <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
         <Box>
-          <Typography
-            variant='h6'
-            component='article'
-            textAlign='left'
-            fontWeight='normal'
-            fontSize='16px'
-            alignItems='center'
-            mt={2}
-            style={{ overflowWrap: 'break-word', textAlign: 'center' }}
-          >
-            Current balance:&nbsp;
-            <span style={{ color: '#0abab5' }}>
-              {balanceData[activeToken?.id] ?? '0'}
-              &nbsp;
-              {activeToken?.name}
-            </span>
-          </Typography>
-          {token_nets.length > 2 && (
-            <div
-              style={{
-                margin: 'auto',
-                marginTop: '20px',
-                alignItems: 'center',
-              }}
-            >
-              <Box m='10px 20px' position='relative'>
-                <PrevButtonForSwiper />
-                <NextButtonForSwiper />
-                <SwiperReact
-                  modules={[Pagination, Navigation]}
-                  pagination={{ clickable: false, el: '.pagination' }}
-                  spaceBetween={1}
-                  slidesPerView={3}
-                  allowSlideNext
-                  centeredSlides={false}
-                  cardsEffect={{ perSlideOffset: 0 }}
-                  virtual
-                  draggable={false}
-                  allowTouchMove={false}
-                  navigation={{
-                    nextEl: '.hl-swiper-next',
-                    prevEl: '.hl-swiper-prev',
-                  }}
-                  breakpoints={{
-                    360: {
-                      slidesPerView: 3,
-                    },
-                    576: {
-                      slidesPerView: 4,
-                    },
-                    720: {
-                      slidesPerView: 5,
-                    },
-                    992: {
-                      slidesPerView: 6,
-                    },
-                  }}
-                  style={{ margin: '0 35px' }}
-                >
-                  {token_nets.map((net: any, index: number) => (
-                    <SwiperSlide key={'swiper' + net.name} virtualIndex={index}>
-                      <ButtonWithActive
-                        isActive={index === activeNetIndex}
-                        size='large'
-                        width={60}
-                        handleFn={() => handleNetChange(index)}
-                        label={net.name?.replace('Ethereum', 'ERC20')?.replace('Binance', 'BEP20')}
-                      />
-                    </SwiperSlide>
-                  ))}
-                </SwiperReact>
-              </Box>
-            </div>
-          )}
-          {token_nets.length === 2 && (
-            <div
-              style={{
-                margin: 'auto',
-                marginTop: '10px',
-                alignItems: 'center',
-                width: 'fit-content',
-              }}
-            >
-              {token_nets.map((net: any, index: number) => (
-                <ButtonWithActive
-                  isActive={index === activeNetIndex}
-                  size='large'
-                  width={80}
-                  handleFn={() => handleNetChange(index)}
-                  label={net.name}
-                />
-              ))}
-            </div>
-          )}
           {networkError ? (
             <Box>Network error...</Box>
           ) : (
             <Box margin='20px 20px 0' style={{ backgroundColor: 'transparent' }}>
               <Typography variant='h6' component='h6' textAlign='left' color='#AAAAAA' mb={1}>
-                Withdraw address
-                <span style={{ color: '#0abab5' }}>
-                  (Note: Only {tokenData[activeTokenIndex]?.label})
-                </span>
+                You get approximately
               </Typography>
-              <Paper component='form' sx={style_input_paper}>
-                <InputBase
-                  sx={style_textfield}
-                  fullWidth
-                  placeholder='Fill in carefully according to the specific currency'
-                  inputProps={{
-                    'aria-label': 'withdraw address',
+              <Paper
+                component='form'
+                sx={style_input_paper}
+                style={{ borderRadius: '10px 10px 0 0', position: 'relative' }}
+              >
+                <Button
+                  color='secondary'
+                  variant='contained'
+                  sx={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: '100%',
+                    transform: 'translate(-50%, -40%)',
+                    minWidth: 0,
+                    padding: 0.5,
+                    borderRadius: '10px',
+                    border: `1px solid ${grey[800]}`,
                   }}
-                  value={address}
-                  onChange={handleChangeAddressInput}
-                />
-              </Paper>
-              {activeToken.id !== '10' && (
-                <>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Typography
-                      variant='h6'
-                      component='h6'
-                      textAlign='left'
-                      color='#AAAAAA'
-                      mt={2}
-                      mb={1}
-                    >
-                      Withdraw amount
-                    </Typography>
-                    <Typography
-                      variant='h6'
-                      component='h6'
-                      textAlign='left'
-                      color='#AAAAAA'
-                      mt={2}
-                      mb={1}
-                    >
-                      Min: 0.00001
-                    </Typography>
-                  </div>
-                  <Paper component='form' sx={style_input_paper}>
-                    <NumericFormat
-                      style={{
-                        backgroundColor: 'transparent',
-                        color: 'white',
-                        border: 'none',
-                        paddingLeft: '0',
-                        width: '100px',
-                        fontSize: '14px',
-                      }}
-                      thousandSeparator
-                      decimalScale={5}
-                      value={amount}
-                      onChange={handleChangeAmountInput}
-                      // prefix="$"
-                    />
-                    {/* <InputBase
-              sx={style_textfield}
-              placeholder="Amount to withdraw"
-              inputProps={{
-                'aria-label': 'amount to withdraw',
-              }}
-              value={amount}
-              componentsProps={{
-                root: (
+                  onClick={handleConvert}
+                >
+                  <SwapVertIcon fontSize='large' sx={{ path: { fill: 'white' } }} />
+                </Button>
+                <Box className='currency_select' sx={{ margin: 0 }}>
+                  <Select
+                    value={fromTokenIndex}
+                    onChange={handleFromTokenChange}
+                    input={<OutlinedInput />}
+                    renderValue={(selected: number) => {
+                      const token = tokenData[selected];
+                      return (
+                        token && (
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            {Icon(token?.icon, 18)}
+                            &nbsp;
+                            {token?.name}
+                          </Box>
+                        )
+                      );
+                    }}
+                    MenuProps={MenuProps}
+                    // IconComponent={() => DownIcon(DownArrowImage, 12)}
+                    // IconComponent={() => <ExpandMoreIcon />}
+                    // IconComponent={() => <Person />}
+                    sx={{ ...style_select }}
+                    inputProps={{ 'aria-label': 'Without label' }}
+                  >
+                    {tokenData &&
+                      'map' in tokenData &&
+                      tokenData?.map((token: any, index: number) => (
+                        <MenuItem
+                          className='menuitem-currency'
+                          key={token?.id}
+                          value={index}
+                          sx={style_menuitem}
+                          disabled={index === toTokenIndex}
+                        >
+                          {Icon(token.icon, 18)}
+                          &nbsp;
+                          {token?.name}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </Box>
+                <Button
+                  value='0.01'
+                  aria-label='left aligned'
+                  sx={{ ...style_btn_toggle, borderRadius: '5px', marginLeft: 'auto', minWidth: 0 }}
+                  onClick={setMax}
+                >
+                  Max
+                </Button>
+                <Box ml='20px' width={80}>
+                  <Typography
+                    variant='h6'
+                    component='h6'
+                    lineHeight={'normal'}
+                    textAlign='right'
+                    color={theme.palette.text.secondary}
+                  >
+                    Send
+                  </Typography>
                   <NumericFormat
-                    value="20020220"
-                    allowLeadingZeros
-                    thousandSeparator=","
+                    style={{
+                      backgroundColor: 'transparent',
+                      color: 'white',
+                      border: 'none',
+                      paddingLeft: '0',
+                      width: '100%',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      textAlign: 'right',
+                    }}
+                    thousandSeparator
+                    decimalScale={5}
+                    value={fromAmount}
+                    onChange={handleChangeFromInput}
                   />
-                ),
-              }}
-              onChange={handleChangeAmountInput}
-            /> */}
-                    <ToggleButtonGroup
-                      value={percent}
-                      exclusive
-                      onChange={handlePercentChange}
-                      aria-label='text alignment'
-                      color='success'
-                      sx={{
-                        marginRight: '-2px',
-                        borderRadius: '15px',
-                        color: 'white',
-                        backgroundColor: 'transparent',
-                        fontSize: '14px',
-                      }}
-                    >
-                      <ToggleButton
-                        value='0.01'
-                        aria-label='left aligned'
-                        sx={{ ...style_btn_toggle, borderRadius: '15px' }}
-                      >
-                        Min
-                      </ToggleButton>
-                      <ToggleButton value='25' aria-label='centered' sx={style_btn_toggle}>
-                        25%
-                      </ToggleButton>
-                      <ToggleButton value='50' aria-label='right aligned' sx={style_btn_toggle}>
-                        50%
-                      </ToggleButton>
-                      <ToggleButton
-                        value='100'
-                        aria-label='justified'
-                        sx={{ ...style_btn_toggle, borderRadius: '15px' }}
-                      >
-                        Max
-                      </ToggleButton>
-                    </ToggleButtonGroup>
-                  </Paper>
-                </>
-              )}
+                </Box>
+              </Paper>
+              <Paper
+                component='form'
+                sx={style_input_paper}
+                style={{ borderRadius: '0 0 10px 10px' }}
+              >
+                <Box className='currency_select' sx={{ margin: 0 }}>
+                  <Select
+                    value={toTokenIndex}
+                    onChange={handleToTokenChange}
+                    input={<OutlinedInput />}
+                    renderValue={(selected: number) => {
+                      const token = tokenData[selected];
+                      return (
+                        token && (
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            {Icon(token?.icon, 18)}
+                            &nbsp;
+                            {token?.name}
+                          </Box>
+                        )
+                      );
+                    }}
+                    MenuProps={MenuProps}
+                    // IconComponent={() => DownIcon(DownArrowImage, 12)}
+                    // IconComponent={() => <ExpandMoreIcon />}
+                    // IconComponent={() => <Person />}
+                    sx={{ ...style_select }}
+                    inputProps={{ 'aria-label': 'Without label' }}
+                  >
+                    {tokenData &&
+                      'map' in tokenData &&
+                      tokenData?.map((token: any, index: number) => (
+                        <MenuItem
+                          className='menuitem-currency'
+                          key={token?.id}
+                          value={index}
+                          sx={style_menuitem}
+                          disabled={index === fromTokenIndex}
+                        >
+                          {Icon(token.icon, 18)}
+                          &nbsp;
+                          {token?.name}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </Box>
+                <Box ml='20px' width={80}>
+                  <Typography
+                    variant='h6'
+                    component='h6'
+                    lineHeight={'normal'}
+                    textAlign='right'
+                    color={theme.palette.text.secondary}
+                  >
+                    Get
+                  </Typography>
+                  <NumericFormat
+                    style={{
+                      backgroundColor: 'transparent',
+                      color: 'white',
+                      border: 'none',
+                      paddingLeft: '0',
+                      width: '100%',
+                      fontSize: '14px',
+                      fontWeight: 'bold',
+                      textAlign: 'right',
+                    }}
+                    thousandSeparator
+                    decimalScale={5}
+                    value={toAmount}
+                    onChange={handleChangeToInput}
+                  />
+                </Box>
+              </Paper>
               <Typography
-                variant='h5'
-                component='h5'
+                variant='h6'
+                component='h6'
                 textAlign='left'
                 fontWeight='bold'
                 alignItems='center'
-                mt={3}
-                mb={2}
-                style={{ overflowWrap: 'break-word', textAlign: 'center' }}
+                mt={2}
+                color={theme.palette.text.secondary}
+                style={{ overflowWrap: 'break-word' }}
               >
-                Fee&nbsp;
-                <span style={{ color: '#0abab5' }}>
-                  {1}
-                  &nbsp;
-                  {activeToken?.name}
+                1 {fromToken?.name} &#8776; {rate.toFixed(precision(rate))} {toToken?.name}
+              </Typography>
+              <Typography
+                variant='h6'
+                component='h6'
+                textAlign='left'
+                fontWeight='bold'
+                alignItems='center'
+                color={theme.palette.text.secondary}
+                style={{ overflowWrap: 'break-word' }}
+              >
+                Swap fee:{' '}
+                <span style={{ color: theme.palette.text.primary }}>
+                  0.00000000 {fromToken?.name}
                 </span>
               </Typography>
-              {/* <Typography
-                variant='h6'
-                textAlign='left'
-                padding='0'
-                fontSize='14px'
-                component='article'
-                color='#AAAAAA'
-                mt={2}
-              >
-                For security purposes, large or suspicious withdrawal may take 1-6 hours for audit
-                process. <br />
-                We appreciate your patience!
-              </Typography> */}
             </Box>
           )}
         </Box>
@@ -504,10 +408,10 @@ const Swap = () => {
             //   backgroundColor: '#7eca0b88',
             // },
           }}
-          disabled={withdrawIsLoading}
-          onClick={sendRequestWithdraw}
+          disabled={swapIsLoading}
+          onClick={sendRequestSwap}
         >
-          Confirm
+          Swap Now
         </Button>
       </Box>
     </Box>

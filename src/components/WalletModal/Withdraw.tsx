@@ -11,6 +11,7 @@ import {
   TextField,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import { grey } from '@mui/material/colors';
 import { Swiper as SwiperReact, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
 import Swiper, { Virtual, Pagination, Navigation } from 'swiper';
@@ -32,6 +33,7 @@ import PaymentImage from '../../assets/coingroup/payment.png';
 import ConfirmBtn from '../../assets/coingroup/confirmBtn.png';
 import { useSocket } from '../../context/SocketProvider';
 import { NextButtonForSwiper, PrevButtonForSwiper } from '../Buttons/ImageButton';
+import { style_input_paper } from '../styles';
 
 Swiper.use([Virtual, Navigation, Pagination]);
 
@@ -100,7 +102,7 @@ const style_btn_toggle = {
   color: '#AAAAAA',
   fontSize: '14px',
   margin: '2px',
-  backgroundColor: '#333333',
+  backgroundColor: grey[800],
   height: '30px',
   width: '40px',
 };
@@ -413,21 +415,7 @@ const Withdraw = () => {
             <Typography variant='h6' component='h6' textAlign='left' color='#AAAAAA' mb={1}>
               Withdraw address
             </Typography>
-            <Paper
-              component='form'
-              sx={{
-                p: '2px 4px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                backgroundColor: '#191c20',
-                boxSizing: 'border-box',
-                border: '3px solid #333333',
-                borderRadius: '20px',
-                boxShadow: 'none',
-                height: '50px',
-              }}
-            >
+            <Paper component='form' sx={style_input_paper}>
               <InputBase
                 sx={style_textfield}
                 fullWidth
@@ -461,21 +449,7 @@ const Withdraw = () => {
                 Min: 101.6725 (0.00001 for test mode)
               </Typography>
             </div>
-            <Paper
-              component='form'
-              sx={{
-                p: '2px 4px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                backgroundColor: '#191c20',
-                boxSizing: 'border-box',
-                border: '3px solid #333333',
-                borderRadius: '20px',
-                boxShadow: 'none',
-                height: '50px',
-              }}
-            >
+            <Paper component='form' sx={style_input_paper}>
               <NumericFormat
                 style={{
                   backgroundColor: 'transparent',

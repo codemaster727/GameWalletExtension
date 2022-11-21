@@ -15,7 +15,6 @@ const Login = () => {
     const unlock_result = await signIn(password);
 
     if (unlock_result) {
-      console.log('go to balances');
     }
   };
 
@@ -34,6 +33,7 @@ const Login = () => {
         Welcome back!
       </Typography>
       <Input
+        type='password'
         className='pw-input'
         disableUnderline
         sx={{

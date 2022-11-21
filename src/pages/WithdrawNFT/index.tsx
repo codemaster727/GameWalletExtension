@@ -12,6 +12,7 @@ import {
   ToggleButton,
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
+import { grey } from '@mui/material/colors';
 import { Swiper as SwiperReact, SwiperSlide } from 'swiper/react';
 import 'swiper/swiper-bundle.css';
 import Swiper, { Virtual, Pagination, Navigation } from 'swiper';
@@ -21,7 +22,12 @@ import { useSocket } from 'src/context/SocketProvider';
 import ScrollBox from '~/components/Layout/ScrollBox';
 import Icon from '~/components/Icon';
 import { MenuProps } from '~/constants';
-import { style_box_address, style_menuitem, style_select } from '~/components/styles';
+import {
+  style_box_address,
+  style_input_paper,
+  style_menuitem,
+  style_select,
+} from '~/components/styles';
 import { useTheme } from '@mui/material';
 import { style_type_btn_ext, style_type_btn_active_ext } from 'src/components/styles';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -35,7 +41,7 @@ const style_btn_toggle = {
   color: '#AAAAAA',
   fontSize: '14px',
   margin: '2px',
-  backgroundColor: '#333333',
+  backgroundColor: grey[800],
   height: '20px',
   width: '40px',
 };
@@ -44,19 +50,6 @@ const style_textfield = {
   color: 'white',
   fontSize: '12px',
   fontWeight: 'bold',
-};
-
-const style_input_paper = {
-  padding: '2px 8px',
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  backgroundColor: '#191c20',
-  boxSizing: 'border-box',
-  border: '3px solid #333333',
-  borderRadius: '10px',
-  boxShadow: 'none',
-  height: '40px',
 };
 
 const WithdrawNFT = () => {

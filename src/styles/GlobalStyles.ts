@@ -177,7 +177,7 @@ export default createGlobalStyle<ITheme>`
 	}
 
 	.menuitem-currency {
-		width: calc(140px - 5px) !important;
+		width: calc(120px - 5px) !important;
 		min-height: 25px !important;
 		line-height: 0;
 		&:hover{
@@ -219,7 +219,7 @@ export default createGlobalStyle<ITheme>`
 
 	.MuiPaper-root fieldset {
 		border: 1px solid #666666 !important;
-		// width: 140px !important;
+		// width: 120px !important;
 	}
 
 	.css-oianzg-MuiInputBase-root-MuiOutlinedInput-root-MuiSelect-root.Mui-focused .MuiOutlinedInput-notchedOutline {

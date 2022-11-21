@@ -7,3 +7,7 @@ export const array2object = (
         ...b,
       }))
     : {};
+
+export const precision = (value: number) => {
+  return Math.min(Math.floor(value), 3) + 2;
+};

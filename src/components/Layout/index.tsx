@@ -4,6 +4,8 @@ import { useAuth } from '~/context/AuthProvider';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '../NavBar';
 import { AuthState } from '~/constants';
+import { useSocket } from '~/context/SocketProvider';
+import { Rings } from 'react-loading-icons';
 
 interface LayoutProps {
   children: React.ReactElement;
@@ -12,13 +14,14 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
   const navigate = useNavigate();
   const { authed } = useAuth();
+  const { loading } = useSocket();
   if (authed !== AuthState.AUTHED) {
     return <div>{children}</div>;
   } else {
     return (
       <Box className='extension-box'>
         <NavBar />
-        {children}
+        {loading ? <Rings style={{ marginTop: '50%' }} /> : children}
       </Box>
     );
   }

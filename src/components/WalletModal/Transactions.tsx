@@ -29,6 +29,7 @@ import DownArrowImage from '../../assets/utils/line-angle-down-icon.svg';
 import { MenuProps, MenuProps_page, page_limits } from '../../constants';
 import { style_menuitem, style_select } from '../styles';
 import { Rings } from 'react-loading-icons';
+import grey from '@mui/material/colors/grey';
 
 Swiper.use([Virtual, Navigation, Pagination]);
 
@@ -78,7 +79,7 @@ const style_cell = {
 };
 
 const style_transaction_body = {
-  backgroundColor: '#191c20',
+  backgroundColor: grey[900],
   padding: '40px',
   margin: 'auto',
   borderRadius: '0',

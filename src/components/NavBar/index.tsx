@@ -39,12 +39,12 @@ const tabs = [
     active_icon: WithdrawActiveIcon,
     to: 'withdraw/0',
   },
-  {
-    name: 'Swap',
-    icon: SwapVertIcon,
-    active_icon: SwapVertIcon,
-    to: 'swap',
-  },
+  // {
+  //   name: 'Swap',
+  //   icon: SwapVertIcon,
+  //   active_icon: SwapVertIcon,
+  //   to: 'swap',
+  // },
 ];
 
 const tabs_second = [
@@ -121,7 +121,8 @@ const NavBar = () => {
         {tabs.map((tab, index) => (
           <Link to={tab.to} key={tab.name}>
             <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
-              {typeof tab.active_icon === 'string' ? (
+              {Icon(tab.active_icon)}
+              {/* {typeof tab.active_icon === 'string' ? (
                 Icon(tab.active_icon)
               ) : (
                 <tab.active_icon
@@ -129,7 +130,7 @@ const NavBar = () => {
                   color='info'
                   htmlColor='red'
                 />
-              )}
+              )} */}
               {tab.name}
             </MenuItem>
           </Link>

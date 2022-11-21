@@ -24,6 +24,7 @@
     "@testing-library/jest-dom": "^5.11.4",
     "@types/bcrypt": "^5.0.0",
     "axios": "^1.1.2",
+    "buffer": "^6.0.3",
     "joi": "^17.6.3",
     "mdi-react": "^9.0.0",
     "normalize.css": "^8.0.1",

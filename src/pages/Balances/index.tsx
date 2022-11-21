@@ -23,6 +23,8 @@ import DepositActiveIcon from '../../assets/coingroup/deposit_active.png';
 import WithdrawActiveIcon from '../../assets/coingroup/withdraw_active.png';
 import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
 import { balance_actions } from '~/context/StateProvider/Actions/BalanceAction';
+import { precision } from '~/utils/helper';
+import Swap from '../Swap';
 
 const style_row = {
   padding: '2px 10px',
@@ -49,7 +51,9 @@ const Balances = () => {
 
   const navigate = useNavigate();
   const { tab } = useParams();
-  const isNFT = parseInt(tab ?? '0') ? true : false;
+  const isBalance = tab === '0';
+  const isNFT = tab === '1';
+  const isSwap = tab === '2';
 
   const total_USD_price: number =
     !loading &&
@@ -95,7 +99,7 @@ const Balances = () => {
     NFT: total_NFT_price,
   };
 
-  const handleCurrencyChange = (value: number) => {
+  const handleTypeChange = (value: number) => {
     navigate(`/balances/${value}`);
     // if (value !== isNFT) {
     // setIsNFT(value);
@@ -133,7 +137,7 @@ const Balances = () => {
             alignItems='center'
             sx={{ margin: '8px 20px' }}
           >
-            {!isNFT && (
+            {isBalance && (
               <Switch
                 onChange={handleChange}
                 checked={!isUSD}
@@ -208,91 +212,76 @@ const Balances = () => {
               />
             )}
             <ButtonWithActive
-              isActive={!isNFT}
+              isActive={isBalance}
               size='large'
               width={80}
-              handleFn={() => handleCurrencyChange(0)}
+              handleFn={() => handleTypeChange(0)}
               label='Balance'
             />
             <ButtonWithActive
               isActive={isNFT}
               size='large'
               width={80}
-              handleFn={() => handleCurrencyChange(1)}
+              handleFn={() => handleTypeChange(1)}
               label='NFT'
+            />
+            <ButtonWithActive
+              isActive={isSwap}
+              size='large'
+              width={80}
+              handleFn={() => handleTypeChange(2)}
+              label='Swap'
             />
           </Box>
           <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
-          {loading ? (
-            <Rings style={{ marginTop: '50%' }} />
-          ) : (
-            <ScrollBox height={370}>
-              <Box padding='20px 30px'>
-                <StyledMenu
-                  MenuListProps={{
-                    'aria-labelledby': 'demo-customized-button',
-                  }}
-                  anchorEl={anchorEl}
-                  open={open}
-                  onClose={handleClose}
-                >
-                  <Link to={`/deposit/${token}`}>
-                    <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
-                      {Icon(DepositActiveIcon)}
-                      {'Deposit'}
-                    </MenuItem>
-                  </Link>
-                  <Link to={`/withdraw/${token}`}>
-                    <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
-                      {Icon(WithdrawActiveIcon)}
-                      {'Withdraw'}
-                    </MenuItem>
-                  </Link>
-                </StyledMenu>
-                {!isNFT ? (
-                  <Table aria-label='simple table'>
-                    <TableBody>
-                      {!loading &&
-                        tokenData &&
-                        priceData &&
-                        tokenData?.map((token: any, index: number) => {
-                          const USD_price =
-                            parseFloat(balanceData[token.id] ?? '0') *
-                            parseFloat(priceData[token.name.concat('-USD')]);
-                          const EUR_price =
-                            (USD_price * priceData['USDT-EUR']) / priceData['USDT-USD'];
-                          return (
-                            <TableRow
-                              key={token.id}
-                              sx={{ cursor: 'pointer', td: { border: 'none' } }}
-                              onClick={(event: React.MouseEvent<HTMLElement>) => {
-                                handleClick(event, index);
-                              }}
-                            >
-                              <TableCell sx={style_row} component='td' scope='row'>
-                                {Icon(token.icon, 30)}
-                              </TableCell>
-                              <TableCell sx={style_row} align='center'>
-                                <Typography
-                                  variant='h6'
-                                  component='h6'
-                                  textAlign='center'
-                                  fontWeight='bold'
-                                  mt={2}
-                                  mb={2}
-                                  color='#0abab5'
-                                >
-                                  {balanceData[token.id]?.toFixed(
-                                    Math.min(
-                                      Math.floor(Math.log10(priceData[token.name.concat('-USD')])),
-                                      3,
-                                    ) + 2,
-                                  ) ?? '0'}
-                                  &nbsp;
-                                  {token.name}
-                                </Typography>
-                              </TableCell>
-                              {isUSD ? (
+          {!isSwap ? (
+            <>
+              <ScrollBox height={370}>
+                <Box padding='20px 30px'>
+                  <StyledMenu
+                    MenuListProps={{
+                      'aria-labelledby': 'demo-customized-button',
+                    }}
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                  >
+                    <Link to={`/deposit/${token}`}>
+                      <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
+                        {Icon(DepositActiveIcon)}
+                        {'Deposit'}
+                      </MenuItem>
+                    </Link>
+                    <Link to={`/withdraw/${token}`}>
+                      <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
+                        {Icon(WithdrawActiveIcon)}
+                        {'Withdraw'}
+                      </MenuItem>
+                    </Link>
+                  </StyledMenu>
+                  {isBalance ? (
+                    <Table aria-label='simple table'>
+                      <TableBody>
+                        {!loading &&
+                          tokenData &&
+                          priceData &&
+                          tokenData?.map((token: any, index: number) => {
+                            const USD_price =
+                              parseFloat(balanceData[token.id] ?? '0') *
+                              parseFloat(priceData[token.name.concat('-USD')]);
+                            const EUR_price =
+                              (USD_price * priceData['USDT-EUR']) / priceData['USDT-USD'];
+                            return (
+                              <TableRow
+                                key={token.id}
+                                sx={{ cursor: 'pointer', td: { border: 'none' } }}
+                                onClick={(event: React.MouseEvent<HTMLElement>) => {
+                                  handleClick(event, index);
+                                }}
+                              >
+                                <TableCell sx={style_row} component='td' scope='row'>
+                                  {Icon(token.icon, 30)}
+                                </TableCell>
                                 <TableCell sx={style_row} align='center'>
                                   <Typography
                                     variant='h6'
@@ -301,89 +290,112 @@ const Balances = () => {
                                     fontWeight='bold'
                                     mt={2}
                                     mb={2}
-                                    color='white'
+                                    color='#0abab5'
                                   >
-                                    $&nbsp;
-                                    {loading && <Rings style={{ marginTop: '50%' }} />}
-                                    {!loading && USD_price ? USD_price.toFixed(2) : ''}
+                                    {balanceData[token.id]?.toFixed(
+                                      precision(
+                                        Math.floor(
+                                          Math.log10(priceData[token.name.concat('-USD')]),
+                                        ),
+                                      ),
+                                    ) ?? '0'}
+                                    &nbsp;
+                                    {token.name}
                                   </Typography>
                                 </TableCell>
-                              ) : (
-                                <TableCell sx={style_row} align='center'>
-                                  <Typography
-                                    variant='h6'
-                                    component='h6'
-                                    textAlign='center'
-                                    fontWeight='bold'
-                                    mt={2}
-                                    mb={2}
-                                    color='white'
-                                  >
-                                    &euro;&nbsp;
-                                    {loading && <Rings style={{ marginTop: '50%' }} />}
-                                    {!loading && EUR_price ? EUR_price.toFixed(2) : ''}
-                                  </Typography>
-                                </TableCell>
-                              )}
-                            </TableRow>
-                          );
-                        })}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <Box display='flex' justifyContent='space-between' flexWrap='wrap' rowGap={2}>
-                    {token_images.map((image, index) => (
-                      <Button sx={{ padding: '0' }} component={Link} to={`/withdrawNFT/${index}`}>
-                        <img
-                          key={image}
-                          src={token_images[index]}
-                          alt='CryptoPunks'
-                          width={145}
-                          height={145}
-                          data-xblocker='passed'
-                        />
-                      </Button>
-                    ))}
-                  </Box>
-                )}
+                                {isUSD ? (
+                                  <TableCell sx={style_row} align='center'>
+                                    <Typography
+                                      variant='h6'
+                                      component='h6'
+                                      textAlign='center'
+                                      fontWeight='bold'
+                                      mt={2}
+                                      mb={2}
+                                      color='white'
+                                    >
+                                      $&nbsp;
+                                      {loading && <Rings style={{ marginTop: '50%' }} />}
+                                      {!loading && USD_price ? USD_price.toFixed(2) : ''}
+                                    </Typography>
+                                  </TableCell>
+                                ) : (
+                                  <TableCell sx={style_row} align='center'>
+                                    <Typography
+                                      variant='h6'
+                                      component='h6'
+                                      textAlign='center'
+                                      fontWeight='bold'
+                                      mt={2}
+                                      mb={2}
+                                      color='white'
+                                    >
+                                      &euro;&nbsp;
+                                      {loading && <Rings style={{ marginTop: '50%' }} />}
+                                      {!loading && EUR_price ? EUR_price.toFixed(2) : ''}
+                                    </Typography>
+                                  </TableCell>
+                                )}
+                              </TableRow>
+                            );
+                          })}
+                      </TableBody>
+                    </Table>
+                  ) : (
+                    <Box display='flex' justifyContent='space-between' flexWrap='wrap' rowGap={2}>
+                      {token_images.map((image, index) => (
+                        <Button sx={{ padding: '0' }} component={Link} to={`/withdrawNFT/${index}`}>
+                          <img
+                            key={image}
+                            src={token_images[index]}
+                            alt='CryptoPunks'
+                            width={145}
+                            height={145}
+                            data-xblocker='passed'
+                          />
+                        </Button>
+                      ))}
+                    </Box>
+                  )}
+                </Box>
+              </ScrollBox>
+              <Box className='bottom-box'>
+                {
+                  <>
+                    <Typography
+                      variant='h6'
+                      component='h6'
+                      textAlign='center'
+                      fontWeight='bold'
+                      color='#0abab5'
+                      mx={1}
+                    >
+                      Total Balance
+                    </Typography>
+                    <Typography
+                      variant='h6'
+                      component='h6'
+                      textAlign='center'
+                      fontWeight='bold'
+                      color={isUSD || isNFT ? 'white' : 'white'}
+                      mx={1}
+                    >
+                      {!loading && (isUSD || isNFT ? <>$&nbsp;</> : <>&euro;&nbsp;</>)}
+                      {!loading && total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT'] ? (
+                        total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT']?.toFixed(2)
+                      ) : (
+                        <Rings />
+                      )}
+                    </Typography>
+                  </>
+                }
               </Box>
-            </ScrollBox>
+            </>
+          ) : (
+            <Swap />
           )}
         </div>
       </Box>
-      {!loading && (
-        <Box className='bottom-box'>
-          {
-            <>
-              <Typography
-                variant='h6'
-                component='h6'
-                textAlign='center'
-                fontWeight='bold'
-                color='#0abab5'
-                mx={1}
-              >
-                Total Balance
-              </Typography>
-              <Typography
-                variant='h6'
-                component='h6'
-                textAlign='center'
-                fontWeight='bold'
-                color={isUSD || isNFT ? 'white' : 'white'}
-                mx={1}
-              >
-                {!loading && (isUSD || isNFT ? <>$&nbsp;</> : <>&euro;&nbsp;</>)}
-                {!loading && total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT'] ? (
-                  total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT']?.toFixed(2)
-                ) : (
-                  <Rings />
-                )}
-              </Typography>
-            </>
-          }
-        </Box>
-      )}
     </Box>
   );
 };

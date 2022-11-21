@@ -52,11 +52,11 @@ const Signup = () => {
       <Input
         className='pw-input'
         name='password'
+        type='password'
         disableUnderline
         sx={{ color: 'white', width: '80%', fontSize: 14 }}
         size='medium'
         placeholder='Password'
-        type='password'
         value={password}
         onChange={handleChange}
       />

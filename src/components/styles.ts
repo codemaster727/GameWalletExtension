@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { grey } from '@mui/material/colors';
 
 export const Container = styled.div`
   display: flex;
@@ -61,9 +62,9 @@ export const style_select = {
   color: 'white',
   fontSize: '14px',
   fontWeight: 'bold',
-  border: '1px solid #666666',
+  border: `1px solid ${grey[800]}`,
   height: '30px',
-  width: '140px',
+  width: '120px',
 };
 
 export const style_menuitem = {
@@ -103,7 +104,7 @@ export const style_btn_buy_ext = {
 
 export const style_box_address = {
   borderRadius: '20px',
-  backgroundColor: '#191c20',
+  backgroundColor: grey[900],
   padding: '16px 16px',
   margin: '20px 20px 0',
   alignItems: 'center',
@@ -116,4 +117,17 @@ export const style_btn_copy = {
   backgroundColor: 'transparent',
   fontSize: '24px',
   padding: '0',
+};
+
+export const style_input_paper = {
+  padding: '8px',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  backgroundColor: grey[900],
+  boxSizing: 'border-box',
+  border: `3px solid ${grey[800]}`,
+  borderRadius: '10px',
+  boxShadow: 'none',
+  height: '50px',
 };
