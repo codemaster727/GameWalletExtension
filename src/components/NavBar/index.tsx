@@ -6,7 +6,6 @@ import Logo from 'src/assets/logo/logo128.png';
 import StyledMenu from '../Menu/StyledMenu';
 import Divider from '@mui/material/Divider';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import SwapVertIcon from '@mui/icons-material/SwapVert';
 import WindowIcon from '@mui/icons-material/Window';
 import { style_menu_item } from '../styles';
 import BuyIcon from '../../assets/coingroup/buy.png';

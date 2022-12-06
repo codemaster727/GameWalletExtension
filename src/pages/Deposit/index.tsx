@@ -37,12 +37,12 @@ const Deposit = () => {
   const { loading, networkError, priceData, walletData, tokenData, netData } = useSocket();
   const theme = useTheme();
 
-  const activeToken = tokenData[activeTokenIndex] ?? {};
+  const activeToken = (tokenData && tokenData[activeTokenIndex]) ?? {};
   const token_net_ids = Object.keys(activeToken?.address ?? {}) ?? [];
   const token_nets = netData?.filter((net: any) => token_net_ids.includes(net.id));
-  const activeNet = token_nets[activeNetIndex];
+  const activeNet = token_nets && token_nets[activeNetIndex];
 
-  const address: any = walletData[activeNet?.id ?? '1'];
+  const address: any = walletData && walletData[activeNet?.id ?? '1'];
 
   const handleTokenChange = (event: SelectChangeEvent<typeof activeTokenIndex>) => {
     const {

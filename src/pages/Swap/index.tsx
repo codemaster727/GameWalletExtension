@@ -53,8 +53,9 @@ const style_btn_toggle = {
 MenuProps.PaperProps.style.width = 120;
 
 const Swap = () => {
-  const [fromTokenIndex, setFromTokenIndex] = useState(0);
-  const [toTokenIndex, setToTokenIndex] = useState(2);
+  const { token } = useParams();
+  const [fromTokenIndex, setFromTokenIndex] = useState(parseInt(token ?? '0'));
+  const [toTokenIndex, setToTokenIndex] = useState(parseInt(token !== '2' ? '2' : '3'));
   const [fromAmount, setFromAmount] = useState<string>('0');
   const [toAmount, setToAmount] = useState<string>('0');
   const [focus, setFocus] = useState<Focus>(Focus.From);

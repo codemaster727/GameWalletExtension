@@ -123,7 +123,7 @@ const App = () => {
           ),
         },
         {
-          path: '/swap',
+          path: '/swap/:token',
           element: (
             <PrivateRoute>
               <Swap />

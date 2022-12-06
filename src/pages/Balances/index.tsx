@@ -10,6 +10,7 @@ import {
   TableCell,
 } from '@mui/material';
 import Switch from 'react-switch';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
 import { useSocket } from '../../context/SocketProvider';
 import { useStateContext } from '../../context/StateProvider';
 import './balances.scss';
@@ -246,18 +247,36 @@ const Balances = () => {
                     open={open}
                     onClose={handleClose}
                   >
-                    <Link to={`/deposit/${token}`}>
-                      <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
-                        {Icon(DepositActiveIcon)}
-                        {'Deposit'}
-                      </MenuItem>
-                    </Link>
-                    <Link to={`/withdraw/${token}`}>
-                      <MenuItem onClick={handleClose} disableRipple sx={style_menu_item}>
-                        {Icon(WithdrawActiveIcon)}
-                        {'Withdraw'}
-                      </MenuItem>
-                    </Link>
+                    <MenuItem
+                      onClick={handleClose}
+                      disableRipple
+                      sx={style_menu_item}
+                      component={Link}
+                      to={`/deposit/${token}`}
+                    >
+                      {Icon(DepositActiveIcon)}
+                      {'Deposit'}
+                    </MenuItem>
+                    <MenuItem
+                      onClick={handleClose}
+                      disableRipple
+                      sx={style_menu_item}
+                      component={Link}
+                      to={`/withdraw/${token}`}
+                    >
+                      {Icon(WithdrawActiveIcon)}
+                      {'Withdraw'}
+                    </MenuItem>
+                    <MenuItem
+                      onClick={handleClose}
+                      disableRipple
+                      sx={style_menu_item}
+                      component={Link}
+                      to={`/swap/${token}`}
+                    >
+                      <SwapVertIcon fontSize='large' sx={{ path: { fill: 'white' } }} />
+                      {'Swap'}
+                    </MenuItem>
                   </StyledMenu>
                   {isBalance ? (
                     <Table aria-label='simple table'>
@@ -316,7 +335,7 @@ const Balances = () => {
                                     >
                                       $&nbsp;
                                       {loading && <Rings style={{ marginTop: '50%' }} />}
-                                      {!loading && USD_price ? USD_price.toFixed(2) : ''}
+                                      {!loading && USD_price ? USD_price.toFixed(2) : '0'}
                                     </Typography>
                                   </TableCell>
                                 ) : (
@@ -380,9 +399,17 @@ const Balances = () => {
                       color={isUSD || isNFT ? 'white' : 'white'}
                       mx={1}
                     >
-                      {!loading && (isUSD || isNFT ? <>$&nbsp;</> : <>&euro;&nbsp;</>)}
                       {!loading && total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT'] ? (
-                        total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT']?.toFixed(2)
+                        isUSD || isNFT ? (
+                          <>$&nbsp;</>
+                        ) : (
+                          <>&euro;&nbsp;</>
+                        )
+                      ) : (
+                        ''
+                      )}
+                      {!loading && total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT'] ? (
+                        total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT']?.toFixed(2) ?? ''
                       ) : (
                         <Rings />
                       )}

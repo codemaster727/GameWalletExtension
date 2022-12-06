@@ -1,4 +1,3 @@
-/*global chrome*/
 import { Box, Button, Input, TextField, Typography } from '@mui/material';
 import React, { useEffect, useState, ChangeEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';

@@ -60,7 +60,6 @@ const Withdraw = () => {
   const [error, setError] = useState<any>({});
   const [activeNetIndex, setActiveNetIndex] = useState<number>(0);
 
-  const navigate = useNavigate();
   const { token } = useParams();
 
   const { networkError, balanceData, tokenData, netData, withdrawMutate, withdrawIsLoading } =
@@ -68,10 +67,10 @@ const Withdraw = () => {
 
   const theme = useTheme();
 
-  const activeToken = tokenData[activeTokenIndex];
+  const activeToken = (tokenData && tokenData[activeTokenIndex]) ?? {};
   const token_net_ids = Object.keys(activeToken?.address) ?? [];
   const token_nets = netData?.filter((net: any) => token_net_ids.includes(net.id));
-  const activeNet = token_nets[activeNetIndex];
+  const activeNet = token_nets && token_nets[activeNetIndex];
 
   const handleTokenChange = (event: SelectChangeEvent<typeof activeTokenIndex>) => {
     const {
@@ -246,7 +245,7 @@ const Withdraw = () => {
           >
             Current balance:&nbsp;
             <span style={{ color: '#0abab5' }}>
-              {balanceData[activeToken?.id] ?? '0'}
+              {balanceData[activeToken?.id]?.toFixed(5) ?? '0'}
               &nbsp;
               {activeToken?.name}
             </span>

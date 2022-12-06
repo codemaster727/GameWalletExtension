@@ -1,6 +1,6 @@
 import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { getQuery, getPrice, postQuery } from '../apis/api';
+import { getQuery, getPrice, postQuery, getBalance } from '../apis/api';
 import BitcoinIcon from '../assets/coingroup/bitcoin.svg';
 import EthIcon from '../assets/coingroup/ethereum.svg';
 import UsdtIcon from '../assets/coingroup/usdt.svg';
@@ -128,6 +128,9 @@ type Result = {
 
 export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [priceLoading, setPriceLoading] = useState<boolean>(true);
+  const [balances, setBalances] = useState<any>({});
+  const [calcedBalances, setCalcedBalances] = useState<any>({});
+  const [requestRefetch, setRequestRefetch] = useState<number>(0);
   const [priceData, setPriceData] = useState<any>(null);
   const [successResult, setSuccessResult] = useState<Result>();
   const [errorResult, setErrorResult] = useState<Result>();
@@ -154,13 +157,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   } = useQuery(['/GetSupportedNets'], getQuery);
 
   const {
-    status: balanceStatus,
-    isLoading: balanceIsLoading,
-    isError: balanceIsError,
-    data: balanceData,
-  } = useQuery([`/ListAssets`, `?user=${user}`], getQuery);
-
-  const {
     status: walletStatus,
     isLoading: walletIsLoading,
     isError: walletIsError,
@@ -168,7 +164,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   } = useQuery(['/ListWallets', `?user=${user}`], getQuery);
 
   const refetch = (query: string[]) => {
-    queryClient.invalidateQueries();
+    // queryClient.invalidateQueries(query);
+    setRequestRefetch((previous) => previous + 1);
   };
 
   const {
@@ -204,6 +201,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     },
     {
       onSuccess: (data) => {
+        console.log('here:', data);
         if (data?.success) {
           const { withdrawal } = data;
           setSuccessResult((prev) => ({
@@ -212,6 +210,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
               tokenData?.find((a: any) => a.id === withdrawal.token_id)?.name
             } has been successful. Check your balance.`,
           }));
+          refetch(['ListAssets']);
         } else {
           setErrorResult((prev) => ({
             count: (prev?.count ?? 0) + 1,
@@ -275,10 +274,10 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const loading =
     priceLoading ||
     !priceData ||
-    balanceIsLoading ||
+    // balanceIsLoading ||
     walletIsLoading ||
     tokenIsLoading ||
-    withdrawIsLoading ||
+    // withdrawIsLoading ||
     networkError;
 
   useEffect(() => {
@@ -329,14 +328,14 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [errorResult]);
 
-  // useEffect(() => {
-  //   const connection_deposit = new WebSocket(
-  //     'wss://80halgu2p0.execute-api.eu-west-1.amazonaws.com/production/',
-  //   );
-  //   setConnection(connection_deposit);
+  useEffect(() => {
+    const connection_deposit = new WebSocket(
+      'wss://80halgu2p0.execute-api.eu-west-1.amazonaws.com/production/',
+    );
+    setConnection(connection_deposit);
 
-  //   return () => connection_deposit.close();
-  // }, []);
+    return () => connection_deposit.close();
+  }, []);
 
   useEffect(() => {
     if (connection && tokenData) {
@@ -347,19 +346,20 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       connection.onmessage = (message) => {
         const json = JSON.parse(message.data);
         if (json?.status === 'confirmed') {
-          setSuccessResult((prev) => ({
-            count: (prev?.count ?? 0) + 1,
-            message: `${json?.amount} ${
-              tokenData?.find((a: any) => a.id === json?.token_id)?.name
-            } was successfully deposited and confirmed! Please check your balance now.`,
-          }));
-          queryClient.invalidateQueries(['ListAssets']);
+          // setSuccessResult((prev) => ({
+          //   count: (prev?.count ?? 0) + 1,
+          //   message: `${json?.amount} ${
+          //     tokenData?.find((a: any) => a.id === json?.token_id)?.name
+          //   } was successfully deposited and confirmed! Please check your balance now.`,
+          // }));
+          refetch(['ListAssets']);
         } else if (json?.status === 'not-confirmed') {
           setSuccessResult((prev) => ({
             count: (prev?.count ?? 0) + 1,
-            message: `Your deposit request was successful but not confirmed yet. Please wait for a while to confirm the transaction and notice your balance will be updated after that.`,
+            message: `Your deposit request was successful but not confirmed yet. Please wait for a while to confirm the transaction.`,
           }));
-          queryClient.invalidateQueries(['ListAssets']);
+          console.log('here');
+          refetch(['ListAssets']);
         } else {
           setErrorResult((prev) => ({
             count: (prev?.count ?? 0) + 1,
@@ -370,6 +370,23 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [connection, tokenData]);
 
+  useEffect(() => {
+    if (loading) return;
+    getBalance(walletData, netData, tokenData).then((res: any) => {
+      console.log('balances: ', res);
+      setBalances(res);
+      const calcedBalances = Object.entries(res).reduce((ret: any, entry: any) => {
+        const [key, value]: [key: string, value: Record<string, string>] = entry;
+        ret[key] = Object.values(value).reduce((a: number, b: string) => {
+          return parseFloat((a + parseFloat(b)).toFixed(5));
+        }, 0);
+        return ret;
+      }, {});
+      console.log(calcedBalances);
+      setCalcedBalances(calcedBalances);
+    });
+  }, [loading, requestRefetch]);
+
   return (
     <SocketContext.Provider
       value={{
@@ -377,13 +394,14 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         networkError,
         refetch,
         priceData,
-        balanceData: array2object(
-          balanceData && 'map' in balanceData
-            ? balanceData?.map((a: any) => ({
-                [a.token_id]: Math.floor(a.amount * 100000) / 100000,
-              }))
-            : [],
-        ),
+        // balanceData: array2object(
+        //   balanceData && 'map' in balanceData
+        //     ? balanceData?.map((a: any) => ({
+        //         [a.token_id]: Math.floor(a.amount * 100000) / 100000,
+        //       }))
+        //     : [],
+        // ),
+        balanceData: calcedBalances,
         walletData: array2object(
           walletData && 'map' in walletData
             ? walletData?.map((a: any) => ({ [a.net_id]: a.address }))

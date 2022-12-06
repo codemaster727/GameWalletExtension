@@ -13,6 +13,7 @@
     "format": "npm run prettier:fix && npm run lint:fix"
   },
   "dependencies": {
+    "@crxjs/vite-plugin": "^1.0.14",
     "@emotion/react": "^11.10.4",
     "@emotion/styled": "^11.10.4",
     "@fontsource/roboto": "^4.5.8",
@@ -20,12 +21,14 @@
     "@mui/lab": "^5.0.0-alpha.103",
     "@mui/material": "^5.10.4",
     "@mui/styled-engine-sc": "^5.10.3",
+    "@solana/web3.js": "^1.69.0",
     "@tanstack/react-query": "^4.10.3",
     "@testing-library/jest-dom": "^5.11.4",
     "@types/bcrypt": "^5.0.0",
     "axios": "^1.1.2",
     "buffer": "^6.0.3",
     "joi": "^17.6.3",
+    "lodash": "^4.17.21",
     "mdi-react": "^9.0.0",
     "normalize.css": "^8.0.1",
     "qrcode": "^1.5.1",
@@ -43,13 +46,16 @@
     "sass": "^1.55.0",
     "styled-components": "^5.3.6",
     "swiper": "^8.4.4",
-    "web-vitals": "^0.2.4"
+    "web-vitals": "^0.2.4",
+    "web3": "^1.8.1",
+    "webextension-polyfill-ts": "^0.26.0"
   },
   "devDependencies": {
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
     "@types/chrome": "^0.0.200",
     "@types/jest": "^26.0.15",
+    "@types/lodash": "^4.14.191",
     "@types/qrcode": "^1.5.0",
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.5",
