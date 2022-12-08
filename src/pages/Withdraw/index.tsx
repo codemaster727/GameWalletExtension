@@ -62,8 +62,16 @@ const Withdraw = () => {
 
   const { token } = useParams();
 
-  const { networkError, balanceData, tokenData, netData, withdrawMutate, withdrawIsLoading } =
-    useSocket();
+  const {
+    networkError,
+    balanceData,
+    walletArray,
+    tokenData,
+    netData,
+    withdrawMutate,
+    withdrawIsLoading,
+    withdraw,
+  } = useSocket();
 
   const theme = useTheme();
 
@@ -132,7 +140,7 @@ const Withdraw = () => {
     return true;
   };
 
-  const sendRequestWithdraw = () => {
+  const sendRequestWithdraw = async () => {
     if (validate(address, amount, activeNet?.id ?? '0', activeToken.id)) {
       balanceData[activeToken.id] -= parseFloat(amount);
       chrome.runtime.sendMessage('test', function (response) {
@@ -144,13 +152,22 @@ const Withdraw = () => {
       //   title: 'Your withdrawal request',
       //   message: 'After a success withdraw process, you will get tokens soon. Good luck.',
       // });
-      withdrawMutate({
-        user: '1',
-        net: activeNet.id,
-        asset: activeToken.id,
-        amount: parseFloat(amount),
-        receiver: address, // SOL address
-      });
+      // withdrawMutate({
+      //   user: '1',
+      //   net: activeNet.id,
+      //   asset: activeToken.id,
+      //   amount: parseFloat(amount),
+      //   receiver: address, // SOL address
+      // });
+      await withdraw(
+        activeNet.id,
+        activeToken.id,
+        address, // SOL address
+        parseFloat(amount),
+        walletArray,
+        netData,
+        tokenData,
+      );
     }
   };
 

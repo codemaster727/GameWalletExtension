@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { Provider, useSelector, useDispatch } from 'react-redux';
 import {
   // createBrowserRouter,
   RouterProvider,
@@ -32,6 +33,19 @@ import BuyCrypto from './pages/BuyCrypto';
 import WithdrawNFT from './pages/WithdrawNFT';
 import AccountPage from './pages/Account';
 import Swap from './pages/Swap';
+import store from './store/store';
+
+const draftInitialState = {
+  // activeTab: opts.activeTab,
+
+  // metamaskState represents the cross-tab state
+  // metamask: metamaskState,
+  metamask: {},
+
+  // appState represents the current tab's popup state
+  appState: {},
+};
+// const store = configureStore(draftInitialState);
 
 // Create a client
 const queryClient = new QueryClient();
@@ -157,23 +171,29 @@ const App = () => {
       ],
     },
   ]);
+
+  // useEffect(() => {
+  //   dispatch(createNewAccount('123456'));
+  // });
   return (
     <>
-      <ThemeProvider theme={defaultTheme}>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <SocketProvider>
-              <StateProvider>
-                <WalletModalProvider>
-                  <RouterProvider router={router} />
-                  <GlobalStyles />
-                  <ToastContainer />
-                </WalletModalProvider>
-              </StateProvider>
-            </SocketProvider>
-          </AuthProvider>
-        </QueryClientProvider>
-      </ThemeProvider>
+      <Provider store={store}>
+        <ThemeProvider theme={defaultTheme}>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <SocketProvider>
+                <StateProvider>
+                  <WalletModalProvider>
+                    <RouterProvider router={router} />
+                    <GlobalStyles />
+                    <ToastContainer />
+                  </WalletModalProvider>
+                </StateProvider>
+              </SocketProvider>
+            </AuthProvider>
+          </QueryClientProvider>
+        </ThemeProvider>
+      </Provider>
     </>
   );
 };

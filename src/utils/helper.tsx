@@ -11,3 +11,7 @@ export const array2object = (
 export const precision = (value: number) => {
   return Math.min(Math.floor(value), 3) + 2;
 };
+
+export const removePrefix = (value: string) => {
+  return value.startsWith('0x') ? value.replace('0x', '') : value;
+};

@@ -10,12 +10,12 @@
     "128": "logo128.png"
   },
   "background": {
-    "service_worker": "src/scripts/background/index.ts"
+    "service_worker": "src/scripts/background.ts"
   },
   "content_scripts": [
     {
       "matches": ["https://*/*"],
-      "js": ["src/scripts/content-script/index.ts"]
+      "js": ["src/scripts/content-script.ts"]
     }
   ],
   "action": {

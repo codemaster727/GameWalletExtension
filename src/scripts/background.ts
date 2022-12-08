@@ -1,7 +1,11 @@
 /*global chrome*/
+import KeyringController from 'eth-keyring-controller';
+import { HARDWARE_KEYRING_TYPES } from '~/shared/constants/hardware-wallets';
+import WalletController from './wallet-controller';
 
 console.log('started');
 let tokenData;
+let controller: WalletController | undefined;
 
 let connection_deposit: WebSocket;
 
@@ -79,5 +83,51 @@ chrome.runtime.onMessage.addListener((request) => {
 //     console.log(`Opened popup!`);
 //   },
 // );
+
+/**
+ * Initializes the Wallet Controller with any initial state and default language.
+ * Configures platform-specific error reporting strategy.
+ * Streams emitted state updates to platform-specific storage strategy.
+ * Creates platform listeners for new Dapps/Contexts, and sets up their data connections to the controller.
+ *
+ * @param {object} initState - The initial state to start the controller with, matches the state that is emitted from the controller.
+ * @param {string} initLangCode - The region code for the language preferred by the current user.
+ */
+function setupController(initState: any, initLangCode: any) {
+  //
+  // Wallet Controller
+  //
+
+  controller = new WalletController({});
+}
+
+/**
+ * @typedef VersionedData
+ * @property {WalletState} data - The data emitted from Wallet controller, or used to initialize it.
+ * @property {number} version - The latest migration version that has been run.
+ */
+
+/**
+ * Initializes the Wallet controller, and sets up all platform configuration.
+ *
+ * @returns {Promise} Setup complete.
+ */
+async function initialize() {
+  try {
+    // const initState = await loadStateFromPersistence();
+    // const initLangCode = await getFirstPreferredLangCode();
+    setupController({}, {});
+    // if (!isManifestV3) {
+    //   await loadPhishingWarningPage();
+    // }
+    // await sendReadyMessageToTabs();
+    // log.info('Wallet initialization complete.');
+    // resolveInitialization();
+  } catch (error) {
+    // rejectInitialization(error);
+  }
+}
+
+initialize();
 
 export {};

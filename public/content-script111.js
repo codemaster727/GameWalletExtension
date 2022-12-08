@@ -2,7 +2,6 @@
 
 // // let count = 1;
 // // count++;
-// console.log('content script here');
 
 // // document.body.style.background = '#09a33a';
 

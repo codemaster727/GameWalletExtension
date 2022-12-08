@@ -35,6 +35,7 @@ import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
 import { grey } from '@mui/material/colors';
 import { precision } from '~/utils/helper';
 import { useAuth } from '~/context/AuthProvider';
+import { ETH } from '~/constants/address';
 
 enum Focus {
   From,
@@ -59,7 +60,7 @@ const Swap = () => {
   const [fromAmount, setFromAmount] = useState<string>('0');
   const [toAmount, setToAmount] = useState<string>('0');
   const [focus, setFocus] = useState<Focus>(Focus.From);
-  const [rate, setRate] = useState<number>(1);
+  const [rate, setRate] = useState<number>(0);
   const [error, setError] = useState<any>({});
 
   const fromDeferredAmount = useDeferredValue(fromAmount);
@@ -67,8 +68,18 @@ const Swap = () => {
 
   const navigate = useNavigate();
 
-  const { networkError, balanceData, tokenData, netData, swapMutate, swapIsLoading, priceData } =
-    useSocket();
+  const {
+    networkError,
+    balanceData,
+    tokenData,
+    netData,
+    swapMutate,
+    swapIsLoading,
+    priceData,
+    walletData,
+    quoteMutate,
+    quoteData,
+  } = useSocket();
 
   const { user } = useAuth();
 
@@ -113,41 +124,48 @@ const Swap = () => {
     setFromAmount(balanceData[fromToken.id]);
   };
 
-  const validate = (
-    addr: string | undefined,
-    amnt: string | undefined,
-    net: string,
-    token_id: string,
-  ) => {
+  const validate = (amnt: string | undefined, net: string, from: string, to: string) => {
     const am = parseFloat(amnt as string);
-    if (!addr) {
-      alert('Invalid input.');
-      return false;
-    }
     if (!am || am <= 0 || am > Math.min(balanceData[fromToken?.id], 0.01)) {
-      alert('Invalid input.');
+      alert('Insufficient amount.');
       return false;
     }
     if (net === '3' || net === '5' || net === '6' || net === '7' || net === '8' || net === '10') {
       alert('Not supported yet. Please wait to complete.');
       return false;
     }
-    if (token_id === '10') {
+    if (from !== '2' && from !== '3' && from !== '4') {
+      alert('Not supported yet. Please wait to complete.');
+      return false;
+    }
+    if (to !== '2' && to !== '3' && to !== '4') {
       alert('Not supported yet. Please wait to complete.');
       return false;
     }
     return true;
   };
 
-  const sendRequestSwap = () => {
-    const data = {
-      user_id: user.id,
-      fromToken: fromToken.id,
-      toToken: toToken.id,
-      fromAmount,
-      toAmount,
+  const getQuote = () => {
+    if (!(Number(fromAmount) > 0)) {
+      setToAmount('0');
+      return;
+    }
+    if (!validate(fromAmount, '1', fromToken.id, toToken.id)) return;
+    const routesRequest = {
+      fromChain: '1', // Goerli
+      fromAmount: fromAmount, // 1
+      fromToken: ETH, // ETH
+      toChain: '1', // Goerli
+      toToken: toToken.address['1'] ?? ETH, // USDC
+      fromAddress: walletData['1'],
     };
-    swapMutate(data);
+
+    quoteMutate(routesRequest);
+  };
+
+  const sendRequestSwap = () => {
+    if (!validate(fromAmount, '1', fromToken.id, toToken.id) || !quoteData) return;
+    swapMutate();
   };
 
   useEffect(() => {
@@ -155,27 +173,38 @@ const Swap = () => {
   }, [fromTokenIndex, toTokenIndex]);
 
   useEffect(() => {
-    if (!priceData) return;
-    const rate_curr =
-      Number(priceData[fromToken?.name?.concat('-USD')]) /
-      Number(priceData[toToken?.name?.concat('-USD')]);
-    setRate(rate_curr);
-    const timer = setTimeout(() => {
-      if (focus === Focus.From) {
-        const amount = (Number(fromAmount) * rate_curr).toFixed(
+    console.log(quoteData);
+    // const rate_curr =
+    //   Number(priceData[fromToken?.name?.concat('-USD')]) /
+    //   Number(priceData[toToken?.name?.concat('-USD')]);
+    if (quoteData?.estimate) {
+      const rate_curr = Number(quoteData?.estimate.toAmount)
+        ? Number(fromAmount) / Number(quoteData?.estimate.toAmount)
+        : 0;
+      setRate(rate_curr);
+      const timer = setTimeout(() => {
+        const amount = Number(quoteData.estimate.toAmount).toFixed(
           precision(Number(priceData[toToken?.name?.concat('-USD')])),
         );
-        setToAmount(amount);
-      } else {
-        const amount = (Number(toAmount) / rate_curr).toFixed(
-          precision(Number(priceData[fromToken?.name?.concat('-USD')])),
-        );
-        setFromAmount(amount);
-      }
+        if (focus === Focus.From) {
+          setToAmount(amount);
+        } else {
+          setFromAmount(amount);
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      setFromAmount('0');
+    }
+  }, [quoteData]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      getQuote();
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [fromDeferredAmount, toDeferredAmount, priceData]);
+  }, [fromTokenIndex, toTokenIndex, fromDeferredAmount]);
 
   return (
     <Box className='base-box'>
@@ -358,6 +387,7 @@ const Swap = () => {
                     decimalScale={5}
                     value={toAmount}
                     onChange={handleChangeToInput}
+                    disabled
                   />
                 </Box>
               </Paper>
@@ -371,7 +401,8 @@ const Swap = () => {
                 color={theme.palette.text.secondary}
                 style={{ overflowWrap: 'break-word' }}
               >
-                1 {fromToken?.name} &#8776; {rate.toFixed(precision(rate))} {toToken?.name}
+                {rate ? 1 : 0} {fromToken?.name} &#8776; {rate.toFixed(precision(rate))}{' '}
+                {toToken?.name}
               </Typography>
               <Typography
                 variant='h6'

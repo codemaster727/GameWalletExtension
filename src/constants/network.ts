@@ -891,7 +891,8 @@ export const FEATURED_RPCS: RPCDefinition[] = [
   {
     chainId: CHAIN_IDS.ARBITRUM,
     nickname: ARBITRUM_DISPLAY_NAME,
-    rpcUrl: `https://arbitrum-mainnet.infura.io/v3/${infuraProjectId}`,
+    // rpcUrl: `https://arbitrum-mainnet.infura.io/v3/${infuraProjectId}`,
+    rpcUrl: 'https://arb1.arbitrum.io/rpc',
     ticker: CURRENCY_SYMBOLS.ARBITRUM,
     rpcPrefs: {
       blockExplorerUrl: 'https://explorer.arbitrum.io',
@@ -951,7 +952,8 @@ export const FEATURED_RPCS: RPCDefinition[] = [
   {
     chainId: CHAIN_IDS.OPTIMISM,
     nickname: OPTIMISM_DISPLAY_NAME,
-    rpcUrl: `https://optimism-mainnet.infura.io/v3/${infuraProjectId}`,
+    // rpcUrl: `https://optimism-mainnet.infura.io/v3/${infuraProjectId}`,
+    rpcUrl: 'https://mainnet.optimism.io',
     ticker: CURRENCY_SYMBOLS.ETH,
     rpcPrefs: {
       blockExplorerUrl: 'https://optimistic.etherscan.io/',
@@ -971,7 +973,8 @@ export const FEATURED_RPCS: RPCDefinition[] = [
   {
     chainId: CHAIN_IDS.POLYGON,
     nickname: `${POLYGON_DISPLAY_NAME} ${capitalize(NETWORK_TYPES.MAINNET)}`,
-    rpcUrl: `https://polygon-mainnet.infura.io/v3/${infuraProjectId}`,
+    // rpcUrl: `https://polygon-mainnet.infura.io/v3/${infuraProjectId}`,
+    rpcUrl: 'https://polygon-rpc.com',
     ticker: CURRENCY_SYMBOLS.MATIC,
     rpcPrefs: {
       blockExplorerUrl: 'https://polygonscan.com/',

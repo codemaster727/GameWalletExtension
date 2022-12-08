@@ -1,121 +1,158 @@
-const KeyringController = require('eth-keyring-controller');
-const SimpleKeyring = require('eth-simple-keyring');
-const log = require('loglevel');
+import EventEmitter from 'events';
+import browser from 'webextension-polyfill';
+//@ts-ignore
+import KeyringController from 'eth-keyring-controller';
+// import SimpleKeyring from 'eth-simple-keyring';
+import log from 'loglevel';
+import seedPhraseVerifier from './lib/seed-phrase-verifier';
+import { Mutex } from 'await-semaphore';
+import { Buffer } from 'buffer';
+import { KEYRING_TYPES } from '~/shared/constants/keyrings';
+import { HARDWARE_KEYRING_TYPES } from '~/shared/constants/hardware-wallets';
 
-const HARDWARE_KEYRING_TYPES = {
-  LEDGER: 'Ledger Hardware',
-  TREZOR: 'Trezor Hardware',
-  LATTICE: 'Lattice Hardware',
-  QR: 'QR Hardware Wallet Device',
-};
+(browser as any).global = browser;
+// @ts-ignore
+browser.Buffer = browser.Buffer || Buffer;
 
-const KEYRING_TYPES = {
-  HD_KEY_TREE: 'HD Key Tree',
-  IMPORTED: 'Simple Key Pair',
-  ...HARDWARE_KEYRING_TYPES,
-};
-
-const keyringController = new KeyringController({
-  keyringTypes: Object.keys(HARDWARE_KEYRING_TYPES).map(
-    //@ts-ignore
-    (key: string) => HARDWARE_KEYRING_TYPES[key],
-  ), // optional array of types to support.
-  initState: {}, // Last emitted persisted state.
-  encryptor: {
-    // An optional object for defining encryption schemes:
-    // Defaults to Browser-native SubtleCrypto.
-    encrypt(password: string, object: any) {
-      // return new Promise('encrypted!');
-      return password;
-    },
-    decrypt(password: string, encryptedString: string) {
-      // return new Promise({ foo: 'bar' });
-      return password;
-    },
-  },
-});
-
-const seedPhraseVerifier = {
+export default class WalletController extends EventEmitter {
+  keyringController: KeyringController;
+  createVaultMutex: Mutex;
   /**
-   * Verifies if the seed words can restore the accounts.
-   *
-   * Key notes:
-   * - The seed words can recreate the primary keyring and the accounts belonging to it.
-   * - The created accounts in the primary keyring are always the same.
-   * - The keyring always creates the accounts in the same sequence.
-   *
-   * @param {Array} createdAccounts - The accounts to restore
-   * @param {Buffer} seedPhrase - The seed words to verify, encoded as a Buffer
-   * @returns {Promise<void>}
+   * @param {object} opts
    */
-  async verifyAccounts(createdAccounts: any, seedPhrase: Buffer) {
-    if (!createdAccounts || createdAccounts.length < 1) {
-      throw new Error('No created accounts defined.');
-    }
+  constructor(opts: any) {
+    super();
+    this.keyringController = new KeyringController({
+      keyringTypes: Object.values(HARDWARE_KEYRING_TYPES).map((value: string) => value), // optional array of types to support.
+      initState: {}, // Last emitted persisted state.
+      encryptor: {
+        // An optional object for defining encryption schemes:
+        // Defaults to Browser-native SubtleCrypto.
+        encrypt(password: string, object: any) {
+          // return new Promise('encrypted!');
+          return password;
+        },
+        decrypt(password: string, encryptedString: string) {
+          // return new Promise({ foo: 'bar' });
+          return password;
+        },
+      },
+    });
+    // lock to ensure only one vault created at once
+    this.createVaultMutex = new Mutex();
+  }
 
-    const keyringController = new KeyringController({});
-    const Keyring = keyringController.getKeyringClassForType(KEYRING_TYPES.HD_KEY_TREE);
-    const opts = {
-      mnemonic: seedPhrase,
-      numberOfAccounts: createdAccounts.length,
+  /**
+   * Returns an Object containing API Callback Functions.
+   * These functions are the interface for the UI.
+   * The API object can be transmitted over a stream via JSON-RPC.
+   *
+   * @returns {object} Object containing API functions.
+   */
+  getApi() {
+    const { keyringController } = this;
+    return {
+      createNewVaultAndKeychain: this.createNewVaultAndKeychain.bind(this),
     };
+  }
 
-    const keyring = new Keyring(opts);
-    const restoredAccounts = await keyring.getAccounts();
-    log.debug(`Created accounts: ${JSON.stringify(createdAccounts)}`);
-    log.debug(`Restored accounts: ${JSON.stringify(restoredAccounts)}`);
-
-    if (restoredAccounts.length !== createdAccounts.length) {
-      // this should not happen...
-      throw new Error('Wrong number of accounts');
+  async verifySeedPhrase() {
+    const [primaryKeyring] = this.keyringController.getKeyringsByType(KEYRING_TYPES.HD_KEY_TREE);
+    if (!primaryKeyring) {
+      throw new Error('MetamaskController - No HD Key Tree found');
     }
 
-    for (let i = 0; i < restoredAccounts.length; i++) {
-      if (restoredAccounts[i].toLowerCase() !== createdAccounts[i].toLowerCase()) {
-        throw new Error(
-          `Not identical accounts! Original: ${createdAccounts[i]}, Restored: ${restoredAccounts[i]}`,
-        );
+    const serialized = await primaryKeyring.serialize();
+    const seedPhraseAsBuffer = Buffer.from(serialized.mnemonic);
+
+    const accounts = await primaryKeyring.getAccounts();
+    if (accounts.length < 1) {
+      throw new Error('MetamaskController - No accounts found');
+    }
+
+    try {
+      await seedPhraseVerifier.verifyAccounts(accounts, seedPhraseAsBuffer);
+      return Array.from(seedPhraseAsBuffer.values());
+    } catch (err: any) {
+      log.error(err.message);
+      throw err;
+    }
+  }
+
+  /**
+   * Creates a new Vault and create a new keychain.
+   *
+   * A vault, or KeyringController, is a controller that contains
+   * many different account strategies, currently called Keyrings.
+   * Creating it new means wiping all previous keyrings.
+   *
+   * A keychain, or keyring, controls many accounts with a single backup and signing strategy.
+   * For example, a mnemonic phrase can generate many accounts, and is a keyring.
+   *
+   * @param {string} password
+   * @returns {object} vault
+   */
+  async createNewVaultAndKeychain(password: string) {
+    const releaseLock = await this.createVaultMutex.acquire();
+    try {
+      let vault;
+      const accounts = await this.keyringController.getAccounts();
+      if (accounts.length > 0) {
+        vault = await this.keyringController.fullUpdate();
+      } else {
+        vault = await this.keyringController.createNewVaultAndKeychain(password);
+        console.log(vault);
+
+        const encodedSeedPhrase = await this.verifySeedPhrase();
+        console.log(window.Buffer.from(encodedSeedPhrase).toString('utf8'));
+
+        const addresses = await this.keyringController.getAccounts();
+        console.log(addresses);
+        // this.preferencesController.setAddresses(addresses);
+        // this.selectFirstIdentity();
       }
+
+      return vault;
+    } finally {
+      releaseLock();
     }
-  },
-};
-
-const verifySeedPhrase = async () => {
-  const [primaryKeyring] = keyringController.getKeyringsByType(KEYRING_TYPES.HD_KEY_TREE);
-  if (!primaryKeyring) {
-    throw new Error('MetamaskController - No HD Key Tree found');
   }
 
-  const serialized = await primaryKeyring.serialize();
-  const seedPhraseAsBuffer = Buffer.from(serialized.mnemonic);
+  async withdraw(request: any) {}
+}
 
-  const accounts = await primaryKeyring.getAccounts();
-  if (accounts.length < 1) {
-    throw new Error('MetamaskController - No accounts found');
-  }
+// const makeAccount = async () => {
+//   // The KeyringController is also an event emitter:
+//   const keyringController = new KeyringController({
+//     keyringTypes: Object.keys(HARDWARE_KEYRING_TYPES).map(
+//       //@ts-ignore
+//       (key: string) => HARDWARE_KEYRING_TYPES[key],
+//     ), // optional array of types to support.
+//     initState: {}, // Last emitted persisted state.
+//     encryptor: {
+//       // An optional object for defining encryption schemes:
+//       // Defaults to Browser-native SubtleCrypto.
+//       encrypt(password: string, object: any) {
+//         // return new Promise('encrypted!');
+//         return password;
+//       },
+//       decrypt(password: string, encryptedString: string) {
+//         // return new Promise({ foo: 'bar' });
+//         return password;
+//       },
+//     },
+//   });
+//   const vault = await keyringController.createNewVaultAndKeychain('123456');
+//   console.log(vault);
+//   // const encodedSeedPhrase = await verifySeedPhrase();
+//   // console.log(Buffer.from(encodedSeedPhrase).toString('utf8'));
 
-  try {
-    await seedPhraseVerifier.verifyAccounts(accounts, seedPhraseAsBuffer);
-    return Array.from(seedPhraseAsBuffer.values());
-  } catch (err: any) {
-    log.error(err.message);
-    throw err;
-  }
-};
+//   // keyringController.on('newAccount', (address: string) => {
+//   //   console.log(`New account created: ${address}`);
+//   // });
+//   // keyringController.on('removedAccount', handleThat);
+// };
 
-const makeAccount = async () => {
-  // The KeyringController is also an event emitter:
-  const vault = await keyringController.createNewVaultAndKeychain('123456');
+// makeAccount();
 
-  const encodedSeedPhrase = await verifySeedPhrase();
-  console.log(Buffer.from(encodedSeedPhrase).toString('utf8'));
-
-  keyringController.on('newAccount', (address: string) => {
-    console.log(`New account created: ${address}`);
-  });
-  // keyringController.on('removedAccount', handleThat);
-};
-
-makeAccount();
-
-export {};
+// export {};

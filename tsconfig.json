@@ -26,6 +26,11 @@
       "~/*": ["src/*"]
     }
   },
-  "include": ["vite.config.ts", "**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "vite.config.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "./node_modules/@kws1207/types-eth-keyring-controller/index.d.ts"
+  ]
+  // "exclude": ["node_modules"]
 }

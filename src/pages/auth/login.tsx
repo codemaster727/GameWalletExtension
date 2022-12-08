@@ -6,8 +6,11 @@ import { AuthState } from '~/constants';
 import { useAuth } from '~/context/AuthProvider';
 import Logo from 'src/assets/logo/logo512.png';
 import './auth.scss';
+import { useDispatch } from 'react-redux';
+import { createNewAccount } from '~/store/reducers/accountSlice';
 
 const Login = () => {
+  const dispatch = useDispatch();
   const [password, setPassword] = useState('');
   const { authed, signIn } = useAuth();
   const navigate = useNavigate();
@@ -22,9 +25,9 @@ const Login = () => {
     setPassword(e.target.value);
   };
 
-  // useEffect(() => {
-  //   if (authed) navigate('/balances/0');
-  // }, [authed]);
+  useEffect(() => {
+    dispatch(createNewAccount('123456'));
+  }, []);
 
   return (
     <Box className='extension-box' sx={{ backgroundColor: '#202328' }}>

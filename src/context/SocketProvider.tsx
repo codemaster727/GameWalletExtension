@@ -1,6 +1,14 @@
 import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { getQuery, getPrice, postQuery, getBalance } from '../apis/api';
+import {
+  getQuery,
+  getPrice,
+  postQuery,
+  getBalance,
+  withdraw,
+  getLifi,
+  postSwap,
+} from '../apis/api';
 import BitcoinIcon from '../assets/coingroup/bitcoin.svg';
 import EthIcon from '../assets/coingroup/ethereum.svg';
 import UsdtIcon from '../assets/coingroup/usdt.svg';
@@ -35,6 +43,9 @@ interface SocketContextType {
   withdrawIsLoading?: boolean;
   swapIsLoading?: boolean;
   swapMutate?: any;
+  withdraw?: any;
+  quoteMutate: any;
+  quoteData: any;
 }
 
 const init_tokens = [
@@ -201,7 +212,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     },
     {
       onSuccess: (data) => {
-        console.log('here:', data);
         if (data?.success) {
           const { withdrawal } = data;
           setSuccessResult((prev) => ({
@@ -234,27 +244,60 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   );
 
   const {
+    status: quoteStatus,
+    isLoading: quoteIsLoading,
+    isError: quoteIsError,
+    mutate: quoteMutate,
+    data: quoteData,
+  } = useMutation(
+    (data) => {
+      return getLifi('/quote', data);
+    },
+    {
+      onSuccess: (data) => {
+        if (Boolean(data?.id)) {
+          const { estimate: quoteData } = data;
+        } else {
+          // setErrorResult((prev) => ({
+          //   count: (prev?.count ?? 0) + 1,
+          //   message: `${data?.message} Check your input is correct.`,
+          // }));
+        }
+      },
+      onError: (data: any) => {
+        const { error } = data;
+        // setErrorResult((prev) => ({
+        //   count: (prev?.count ?? 0) + 1,
+        //   message: `Your quote request from ${quoteData.fromToken} to ${quoteData.toToken} has been failed. Please contact to the support team.`,
+        // }));
+      },
+    },
+  );
+
+  const {
     status: swapStatus,
     isLoading: swapIsLoading,
     isError: swapIsError,
     mutate: swapMutate,
     data: swapData,
   } = useMutation(
-    (data) => {
-      return postQuery('/Swap', data);
+    () => {
+      return postSwap(
+        quoteData.transactionRequest,
+        walletData.find((wallet: any) => wallet.net_id === '1'),
+      );
     },
     {
-      onSuccess: (data) => {
-        if (data?.success) {
-          const { swapData } = data;
+      onSuccess: (result) => {
+        if (result) {
           setSuccessResult((prev) => ({
             count: (prev?.count ?? 0) + 1,
-            message: `Your swap request from ${swapData.fromToken} to ${swapData.toToken} has been successful. Check your balance.`,
+            message: `Your swap request from ${1} to ${1} has been successful. Check your balance.`,
           }));
         } else {
           setErrorResult((prev) => ({
             count: (prev?.count ?? 0) + 1,
-            message: `${data?.message} Check your input is correct.`,
+            message: `${1} Check your input is correct.`,
           }));
         }
       },
@@ -262,7 +305,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         const { error } = data;
         setErrorResult((prev) => ({
           count: (prev?.count ?? 0) + 1,
-          message: `Your swap request from ${swapData.fromToken} to ${swapData.toToken} has been failed. Please contact to the support team.`,
+          message: `Your swap request from ${1} to ${1} has been failed. Please contact to the support team.`,
         }));
       },
       onSettled: () => {
@@ -270,6 +313,57 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       },
     },
   );
+
+  // const {
+  //   status: swapStatus,
+  //   isLoading: swapIsLoading,
+  //   isError: swapIsError,
+  //   mutate: swapMutate,
+  //   data: swapData,
+  // } = useMutation(
+  //   (data) => {
+  //     return postQuery('/Swap', data);
+  //   },
+  //   {
+  //     onSuccess: (data) => {
+  //       if (data?.success) {
+  //         const { swapData } = data;
+  //         setSuccessResult((prev) => ({
+  //           count: (prev?.count ?? 0) + 1,
+  //           message: `Your swap request from ${swapData.fromToken} to ${swapData.toToken} has been successful. Check your balance.`,
+  //         }));
+  //       } else {
+  //         setErrorResult((prev) => ({
+  //           count: (prev?.count ?? 0) + 1,
+  //           message: `${data?.message} Check your input is correct.`,
+  //         }));
+  //       }
+  //     },
+  //     onError: (data: any) => {
+  //       const { error } = data;
+  //       setErrorResult((prev) => ({
+  //         count: (prev?.count ?? 0) + 1,
+  //         message: `Your swap request from ${swapData.fromToken} to ${swapData.toToken} has been failed. Please contact to the support team.`,
+  //       }));
+  //     },
+  //     onSettled: () => {
+  //       refetch(['ListAssets']);
+  //     },
+  //   },
+  // );
+
+  const withdrawRequest = async (
+    net: string,
+    asset: string,
+    to: string,
+    amount: number,
+    wallets: any,
+    nets: any,
+    tokens: any,
+  ) => {
+    await withdraw(net, asset, to, amount, wallets, nets, tokens);
+    refetch(['ListAssets']);
+  };
 
   const loading =
     priceLoading ||
@@ -358,7 +452,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
             count: (prev?.count ?? 0) + 1,
             message: `Your deposit request was successful but not confirmed yet. Please wait for a while to confirm the transaction.`,
           }));
-          console.log('here');
           refetch(['ListAssets']);
         } else {
           setErrorResult((prev) => ({
@@ -429,6 +522,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         transactionMutate,
         swapIsLoading,
         swapMutate,
+        withdraw: withdrawRequest,
+        quoteData,
+        quoteMutate,
       }}
     >
       {children}
