@@ -37,7 +37,7 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
     .map((token: any, index: number) => {
       const token_addr = token?.address;
       const middle_result = Object.keys(token_addr)
-        .filter((net: any) => !['6', '7', '8', '10', '9'].includes(net))
+        .filter((net: any) => !['6', '7', '8', '10', '9', '2', '3', '4', '5'].includes(net))
         .map((net: any) => {
           const chainId =
             nets?.find((net_info: any) => net_info.id === net)?.chain_id ??
@@ -46,12 +46,15 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
           let balance: Promise<string> = new Promise((resolve) => resolve('0'));
           let decimal: Promise<string> = new Promise((resolve) => resolve('18'));
           const web3_net = web3[chainId];
+          console.log('web3_net:', walletData[net]);
+          console.log(net);
           if (address === '') {
             balance = web3_net.eth.getBalance(walletData[net] as string);
             if (net === '6') decimal = new Promise((resolve) => resolve('8'));
           } else {
             //@ts-ignore
             const tokenInst = new web3_net.eth.Contract(ABI as ABIType, address);
+            console.log('tokenInst:', tokenInst);
             balance = tokenInst.methods.balanceOf(walletData[net] as string).call({});
             decimal = tokenInst.methods.decimals().call({});
           }
@@ -67,7 +70,7 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
     const balance = result_pros.shift();
     const decimal = result_pros.shift();
     result[token_id] = result[token_id] ?? {};
-    result[token_id][net] = web3[parseInt(nets[0].chain_id)].utils.fromWei(
+    result[token_id][net] = utils.fromWei(
       balance,
       WEI_DECIMALS[decimal as keyof typeof WEI_DECIMALS],
     );
@@ -237,7 +240,10 @@ export const postSwap = async (data: any, wallet: any) => {
   const web3_net = new Web3(rpcUrl as string);
   web3_net.eth.accounts.wallet.add(wallet.private_key);
   const signedTx = await web3_net.eth.accounts.signTransaction(data, wallet.private_key);
-  const result = await web3_net.eth.sendSignedTransaction(signedTx.rawTransaction as string);
+  const result = await web3_net.eth
+    .sendSignedTransaction(signedTx.rawTransaction as string)
+    .then((res) => res)
+    .catch((e) => alert(e.data));
   console.log('result:', result);
   return result;
 };

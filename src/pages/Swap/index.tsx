@@ -177,25 +177,24 @@ const Swap = () => {
     // const rate_curr =
     //   Number(priceData[fromToken?.name?.concat('-USD')]) /
     //   Number(priceData[toToken?.name?.concat('-USD')]);
-    if (quoteData?.estimate) {
-      const rate_curr = Number(quoteData?.estimate.toAmount)
-        ? Number(fromAmount) / Number(quoteData?.estimate.toAmount)
-        : 0;
-      setRate(rate_curr);
-      const timer = setTimeout(() => {
-        const amount = Number(quoteData.estimate.toAmount).toFixed(
-          precision(Number(priceData[toToken?.name?.concat('-USD')])),
-        );
+    const timer = setTimeout(() => {
+      if (quoteData?.estimate) {
+        const rate_curr = Number(quoteData?.estimate.toAmount)
+          ? Number(quoteData?.estimate.toAmount) / Number(fromAmount)
+          : 0;
+        setRate(rate_curr);
+        const amount = Number(quoteData.estimate.toAmount).toFixed(precision(rate_curr));
         if (focus === Focus.From) {
           setToAmount(amount);
         } else {
           setFromAmount(amount);
         }
-      }, 500);
-      return () => clearTimeout(timer);
-    } else {
-      setFromAmount('0');
-    }
+        return () => clearTimeout(timer);
+      }
+      // else {
+      //   setFromAmount('0');
+      // }
+    }, 500);
   }, [quoteData]);
 
   useEffect(() => {

@@ -58,6 +58,7 @@ const Withdraw = () => {
   const [address, setAddress] = useState<string>('');
   const [amount, setAmount] = useState<string>('0.0001');
   const [error, setError] = useState<any>({});
+  const [isLoading, setIsLoading] = useState<any>(false);
   const [activeNetIndex, setActiveNetIndex] = useState<number>(0);
 
   const { token } = useParams();
@@ -159,6 +160,7 @@ const Withdraw = () => {
       //   amount: parseFloat(amount),
       //   receiver: address, // SOL address
       // });
+      setIsLoading(true);
       await withdraw(
         activeNet.id,
         activeToken.id,
@@ -168,6 +170,7 @@ const Withdraw = () => {
         netData,
         tokenData,
       );
+      setIsLoading(false);
     }
   };
 
@@ -514,7 +517,7 @@ const Withdraw = () => {
             //   backgroundColor: '#7eca0b88',
             // },
           }}
-          disabled={withdrawIsLoading}
+          disabled={isLoading}
           onClick={sendRequestWithdraw}
         >
           Confirm
