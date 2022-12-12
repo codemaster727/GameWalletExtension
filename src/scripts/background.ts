@@ -3,9 +3,9 @@ import KeyringController from 'eth-keyring-controller';
 import { HARDWARE_KEYRING_TYPES } from '~/shared/constants/hardware-wallets';
 import WalletController from './wallet-controller';
 
-console.log('started');
 let tokenData;
 let controller: WalletController | undefined;
+let api: any;
 
 let connection_deposit: WebSocket;
 
@@ -19,11 +19,9 @@ const connect = () => {
   connection_deposit = new WebSocket(
     'wss://80halgu2p0.execute-api.eu-west-1.amazonaws.com/production/',
   );
-  console.log('connection_deposit:', connection_deposit);
 
   connection_deposit.onmessage = (message) => {
     const json = JSON.parse(message.data);
-    console.log(json);
     if (json?.status === 'confirmed') {
       // chrome.notifications.create({
       //   type: 'basic',
@@ -58,7 +56,6 @@ connect();
 
 chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
   if (!connection_deposit || connection_deposit.readyState !== 1) connect();
-  console.log('connection_deposit:', connection_deposit);
   // await sleep(10000);
   // setTimeout(() => {
   sendResponse({ result: 'connect' });
@@ -80,7 +77,6 @@ chrome.runtime.onMessage.addListener((request) => {
 //     top: 0,
 //   },
 //   () => {
-//     console.log(`Opened popup!`);
 //   },
 // );
 
@@ -99,6 +95,7 @@ function setupController(initState: any, initLangCode: any) {
   //
 
   controller = new WalletController({});
+  api = controller.getApi();
 }
 
 /**

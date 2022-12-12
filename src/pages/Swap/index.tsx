@@ -36,6 +36,8 @@ import { grey } from '@mui/material/colors';
 import { precision } from '~/utils/helper';
 import { useAuth } from '~/context/AuthProvider';
 import { ETH } from '~/constants/address';
+import { TailSpin } from 'react-loading-icons';
+import utils from 'web3-utils';
 
 enum Focus {
   From,
@@ -54,14 +56,16 @@ const style_btn_toggle = {
 MenuProps.PaperProps.style.width = 120;
 
 const Swap = () => {
-  const { token } = useParams();
+  const { token, net } = useParams();
   const [fromTokenIndex, setFromTokenIndex] = useState(parseInt(token ?? '0'));
+  const [fromNetIndex, setFromNetIndex] = useState(parseInt(net ?? '1'));
   const [toTokenIndex, setToTokenIndex] = useState(parseInt(token !== '2' ? '2' : '3'));
+  const [toNetIndex, setToNetIndex] = useState(parseInt(net ?? '1'));
   const [fromAmount, setFromAmount] = useState<string>('0');
   const [toAmount, setToAmount] = useState<string>('0');
   const [focus, setFocus] = useState<Focus>(Focus.From);
   const [rate, setRate] = useState<number>(0);
-  const [error, setError] = useState<any>({});
+  const [error, setError] = useState<string>('');
 
   const fromDeferredAmount = useDeferredValue(fromAmount);
   const toDeferredAmount = useDeferredValue(toAmount);
@@ -78,6 +82,8 @@ const Swap = () => {
     priceData,
     walletData,
     quoteMutate,
+    quoteIsLoading,
+    quoteIsError,
     quoteData,
   } = useSocket();
 
@@ -87,6 +93,8 @@ const Swap = () => {
 
   const fromToken = tokenData[fromTokenIndex];
   const toToken = tokenData[toTokenIndex];
+  const fromNet = netData[fromNetIndex];
+  const toNet = netData[toNetIndex];
 
   const handleFromTokenChange = (event: SelectChangeEvent<typeof fromTokenIndex>) => {
     const {
@@ -94,12 +102,24 @@ const Swap = () => {
     } = event;
     setFromTokenIndex(value as number);
   };
+  const handleFromNetChange = (event: SelectChangeEvent<typeof fromNetIndex>) => {
+    const {
+      target: { value },
+    } = event;
+    setFromNetIndex(value as number);
+  };
 
   const handleToTokenChange = (event: SelectChangeEvent<typeof toTokenIndex>) => {
     const {
       target: { value },
     } = event;
     setToTokenIndex(value as number);
+  };
+  const handleToNetChange = (event: SelectChangeEvent<typeof toNetIndex>) => {
+    const {
+      target: { value },
+    } = event;
+    setToNetIndex(value as number);
   };
 
   const handleChangeFromInput = (e: any) => {
@@ -124,24 +144,31 @@ const Swap = () => {
     setFromAmount(balanceData[fromToken.id]);
   };
 
-  const validate = (amnt: string | undefined, net: string, from: string, to: string) => {
+  const validate = (
+    amnt: string | undefined,
+    fromNet: string,
+    toNet: string,
+    from: string,
+    to: string,
+  ) => {
+    // if (["3", "5", "6", "7", "8", "9", "10"].includes(fromNet) || ["3", "5", "6", "7", "8", "9", "10"].includes(toNet)) {
+    //   setError('Not supported yet. Please wait to complete.');
+    //   return false;
+    // }
+    // if (from !== '2' && from !== '3' && from !== '4') {
+    //   setError('Not supported yet. Please wait to complete.');
+    //   return false;
+    // }
+    // if (to !== '2' && to !== '3' && to !== '4') {
+    //   setError('Not supported yet. Please wait to complete.');
+    //   return false;
+    // }
     const am = parseFloat(amnt as string);
     if (!am || am <= 0 || am > Math.min(balanceData[fromToken?.id], 0.01)) {
-      alert('Insufficient amount.');
+      setError('Insufficient balance.');
       return false;
     }
-    if (net === '3' || net === '5' || net === '6' || net === '7' || net === '8' || net === '10') {
-      alert('Not supported yet. Please wait to complete.');
-      return false;
-    }
-    if (from !== '2' && from !== '3' && from !== '4') {
-      alert('Not supported yet. Please wait to complete.');
-      return false;
-    }
-    if (to !== '2' && to !== '3' && to !== '4') {
-      alert('Not supported yet. Please wait to complete.');
-      return false;
-    }
+    setError('');
     return true;
   };
 
@@ -150,12 +177,12 @@ const Swap = () => {
       setToAmount('0');
       return;
     }
-    if (!validate(fromAmount, '1', fromToken.id, toToken.id)) return;
+    if (!validate(fromAmount, fromNet.chainId, toNet.chainId, fromToken.id, toToken.id)) return;
     const routesRequest = {
-      fromChain: '1', // Goerli
+      fromChain: fromNet.chainId, // Goerli
       fromAmount: fromAmount, // 1
       fromToken: ETH, // ETH
-      toChain: '1', // Goerli
+      toChain: toNet.chainId, // Goerli
       toToken: toToken.address['1'] ?? ETH, // USDC
       fromAddress: walletData['1'],
     };
@@ -164,7 +191,11 @@ const Swap = () => {
   };
 
   const sendRequestSwap = () => {
-    if (!validate(fromAmount, '1', fromToken.id, toToken.id) || !quoteData) return;
+    if (
+      !validate(fromAmount, fromNet.chainId, toNet.chainId, fromToken.id, toToken.id) ||
+      !quoteData
+    )
+      return;
     swapMutate();
   };
 
@@ -173,7 +204,6 @@ const Swap = () => {
   }, [fromTokenIndex, toTokenIndex]);
 
   useEffect(() => {
-    console.log(quoteData);
     // const rate_curr =
     //   Number(priceData[fromToken?.name?.concat('-USD')]) /
     //   Number(priceData[toToken?.name?.concat('-USD')]);
@@ -203,7 +233,14 @@ const Swap = () => {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [fromTokenIndex, toTokenIndex, fromDeferredAmount]);
+  }, [fromTokenIndex, toTokenIndex, fromDeferredAmount, fromNetIndex, toNetIndex]);
+  console.log(quoteData);
+
+  useEffect(() => {
+    if (quoteIsError) {
+      setError('No available dex or swap found.');
+    }
+  }, [quoteIsError]);
 
   return (
     <Box className='base-box'>
@@ -212,14 +249,14 @@ const Swap = () => {
           {networkError ? (
             <Box>Network error...</Box>
           ) : (
-            <Box margin='20px 20px 0' style={{ backgroundColor: 'transparent' }}>
+            <Box margin='20px 12px 0' style={{ backgroundColor: 'transparent' }}>
               <Typography variant='h6' component='h6' textAlign='left' color='#AAAAAA' mb={1}>
                 You get approximately
               </Typography>
               <Paper
                 component='form'
                 sx={style_input_paper}
-                style={{ borderRadius: '10px 10px 0 0', position: 'relative' }}
+                style={{ borderRadius: '10px 10px 0 0', position: 'relative', height: '75px' }}
               >
                 <Button
                   color='secondary'
@@ -238,7 +275,45 @@ const Swap = () => {
                 >
                   <SwapVertIcon fontSize='large' sx={{ path: { fill: 'white' } }} />
                 </Button>
-                <Box className='currency_select' sx={{ margin: 0 }}>
+                <Box className='currency_select' sx={{ margin: 0, textAlign: 'left' }}>
+                  <Select
+                    value={fromNetIndex}
+                    onChange={handleFromNetChange}
+                    input={<OutlinedInput />}
+                    renderValue={(selected: number) => {
+                      const net = netData[selected];
+                      return (
+                        net && (
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            {Icon(net?.icon, 18)}
+                            &nbsp;
+                            {net?.name}
+                          </Box>
+                        )
+                      );
+                    }}
+                    MenuProps={MenuProps}
+                    // IconComponent={() => DownIcon(DownArrowImage, 12)}
+                    // IconComponent={() => <ExpandMoreIcon />}
+                    // IconComponent={() => <Person />}
+                    sx={{ ...style_select, width: '120px' }}
+                    inputProps={{ 'aria-label': 'Without label' }}
+                  >
+                    {netData &&
+                      'map' in netData &&
+                      netData?.map((net: any, index: number) => (
+                        <MenuItem
+                          className='menuitem-currency'
+                          key={net?.id}
+                          value={index}
+                          sx={style_menuitem}
+                        >
+                          {Icon(net.icon, 18)}
+                          &nbsp;
+                          {net?.name}
+                        </MenuItem>
+                      ))}
+                  </Select>
                   <Select
                     value={fromTokenIndex}
                     onChange={handleFromTokenChange}
@@ -259,7 +334,7 @@ const Swap = () => {
                     // IconComponent={() => DownIcon(DownArrowImage, 12)}
                     // IconComponent={() => <ExpandMoreIcon />}
                     // IconComponent={() => <Person />}
-                    sx={{ ...style_select }}
+                    sx={{ ...style_select, width: '120px' }}
                     inputProps={{ 'aria-label': 'Without label' }}
                   >
                     {tokenData &&
@@ -270,7 +345,7 @@ const Swap = () => {
                           key={token?.id}
                           value={index}
                           sx={style_menuitem}
-                          disabled={index === toTokenIndex}
+                          disabled={index === toTokenIndex && fromNetIndex === toNetIndex}
                         >
                           {Icon(token.icon, 18)}
                           &nbsp;
@@ -318,9 +393,47 @@ const Swap = () => {
               <Paper
                 component='form'
                 sx={style_input_paper}
-                style={{ borderRadius: '0 0 10px 10px' }}
+                style={{ borderRadius: '0 0 10px 10px', height: '75px' }}
               >
-                <Box className='currency_select' sx={{ margin: 0 }}>
+                <Box className='currency_select' sx={{ margin: 0, textAlign: 'left' }}>
+                  <Select
+                    value={toNetIndex}
+                    onChange={handleToNetChange}
+                    input={<OutlinedInput />}
+                    renderValue={(selected: number) => {
+                      const net = netData[selected];
+                      return (
+                        net && (
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            {Icon(net?.icon, 18)}
+                            &nbsp;
+                            {net?.name}
+                          </Box>
+                        )
+                      );
+                    }}
+                    MenuProps={MenuProps}
+                    // IconComponent={() => DownIcon(DownArrowImage, 12)}
+                    // IconComponent={() => <ExpandMoreIcon />}
+                    // IconComponent={() => <Person />}
+                    sx={{ ...style_select, width: '120px' }}
+                    inputProps={{ 'aria-label': 'Without label' }}
+                  >
+                    {netData &&
+                      'map' in netData &&
+                      netData?.map((net: any, index: number) => (
+                        <MenuItem
+                          className='menuitem-currency'
+                          key={net?.id}
+                          value={index}
+                          sx={style_menuitem}
+                        >
+                          {Icon(net.icon, 18)}
+                          &nbsp;
+                          {net?.name}
+                        </MenuItem>
+                      ))}
+                  </Select>
                   <Select
                     value={toTokenIndex}
                     onChange={handleToTokenChange}
@@ -341,7 +454,7 @@ const Swap = () => {
                     // IconComponent={() => DownIcon(DownArrowImage, 12)}
                     // IconComponent={() => <ExpandMoreIcon />}
                     // IconComponent={() => <Person />}
-                    sx={{ ...style_select }}
+                    sx={{ ...style_select, width: '120px' }}
                     inputProps={{ 'aria-label': 'Without label' }}
                   >
                     {tokenData &&
@@ -361,35 +474,53 @@ const Swap = () => {
                       ))}
                   </Select>
                 </Box>
-                <Box ml='20px' width={80}>
-                  <Typography
-                    variant='h6'
-                    component='h6'
-                    lineHeight={'normal'}
-                    textAlign='right'
-                    color={theme.palette.text.secondary}
-                  >
-                    Get
-                  </Typography>
-                  <NumericFormat
-                    style={{
-                      backgroundColor: 'transparent',
-                      color: 'white',
-                      border: 'none',
-                      paddingLeft: '0',
-                      width: '100%',
-                      fontSize: '14px',
-                      fontWeight: 'bold',
-                      textAlign: 'right',
-                    }}
-                    thousandSeparator
-                    decimalScale={5}
-                    value={toAmount}
-                    onChange={handleChangeToInput}
-                    disabled
-                  />
-                </Box>
+                {quoteIsLoading ? (
+                  <TailSpin width={20} />
+                ) : (
+                  <Box ml='20px' width={80} sx={{ textAlign: 'right' }}>
+                    <Typography
+                      variant='h6'
+                      component='h6'
+                      lineHeight={'normal'}
+                      textAlign='right'
+                      color={theme.palette.text.secondary}
+                    >
+                      Get
+                    </Typography>
+                    <NumericFormat
+                      style={{
+                        backgroundColor: 'transparent',
+                        color: 'white',
+                        border: 'none',
+                        paddingLeft: '0',
+                        width: '100%',
+                        fontSize: '14px',
+                        fontWeight: 'bold',
+                        textAlign: 'right',
+                      }}
+                      thousandSeparator
+                      decimalScale={5}
+                      value={toAmount}
+                      onChange={handleChangeToInput}
+                      disabled
+                    />
+                  </Box>
+                )}
               </Paper>
+              {error ? (
+                <Typography
+                  variant='h6'
+                  component='h6'
+                  textAlign='left'
+                  fontWeight='bold'
+                  alignItems='center'
+                  mt={2}
+                  color={theme.palette.error.main}
+                  style={{ overflowWrap: 'break-word' }}
+                >
+                  {error}
+                </Typography>
+              ) : null}
               <Typography
                 variant='h6'
                 component='h6'
@@ -414,7 +545,12 @@ const Swap = () => {
               >
                 Swap fee:{' '}
                 <span style={{ color: theme.palette.text.primary }}>
-                  0.00000000 {fromToken?.name}
+                  {quoteData?.estimate
+                    ? quoteData.estimate.gasCosts.map(
+                        (gasCost: any) =>
+                          utils.fromWei(gasCost.amount, 'ether') + ' ' + gasCost.token.symbol,
+                      )
+                    : 0.0}{' '}
                 </span>
               </Typography>
             </Box>

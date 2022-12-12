@@ -17,7 +17,6 @@ button.innerHTML = 'here1';
 button.addEventListener('click', () => {
   // chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
   //   tabURL = tabs[0].id;
-  //   console.log('URL from get-url.js', tabURL);
   // browser.runtime.sendMessage(tabURL, 'OpenPopup');
   // });
 });
@@ -25,7 +24,7 @@ button.addEventListener('click', () => {
 document.body.appendChild(button);
 
 chrome.runtime.onMessage.addListener((request) => {
-  console.log('rcvd');
+  console.log('rcvd1');
   if (request == 'OpenPopup') {
     chrome.windows.create(
       {
@@ -36,9 +35,7 @@ chrome.runtime.onMessage.addListener((request) => {
         height: 600,
         top: 0,
       },
-      () => {
-        console.log(`Opened popup!`);
-      },
+      () => {},
     );
   }
 });

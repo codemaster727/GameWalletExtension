@@ -237,6 +237,8 @@ export default createGlobalStyle<ITheme>`
 	}
 
 	.currency_select {
+		display: flex;
+		flex-direction: column;
 		.MuiSvgIcon-root {
 			path {
 				color: white !important;

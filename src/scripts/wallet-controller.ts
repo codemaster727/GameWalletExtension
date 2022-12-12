@@ -14,6 +14,13 @@ import { HARDWARE_KEYRING_TYPES } from '~/shared/constants/hardware-wallets';
 // @ts-ignore
 browser.Buffer = browser.Buffer || Buffer;
 
+// browser.notifications.create({
+//   type: 'basic',
+//   iconUrl: '../favicon-32x32.png',
+//   title: 'Tabs reloaded',
+//   message: 'Your tabs have been reloaded',
+// });
+
 export default class WalletController extends EventEmitter {
   keyringController: KeyringController;
   createVaultMutex: Mutex;
@@ -107,7 +114,9 @@ export default class WalletController extends EventEmitter {
         console.log(window.Buffer.from(encodedSeedPhrase).toString('utf8'));
 
         const addresses = await this.keyringController.getAccounts();
+        const addresses1 = await this.keyringController.getAccounts();
         console.log(addresses);
+        console.log(addresses1);
         // this.preferencesController.setAddresses(addresses);
         // this.selectFirstIdentity();
       }

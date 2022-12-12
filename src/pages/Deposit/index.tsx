@@ -355,7 +355,7 @@ const Deposit = () => {
       </ScrollBox>
       {/* <hr style={{ background: 'grey', height: '0.1px', border: 'none' }} /> */}
       {/* <Box className='bottom-box'>
-        <Button style={style_btn_buy_ext} onClick={() => alert('Working now. Please wait.')}>
+        <Button style={style_btn_buy_ext} onClick={() => console.log('Working now. Please wait.')}>
           BUY CRYPTO
         </Button>
       </Box> */}

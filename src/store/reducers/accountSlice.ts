@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createNewVaultAndGetSeedPhrase } from '../action';
+import { createNewVaultAndGetSeedPhrase } from '../actions';
 
 const accountSlice = createSlice({
   name: 'account',

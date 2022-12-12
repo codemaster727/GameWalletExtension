@@ -34,6 +34,7 @@ import WithdrawNFT from './pages/WithdrawNFT';
 import AccountPage from './pages/Account';
 import Swap from './pages/Swap';
 import store from './store/store';
+// import * as actions from './store/actions';
 
 const draftInitialState = {
   // activeTab: opts.activeTab,
@@ -49,6 +50,30 @@ const draftInitialState = {
 
 // Create a client
 const queryClient = new QueryClient();
+
+// import { _setBackgroundConnection } from './store/action-queue';
+
+/**
+ * Method to update backgroundConnection object use by UI
+ *
+ * @param backgroundConnection - connection object to background
+ */
+// export const updateBackgroundConnection = (backgroundConnection: any) => {
+//   _setBackgroundConnection(backgroundConnection);
+//   // backgroundConnection.onNotification((data: any) => {
+//   //   if (data.method === 'sendUpdate') {
+//   //     store.dispatch(actions.updateMetamaskState(data.params[0]));
+//   //   } else {
+//   //     throw new Error(
+//   //       `Internal JSON-RPC Notification Not Handled:\n\n ${JSON.stringify(
+//   //         data,
+//   //       )}`,
+//   //     );
+//   //   }
+//   // });
+// };
+
+// import {} from './scripts/ui';
 
 const App = () => {
   const { authed, signIn, signUp, signOut } = useAuth();
@@ -68,7 +93,6 @@ const App = () => {
   };
 
   const signInLoader = (e: any) => {
-    console.log('loader: ', e.request.url?.replace('http://localhost:3000', ''));
     return e.request.url?.replace('http://localhost:3000', '');
   };
 
@@ -137,7 +161,7 @@ const App = () => {
           ),
         },
         {
-          path: '/swap/:token',
+          path: '/swap/:token/:net',
           element: (
             <PrivateRoute>
               <Swap />

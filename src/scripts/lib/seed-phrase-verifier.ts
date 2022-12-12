@@ -1,4 +1,3 @@
-//@ts-ignore
 import KeyringController from 'eth-keyring-controller';
 import log from 'loglevel';
 

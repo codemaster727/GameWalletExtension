@@ -56,7 +56,7 @@ const executeActionOrAddToRetryQueue = (item: any) => {
     return;
   }
 
-  if (background.connectionStream.readable) {
+  if (background && background.connectionStream.readable) {
     executeAction({
       action: item,
       disconnectSideeffect: () => actionRetryQueue.push(item),
@@ -166,7 +166,7 @@ async function processActionRetryQueue() {
   }
   processingQueue = true;
   try {
-    while (background.connectionStream.readable && actionRetryQueue.length > 0) {
+    while (background && background.connectionStream.readable && actionRetryQueue.length > 0) {
       // If background disconnects and fails the action, the next one will not be taken off the queue.
       // Retrying an action that failed because of connection loss while it was processing is not supported.
       const item = actionRetryQueue.shift();

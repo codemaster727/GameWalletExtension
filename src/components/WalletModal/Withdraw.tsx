@@ -9,6 +9,7 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   TextField,
+  useTheme,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { grey } from '@mui/material/colors';
@@ -189,6 +190,8 @@ const Withdraw = () => {
   const [error, setError] = useState<any>({});
   const [activeTokenTypeEthIndex, setActiveTokenTypeEthIndex] = useState<number>(0);
 
+  const theme = useTheme();
+
   const { networkError, balanceData, tokenData, withdrawMutate, withdrawIsLoading } = useSocket();
 
   const activeToken = tokenData[activeTokenIndex];
@@ -231,19 +234,20 @@ const Withdraw = () => {
   };
 
   const validate = (addr: string | undefined, amnt: string | undefined, net: number) => {
+    if (net === 3 || net === 5 || net === 6 || net === 7 || net === 8 || net === 10) {
+      setError('Not supported yet. Please wait to complete.');
+      return false;
+    }
     const am = parseFloat(amnt as string);
     if (!addr) {
-      alert('Invalid input.');
+      setError('Invalid address.');
       return false;
     }
     if (!am || am <= 0 || am > Math.min(balanceData[activeToken?.id], 0.01)) {
-      alert('Invalid input.');
+      setError('Invalid amount.');
       return false;
     }
-    if (net === 3 || net === 5 || net === 6 || net === 7 || net === 8 || net === 10) {
-      alert('Not supported yet. Please wait to complete.');
-      return false;
-    }
+    setError('');
     return true;
   };
 
@@ -427,6 +431,20 @@ const Withdraw = () => {
                 onChange={handleChangeAddressInput}
               />
             </Paper>
+            {error ? (
+              <Typography
+                variant='h6'
+                component='h6'
+                textAlign='left'
+                fontWeight='bold'
+                alignItems='center'
+                mt={2}
+                // color={theme.palette.error.main}
+                style={{ overflowWrap: 'break-word' }}
+              >
+                {error}
+              </Typography>
+            ) : null}
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <Typography
                 variant='h6'

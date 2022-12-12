@@ -1,7 +1,12 @@
 import { getApi, postApi } from './DefaultRequest';
 import Web3 from 'web3';
 import * as web3_sol from '@solana/web3.js';
-import { CHAIN_IDS_TEST, FEATURED_RPCS, FEATURED_RPCS_TEST } from 'src/constants/network';
+import {
+  CHAIN_IDS_TEST,
+  FEATURED_RPCS_MAIN,
+  FEATURED_RPCS_TEST,
+  NODE_ENV,
+} from 'src/constants/network';
 import { array2object, removePrefix } from '~/utils/helper';
 import ABI from '../constants/abi/ERC20.abi.json';
 import { WEI_DECIMALS, WEI_UNITS } from '~/constants/unit';
@@ -14,13 +19,11 @@ import { ethers } from 'ethers';
 // import { Transaction as TX } from 'ethereumjs-tx';
 
 const API_URL = 'https://li.quest/v1';
-
+const FEATURED_RPCS = NODE_ENV === 'test' ? FEATURED_RPCS_TEST : FEATURED_RPCS_MAIN;
 const web3: Record<string, Web3> = {};
 FEATURED_RPCS.map((rpc: any, index: number) => {
-  web3[parseInt(FEATURED_RPCS_TEST[index].chainId).toString()] = new Web3(rpc.rpcUrl);
+  web3[parseInt(FEATURED_RPCS[index].chainId).toString()] = new Web3(rpc.rpcUrl);
 });
-
-console.log(web3);
 
 export const getQuery = async (data: any) => {
   const { queryKey } = data;
@@ -37,7 +40,7 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
     .map((token: any, index: number) => {
       const token_addr = token?.address;
       const middle_result = Object.keys(token_addr)
-        .filter((net: any) => !['6', '7', '8', '10', '9', '2', '3', '4', '5'].includes(net))
+        .filter((net: any) => !['6', '7', '8', '10', '9'].includes(net))
         .map((net: any) => {
           const chainId =
             nets?.find((net_info: any) => net_info.id === net)?.chain_id ??
@@ -46,15 +49,12 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
           let balance: Promise<string> = new Promise((resolve) => resolve('0'));
           let decimal: Promise<string> = new Promise((resolve) => resolve('18'));
           const web3_net = web3[chainId];
-          console.log('web3_net:', walletData[net]);
-          console.log(net);
           if (address === '') {
             balance = web3_net.eth.getBalance(walletData[net] as string);
             if (net === '6') decimal = new Promise((resolve) => resolve('8'));
           } else {
             //@ts-ignore
             const tokenInst = new web3_net.eth.Contract(ABI as ABIType, address);
-            console.log('tokenInst:', tokenInst);
             balance = tokenInst.methods.balanceOf(walletData[net] as string).call({});
             decimal = tokenInst.methods.decimals().call({});
           }
@@ -95,7 +95,6 @@ export const withdraw = async (
     wallets && 'map' in wallets ? wallets?.map((a: any) => ({ [a.net_id]: a })) : [],
   );
   const accountFrom: any = walletData[net];
-  console.log(accountFrom);
   const send = async (): Promise<any> => {
     if (['1', '2', '5', '6', '8'].includes(asset)) {
       const nonce = await web3_net.eth.getTransactionCount(accountFrom?.address, 'latest');
@@ -144,7 +143,6 @@ export const withdraw = async (
         },
       );
       return createReceipt;
-      // console.log(`Transaction successful with hash: ${createReceipt.transactionHash}`);
       // return "result"
     } else if (asset === '7') {
       const secret_key = bs58.decode(accountFrom.private_key as string);
@@ -211,15 +209,11 @@ export const getLifi = async (url: string, data: any) => {
   const rpcUrl = FEATURED_RPCS.find(
     (rpc) => parseInt(rpc.chainId) === parseInt(data.fromChain),
   )?.rpcUrl;
-  console.log('rpcUrl:', rpcUrl);
   const decimal = await getDecimal(rpcUrl, data.fromToken);
-  console.log(decimal);
   data.fromAmount = utils.toWei(data.fromAmount.toString(), WEI_DECIMALS[decimal]);
-  console.log(data.fromAmount);
   const result = await axios.get(`${baseURL}${url}`, {
     params: data,
   });
-  console.log(result);
   if (result.data?.estimate) {
     result.data.estimate.toAmount = utils.fromWei(
       result.data.estimate.toAmount,
@@ -243,7 +237,7 @@ export const postSwap = async (data: any, wallet: any) => {
   const result = await web3_net.eth
     .sendSignedTransaction(signedTx.rawTransaction as string)
     .then((res) => res)
-    .catch((e) => alert(e.data));
+    .catch((e) => console.log(e.data));
   console.log('result:', result);
   return result;
 };

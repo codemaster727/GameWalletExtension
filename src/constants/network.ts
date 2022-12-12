@@ -254,6 +254,7 @@ export const HARMONY_DISPLAY_NAME = 'Harmony Mainnet Shard 0';
 export const PALM_DISPLAY_NAME = 'Palm';
 export const AURORA_DISPLAY_NAME = 'Aurora Mainnet';
 
+export const NODE_ENV: string = 'test1';
 export const infuraProjectId =
   process.env.REACT_APP_INFURA_PROJECT_ID ?? '8ca754ed5afb406da53f5b58b462a679';
 export const getRpcUrl = ({
@@ -877,7 +878,7 @@ const BUYABLE_CHAIN_ETHEREUM_NETWORK_NAME = 'ethereum';
 //   },
 // };
 
-export const FEATURED_RPCS: RPCDefinition[] = [
+export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
   {
     chainId: CHAIN_IDS.MAINNET,
     nickname: MAINNET_DISPLAY_NAME,
@@ -892,7 +893,7 @@ export const FEATURED_RPCS: RPCDefinition[] = [
     chainId: CHAIN_IDS.ARBITRUM,
     nickname: ARBITRUM_DISPLAY_NAME,
     // rpcUrl: `https://arbitrum-mainnet.infura.io/v3/${infuraProjectId}`,
-    rpcUrl: 'https://arb1.arbitrum.io/rpc',
+    rpcUrl: 'https://arb-mainnet.g.alchemy.com/v2/1-JwojwPD2Y-YMFs-J9wOCbUMsG2dQYd',
     ticker: CURRENCY_SYMBOLS.ARBITRUM,
     rpcPrefs: {
       blockExplorerUrl: 'https://explorer.arbitrum.io',
@@ -953,7 +954,7 @@ export const FEATURED_RPCS: RPCDefinition[] = [
     chainId: CHAIN_IDS.OPTIMISM,
     nickname: OPTIMISM_DISPLAY_NAME,
     // rpcUrl: `https://optimism-mainnet.infura.io/v3/${infuraProjectId}`,
-    rpcUrl: 'https://mainnet.optimism.io',
+    rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/kPiaxwIV1fZqGTmE3dBwmqKH0033Wik5',
     ticker: CURRENCY_SYMBOLS.ETH,
     rpcPrefs: {
       blockExplorerUrl: 'https://optimistic.etherscan.io/',
@@ -974,7 +975,7 @@ export const FEATURED_RPCS: RPCDefinition[] = [
     chainId: CHAIN_IDS.POLYGON,
     nickname: `${POLYGON_DISPLAY_NAME} ${capitalize(NETWORK_TYPES.MAINNET)}`,
     // rpcUrl: `https://polygon-mainnet.infura.io/v3/${infuraProjectId}`,
-    rpcUrl: 'https://polygon-rpc.com',
+    rpcUrl: 'https://polygon-mainnet.g.alchemy.com/v2/FXmYqWJOb_4zDHbAM2ZSpoE6FeeMdzKu',
     ticker: CURRENCY_SYMBOLS.MATIC,
     rpcPrefs: {
       blockExplorerUrl: 'https://polygonscan.com/',
@@ -998,7 +999,7 @@ export const FEATURED_RPCS_TEST: RPCDefinition[] = [
     chainId: CHAIN_IDS_TEST.ARBITRUM,
     nickname: ARBITRUM_DISPLAY_NAME,
     // rpcUrl: `https://arbitrum-goerli.infura.io/v3/${infuraProjectId}`,
-    rpcUrl: 'https://goerli-rollup.arbitrum.io/rpc',
+    rpcUrl: 'https://arb-goerli.g.alchemy.com/v2/FDd94ewwsxBIf-sElD-latFk5bkDE8YM',
     ticker: CURRENCY_SYMBOLS.ARBITRUM,
     rpcPrefs: {
       blockExplorerUrl: 'https://explorer.arbitrum.io',
@@ -1019,7 +1020,7 @@ export const FEATURED_RPCS_TEST: RPCDefinition[] = [
     chainId: CHAIN_IDS_TEST.OPTIMISM,
     nickname: OPTIMISM_DISPLAY_NAME,
     // rpcUrl: `https://optimism-goerli.infura.io/v3/${infuraProjectId}`,
-    rpcUrl: 'https://goerli.optimism.io',
+    rpcUrl: 'https://opt-goerli.g.alchemy.com/v2/3iu34Tr7pRAEClLem56sdx6O9hj2OLDV',
     ticker: CURRENCY_SYMBOLS.ETH,
     rpcPrefs: {
       blockExplorerUrl: 'https://optimistic.etherscan.io/',
@@ -1030,7 +1031,7 @@ export const FEATURED_RPCS_TEST: RPCDefinition[] = [
     chainId: CHAIN_IDS_TEST.POLYGON,
     nickname: `${POLYGON_DISPLAY_NAME} ${capitalize(NETWORK_TYPES.MAINNET)}`,
     // rpcUrl: `https://polygon-mumbai.infura.io/v3/${infuraProjectId}`,
-    rpcUrl: 'https://rpc.ankr.com/polygon_mumbai',
+    rpcUrl: 'https://polygon-mumbai.g.alchemy.com/v2/kO8USWVJVzBhahZwj8wfPnoDXsW_BAWJ',
     ticker: CURRENCY_SYMBOLS.MATIC,
     rpcPrefs: {
       blockExplorerUrl: 'https://polygonscan.com/',

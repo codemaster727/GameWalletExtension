@@ -114,32 +114,32 @@ const WithdrawNFT = () => {
     net: string,
     token_id: string,
   ) => {
-    const am = parseFloat(amnt as string);
-    if (!addr) {
-      alert('Invalid input.');
-      return false;
-    }
-    if (!am || am <= 0 || am > Math.min(balanceData[activeToken?.id], 0.01)) {
-      alert('Invalid input.');
-      return false;
-    }
     if (net === '3' || net === '5' || net === '6' || net === '7' || net === '8' || net === '10') {
-      alert('Not supported yet. Please wait to complete.');
+      setError('Not supported yet. Please wait to complete.');
       return false;
     }
     if (token_id === '10') {
-      alert('Not supported yet. Please wait to complete.');
+      setError('Not supported yet. Please wait to complete.');
       return false;
     }
+    const am = parseFloat(amnt as string);
+    if (!addr) {
+      setError('Invalid address.');
+      return false;
+    }
+    if (!am || am <= 0 || am > Math.min(balanceData[activeToken?.id], 0.01)) {
+      setError('Invalid amount.');
+      return false;
+    }
+    setError('');
     return true;
   };
 
   const sendRequestWithdraw = () => {
-    alert('Cannot withdraw NFT yet.');
+    setError('Cannot withdraw NFT yet.');
     // if (validate(address, amount, activeNet?.id ?? '0', activeToken.id)) {
     //   balanceData[activeToken.id] -= parseFloat(amount);
     //   chrome.runtime.sendMessage('test', function (response) {
-    //     console.log(response);
     //   });
     //   withdrawMutate({
     //     user: '1',
@@ -266,6 +266,20 @@ const WithdrawNFT = () => {
                   onChange={handleChangeAddressInput}
                 />
               </Paper>
+              {error ? (
+                <Typography
+                  variant='h6'
+                  component='h6'
+                  textAlign='left'
+                  fontWeight='bold'
+                  alignItems='center'
+                  mt={2}
+                  color={theme.palette.error.main}
+                  style={{ overflowWrap: 'break-word' }}
+                >
+                  {error}
+                </Typography>
+              ) : null}
               <Typography
                 variant='h5'
                 component='h5'

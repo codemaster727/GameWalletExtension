@@ -392,7 +392,7 @@ const Deposit = () => {
           </Typography>
         </Grid>
         <Grid item xs={4} alignContent='center' justifyContent='center'>
-          <Button style={style_btn_buy} onClick={() => alert('Working now. Please wait.')}>
+          <Button style={style_btn_buy} onClick={() => console.log('Working now. Please wait.')}>
             BUY CRYPTO
           </Button>
         </Grid>

@@ -24,7 +24,7 @@ import DepositActiveIcon from '../../assets/coingroup/deposit_active.png';
 import WithdrawActiveIcon from '../../assets/coingroup/withdraw_active.png';
 import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
 import { balance_actions } from '~/context/StateProvider/Actions/BalanceAction';
-import { precision } from '~/utils/helper';
+import { defaultNetId, precision } from '~/utils/helper';
 import Swap from '../Swap';
 
 const style_row = {
@@ -44,7 +44,7 @@ const Balances = () => {
   // const [isNFT, setIsNFT] = useState<boolean>(false);
   const [token, setToken] = useState<number>(0);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const { loading, priceData, balanceData, tokenData } = useSocket();
+  const { loading, priceData, balanceData, tokenData, netData } = useSocket();
   const { state, dispatch } = useStateContext();
   const { isUSD } = state.balance_states;
   // const tokenData = tokenDataOrigin.slice(0, tokenDataOrigin.length - 1);
@@ -272,7 +272,10 @@ const Balances = () => {
                       disableRipple
                       sx={style_menu_item}
                       component={Link}
-                      to={`/swap/${token}`}
+                      to={`/swap/${token}/${
+                        (netData.find((net: any) => net.id === defaultNetId(tokenData[token]))
+                          ?.sort ?? 2) - 1
+                      }`}
                     >
                       <SwapVertIcon fontSize='large' sx={{ path: { fill: 'white' } }} />
                       {'Swap'}
@@ -351,7 +354,7 @@ const Balances = () => {
                                     >
                                       &euro;&nbsp;
                                       {loading && <Rings style={{ marginTop: '50%' }} />}
-                                      {!loading && EUR_price ? EUR_price.toFixed(2) : ''}
+                                      {!loading && EUR_price ? EUR_price.toFixed(2) : '0'}
                                     </Typography>
                                   </TableCell>
                                 )}
@@ -399,7 +402,7 @@ const Balances = () => {
                       color={isUSD || isNFT ? 'white' : 'white'}
                       mx={1}
                     >
-                      {!loading && total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT'] ? (
+                      {!loading && !(total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT'] < 0) ? (
                         isUSD || isNFT ? (
                           <>$&nbsp;</>
                         ) : (
@@ -408,7 +411,7 @@ const Balances = () => {
                       ) : (
                         ''
                       )}
-                      {!loading && total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT'] ? (
+                      {!loading && !(total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT'] < 0) ? (
                         total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT']?.toFixed(2) ?? ''
                       ) : (
                         <Rings />

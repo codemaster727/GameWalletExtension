@@ -57,7 +57,7 @@ const Withdraw = () => {
   const [activeTokenTypeIndex, setActiveTokenTypeIndex] = useState(0);
   const [address, setAddress] = useState<string>('');
   const [amount, setAmount] = useState<string>('0.0001');
-  const [error, setError] = useState<any>({});
+  const [error, setError] = useState<any>('');
   const [isLoading, setIsLoading] = useState<any>(false);
   const [activeNetIndex, setActiveNetIndex] = useState<number>(0);
 
@@ -121,32 +121,31 @@ const Withdraw = () => {
     net: string,
     token_id: string,
   ) => {
-    const am = parseFloat(amnt as string);
-    if (!addr) {
-      alert('Invalid input.');
-      return false;
-    }
-    if (!am || am <= 0 || am > Math.min(balanceData[activeToken?.id], 0.01)) {
-      alert('Invalid input.');
-      return false;
-    }
     if (net === '3' || net === '5' || net === '6' || net === '7' || net === '8' || net === '10') {
-      alert('Not supported yet. Please wait to complete.');
+      setError('Not supported yet. Please wait to complete.');
       return false;
     }
     if (token_id === '10') {
-      alert('Not supported yet. Please wait to complete.');
+      setError('Not supported yet. Please wait to complete.');
       return false;
     }
+    const am = parseFloat(amnt as string);
+    if (!addr) {
+      setError('Invalid address.');
+      return false;
+    }
+    if (!am || am <= 0 || am > Math.min(balanceData[activeToken?.id], 0.01)) {
+      setError('Insufficient balance.');
+      return false;
+    }
+    setError('');
     return true;
   };
 
   const sendRequestWithdraw = async () => {
     if (validate(address, amount, activeNet?.id ?? '0', activeToken.id)) {
       balanceData[activeToken.id] -= parseFloat(amount);
-      chrome.runtime.sendMessage('test', function (response) {
-        console.log(response);
-      });
+      chrome.runtime.sendMessage('test', function (response) {});
       // chrome.notifications.create({
       //   type: 'basic',
       //   iconUrl: 'favicon-32x32.png',
@@ -169,7 +168,7 @@ const Withdraw = () => {
         walletArray,
         netData,
         tokenData,
-      );
+      ).catch((e: ErrorEvent) => setIsLoading(false));
       setIsLoading(false);
     }
   };
@@ -369,6 +368,20 @@ const Withdraw = () => {
                   onChange={handleChangeAddressInput}
                 />
               </Paper>
+              {error ? (
+                <Typography
+                  variant='h6'
+                  component='h6'
+                  textAlign='left'
+                  fontWeight='bold'
+                  alignItems='center'
+                  mt={2}
+                  color={theme.palette.error.main}
+                  style={{ overflowWrap: 'break-word' }}
+                >
+                  {error}
+                </Typography>
+              ) : null}
               {activeToken.id !== '10' && (
                 <>
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>

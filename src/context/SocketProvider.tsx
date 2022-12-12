@@ -20,8 +20,15 @@ import SolIcon from '../assets/coingroup/sol.png';
 import TezosIcon from '../assets/coingroup/tezos.png';
 import OptimismIcon from '../assets/coingroup/optimism.svg';
 import NFTIcon from '../assets/coingroup/NFT_Icon.png';
+import PolygonIcon from '../assets/coingroup/polygon-token.svg';
+import ArbitrumIcon from '../assets/coingroup/Arbitrum.svg';
+import ArbitrumLogoIcon from '../assets/coingroup/arbitrum_logo.svg';
+import TronIcon from '../assets/coingroup/tron-trx-logo.svg';
 import { array2object } from '../utils/helper';
 import { TransactionMutateParams } from './types';
+import { ASSETS_MAIN, ASSETS_TEST } from '~/constants/supported-assets';
+import { NODE_ENV } from '~/constants/network';
+import { CHAINS_MAIN, CHAINS_TEST } from '~/constants/nets';
 
 interface SocketContextType {
   loading: boolean;
@@ -45,7 +52,9 @@ interface SocketContextType {
   swapMutate?: any;
   withdraw?: any;
   quoteMutate: any;
+  quoteIsError: Boolean;
   quoteData: any;
+  quoteIsLoading: boolean;
 }
 
 const init_tokens = [
@@ -128,6 +137,19 @@ const init_tokens = [
   },
 ];
 
+const net_icons = [
+  BitcoinIcon,
+  EthIcon,
+  BnbIcon,
+  PolygonIcon,
+  ArbitrumLogoIcon,
+  TronIcon,
+  LtcIcon,
+  SolIcon,
+  TezosIcon,
+  OptimismIcon,
+];
+
 const SocketContext = createContext<SocketContextType>({} as SocketContextType);
 
 export const useSocket = () => useContext(SocketContext);
@@ -152,20 +174,22 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
   const user = '1';
 
-  // Queries
-  const {
-    status: tokenStatus,
-    isLoading: tokenIsLoading,
-    isError: tokenIsError,
-    data: tokenData,
-  } = useQuery(['/GetSupportedAssets'], getQuery);
+  // // Queries
+  // const {
+  //   status: tokenStatus,
+  //   isLoading: tokenIsLoading,
+  //   isError: tokenIsError,
+  //   data: tokenData,
+  // } = useQuery(['/GetSupportedAssets'], getQuery);
+  const tokenData = NODE_ENV === 'test' ? ASSETS_TEST : ASSETS_MAIN;
 
-  const {
-    status: netStatus,
-    isLoading: netIsLoading,
-    isError: netIsError,
-    data: netData,
-  } = useQuery(['/GetSupportedNets'], getQuery);
+  // const {
+  //   status: netStatus,
+  //   isLoading: netIsLoading,
+  //   isError: netIsError,
+  //   data: netData,
+  // } = useQuery(['/GetSupportedNets'], getQuery);
+  const netData = NODE_ENV === 'test' ? CHAINS_TEST : CHAINS_MAIN;
 
   const {
     status: walletStatus,
@@ -370,7 +394,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     !priceData ||
     // balanceIsLoading ||
     walletIsLoading ||
-    tokenIsLoading ||
     // withdrawIsLoading ||
     networkError;
 
@@ -422,51 +445,50 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [errorResult]);
 
-  useEffect(() => {
-    const connection_deposit = new WebSocket(
-      'wss://80halgu2p0.execute-api.eu-west-1.amazonaws.com/production/',
-    );
-    setConnection(connection_deposit);
+  // useEffect(() => {
+  //   const connection_deposit = new WebSocket(
+  //     'wss://80halgu2p0.execute-api.eu-west-1.amazonaws.com/production/',
+  //   );
+  //   setConnection(connection_deposit);
 
-    return () => connection_deposit.close();
-  }, []);
+  //   return () => connection_deposit.close();
+  // }, []);
 
-  useEffect(() => {
-    if (connection && tokenData) {
-      connection.onopen = (socket) => {
-        setNetworkError(false);
-      };
+  // useEffect(() => {
+  //   if (connection && tokenData) {
+  //     connection.onopen = (socket) => {
+  //       setNetworkError(false);
+  //     };
 
-      connection.onmessage = (message) => {
-        const json = JSON.parse(message.data);
-        if (json?.status === 'confirmed') {
-          // setSuccessResult((prev) => ({
-          //   count: (prev?.count ?? 0) + 1,
-          //   message: `${json?.amount} ${
-          //     tokenData?.find((a: any) => a.id === json?.token_id)?.name
-          //   } was successfully deposited and confirmed! Please check your balance now.`,
-          // }));
-          refetch(['ListAssets']);
-        } else if (json?.status === 'not-confirmed') {
-          setSuccessResult((prev) => ({
-            count: (prev?.count ?? 0) + 1,
-            message: `Your deposit request was successful but not confirmed yet. Please wait for a while to confirm the transaction.`,
-          }));
-          refetch(['ListAssets']);
-        } else {
-          setErrorResult((prev) => ({
-            count: (prev?.count ?? 0) + 1,
-            message: `Your deposit has been failed. Please check your transaction and contact us.`,
-          }));
-        }
-      };
-    }
-  }, [connection, tokenData]);
+  //     connection.onmessage = (message) => {
+  //       const json = JSON.parse(message.data);
+  //       if (json?.status === 'confirmed') {
+  //         // setSuccessResult((prev) => ({
+  //         //   count: (prev?.count ?? 0) + 1,
+  //         //   message: `${json?.amount} ${
+  //         //     tokenData?.find((a: any) => a.id === json?.token_id)?.name
+  //         //   } was successfully deposited and confirmed! Please check your balance now.`,
+  //         // }));
+  //         refetch(['ListAssets']);
+  //       } else if (json?.status === 'not-confirmed') {
+  //         setSuccessResult((prev) => ({
+  //           count: (prev?.count ?? 0) + 1,
+  //           message: `Your deposit request was successful but not confirmed yet. Please wait for a while to confirm the transaction.`,
+  //         }));
+  //         refetch(['ListAssets']);
+  //       } else {
+  //         setErrorResult((prev) => ({
+  //           count: (prev?.count ?? 0) + 1,
+  //           message: `Your deposit has been failed. Please check your transaction and contact us.`,
+  //         }));
+  //       }
+  //     };
+  //   }
+  // }, [connection, tokenData]);
 
   useEffect(() => {
     if (loading) return;
     getBalance(walletData, netData, tokenData).then((res: any) => {
-      console.log('balances: ', res);
       setBalances(res);
       const calcedBalances = Object.entries(res).reduce((ret: any, entry: any) => {
         const [key, value]: [key: string, value: Record<string, string>] = entry;
@@ -475,7 +497,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         }, 0);
         return ret;
       }, {});
-      console.log(calcedBalances);
       setCalcedBalances(calcedBalances);
     });
   }, [loading, requestRefetch]);
@@ -511,7 +532,10 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
                   icon: init_tokens?.find((tk) => tk.id === token.id)?.icon,
                 }))
             : [],
-        netData,
+        netData: netData.map((net: any, index: number) => {
+          net.icon = net_icons[index];
+          return net;
+        }),
         errorResult,
         successResult,
         withdrawMutate,
@@ -523,8 +547,10 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         swapIsLoading,
         swapMutate,
         withdraw: withdrawRequest,
+        quoteIsError,
         quoteData,
         quoteMutate,
+        quoteIsLoading,
       }}
     >
       {children}
