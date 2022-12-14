@@ -69,6 +69,7 @@
     "remote-redux-devtools": "^0.5.16",
     "safe-event-emitter": "^1.0.1",
     "sass": "^1.55.0",
+    "send-crypto": "^0.2.38",
     "styled-components": "^5.3.6",
     "swiper": "^8.4.4",
     "web-vitals": "^0.2.4",

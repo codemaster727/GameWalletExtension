@@ -35,6 +35,7 @@ import AccountPage from './pages/Account';
 import Swap from './pages/Swap';
 import store from './store/store';
 // import * as actions from './store/actions';
+// import {} from './scripts/ui';
 
 const draftInitialState = {
   // activeTab: opts.activeTab,
@@ -72,8 +73,6 @@ const queryClient = new QueryClient();
 //   //   }
 //   // });
 // };
-
-// import {} from './scripts/ui';
 
 const App = () => {
   const { authed, signIn, signUp, signOut } = useAuth();

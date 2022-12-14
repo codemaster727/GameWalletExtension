@@ -1,5 +1,3 @@
-import { browser } from 'webextension-polyfill-ts';
-
 // let count = 1;
 // count++;
 
@@ -12,16 +10,16 @@ import { browser } from 'webextension-polyfill-ts';
 //   message: 'Something something cake',
 // });
 
-const button = document.createElement('button');
-button.innerHTML = 'here1';
-button.addEventListener('click', () => {
-  // chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
-  //   tabURL = tabs[0].id;
-  // browser.runtime.sendMessage(tabURL, 'OpenPopup');
-  // });
-});
+// const button = document.createElement('button');
+// button.innerHTML = 'here1';
+// button.addEventListener('click', () => {
+//   // chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
+//   //   tabURL = tabs[0].id;
+//   // browser.runtime.sendMessage(tabURL, 'OpenPopup');
+//   // });
+// });
 
-document.body.appendChild(button);
+// document.body.appendChild(button);
 
 chrome.runtime.onMessage.addListener((request) => {
   console.log('rcvd1');
@@ -39,3 +37,5 @@ chrome.runtime.onMessage.addListener((request) => {
     );
   }
 });
+
+export {};

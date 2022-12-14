@@ -38,6 +38,7 @@ import { useAuth } from '~/context/AuthProvider';
 import { ETH } from '~/constants/address';
 import { TailSpin } from 'react-loading-icons';
 import utils from 'web3-utils';
+import { isEmpty } from 'lodash';
 
 enum Focus {
   From,
@@ -57,7 +58,7 @@ MenuProps.PaperProps.style.width = 120;
 
 const Swap = () => {
   const { token, net } = useParams();
-  const [fromTokenIndex, setFromTokenIndex] = useState(parseInt(token ?? '0'));
+  const [fromTokenIndex, setFromTokenIndex] = useState(parseInt(token ?? '1'));
   const [fromNetIndex, setFromNetIndex] = useState(parseInt(net ?? '1'));
   const [toTokenIndex, setToTokenIndex] = useState(parseInt(token !== '2' ? '2' : '3'));
   const [toNetIndex, setToNetIndex] = useState(parseInt(net ?? '1'));
@@ -65,6 +66,7 @@ const Swap = () => {
   const [toAmount, setToAmount] = useState<string>('0');
   const [focus, setFocus] = useState<Focus>(Focus.From);
   const [rate, setRate] = useState<number>(0);
+  const [gasCosts, setGasCosts] = useState<string>('0.0');
   const [error, setError] = useState<string>('');
 
   const fromDeferredAmount = useDeferredValue(fromAmount);
@@ -73,7 +75,9 @@ const Swap = () => {
   const navigate = useNavigate();
 
   const {
+    loading,
     networkError,
+    balances,
     balanceData,
     tokenData,
     netData,
@@ -135,13 +139,21 @@ const Swap = () => {
   };
 
   const handleConvert = () => {
-    const temp = fromTokenIndex;
     setFromTokenIndex(toTokenIndex);
-    setToTokenIndex(temp);
+    setToTokenIndex(fromTokenIndex);
+    setFromNetIndex(toNetIndex);
+    setToNetIndex(fromNetIndex);
+  };
+
+  const resetState = () => {
+    setRate(0);
+    setToAmount('0');
+    setGasCosts('0.0');
   };
 
   const setMax = () => {
-    setFromAmount(balanceData[fromToken.id]);
+    const amount = Number(balances[fromToken.id][fromNet.id] ?? '0');
+    setFromAmount(amount.toFixed(amount ? 5 : 0));
   };
 
   const validate = (
@@ -163,8 +175,12 @@ const Swap = () => {
     //   setError('Not supported yet. Please wait to complete.');
     //   return false;
     // }
+    if (fromToken.address[fromNet] === undefined) {
+      setError('Not supported token');
+      return false;
+    }
     const am = parseFloat(amnt as string);
-    if (!am || am <= 0 || am > Math.min(balanceData[fromToken?.id], 0.01)) {
+    if (!am || am <= 0 || am > balances[from][fromNet]) {
       setError('Insufficient balance.');
       return false;
     }
@@ -173,35 +189,32 @@ const Swap = () => {
   };
 
   const getQuote = () => {
-    if (!(Number(fromAmount) > 0)) {
-      setToAmount('0');
+    resetState();
+    if (!validate(fromAmount, fromNet.id, toNet.id, fromToken.id, toToken.id)) {
       return;
     }
-    if (!validate(fromAmount, fromNet.chainId, toNet.chainId, fromToken.id, toToken.id)) return;
     const routesRequest = {
-      fromChain: fromNet.chainId, // Goerli
+      fromChain: fromNet.chain_id, // Goerli
       fromAmount: fromAmount, // 1
-      fromToken: ETH, // ETH
-      toChain: toNet.chainId, // Goerli
-      toToken: toToken.address['1'] ?? ETH, // USDC
+      fromToken: fromToken.address[fromNet.id] ? fromToken.address[fromNet.id] : ETH,
+      toChain: toNet.chain_id, // Goerli
+      toToken: toToken.address[toNet.id] ? toToken.address[toNet.id] : ETH,
       fromAddress: walletData['1'],
     };
-
+    console.log(routesRequest);
     quoteMutate(routesRequest);
   };
 
   const sendRequestSwap = () => {
-    if (
-      !validate(fromAmount, fromNet.chainId, toNet.chainId, fromToken.id, toToken.id) ||
-      !quoteData
-    )
-      return;
+    if (!validate(fromAmount, fromNet.id, toNet.id, fromToken.id, toToken.id) || !quoteData) return;
     swapMutate();
   };
 
   useEffect(() => {
-    setFromAmount(balanceData[fromToken.id]);
-  }, [fromTokenIndex, toTokenIndex]);
+    if (loading || isEmpty(balances)) return;
+    const amount = Number(balances[fromToken.id][fromNet.id] ?? '0');
+    setFromAmount(amount.toFixed(amount ? 5 : 0));
+  }, [fromTokenIndex, fromNetIndex]);
 
   useEffect(() => {
     // const rate_curr =
@@ -219,6 +232,13 @@ const Swap = () => {
         } else {
           setFromAmount(amount);
         }
+        setGasCosts(
+          quoteData.estimate.gasCosts
+            .map(
+              (gasCost: any) => utils.fromWei(gasCost.amount, 'ether') + ' ' + gasCost.token.symbol,
+            )
+            .join(),
+        );
         return () => clearTimeout(timer);
       }
       // else {
@@ -228,17 +248,18 @@ const Swap = () => {
   }, [quoteData]);
 
   useEffect(() => {
+    if (loading || isEmpty(balances)) return;
     const timer = setTimeout(() => {
       getQuote();
     }, 500);
 
     return () => clearTimeout(timer);
   }, [fromTokenIndex, toTokenIndex, fromDeferredAmount, fromNetIndex, toNetIndex]);
-  console.log(quoteData);
 
   useEffect(() => {
     if (quoteIsError) {
-      setError('No available dex or swap found.');
+      setRate(0);
+      setError('No available dex or bridge found.');
     }
   }, [quoteIsError]);
 
@@ -509,11 +530,11 @@ const Swap = () => {
               </Paper>
               {error ? (
                 <Typography
-                  variant='h6'
-                  component='h6'
+                  variant='h5'
+                  component='article'
                   textAlign='left'
                   fontWeight='bold'
-                  alignItems='center'
+                  alignItems='left'
                   mt={2}
                   color={theme.palette.error.main}
                   style={{ overflowWrap: 'break-word' }}
@@ -543,15 +564,7 @@ const Swap = () => {
                 color={theme.palette.text.secondary}
                 style={{ overflowWrap: 'break-word' }}
               >
-                Swap fee:{' '}
-                <span style={{ color: theme.palette.text.primary }}>
-                  {quoteData?.estimate
-                    ? quoteData.estimate.gasCosts.map(
-                        (gasCost: any) =>
-                          utils.fromWei(gasCost.amount, 'ether') + ' ' + gasCost.token.symbol,
-                      )
-                    : 0.0}{' '}
-                </span>
+                Swap fee: <span style={{ color: theme.palette.text.primary }}>{gasCosts}</span>
               </Typography>
             </Box>
           )}

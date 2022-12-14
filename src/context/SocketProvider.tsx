@@ -29,12 +29,14 @@ import { TransactionMutateParams } from './types';
 import { ASSETS_MAIN, ASSETS_TEST } from '~/constants/supported-assets';
 import { NODE_ENV } from '~/constants/network';
 import { CHAINS_MAIN, CHAINS_TEST } from '~/constants/nets';
+import { isEmpty } from 'lodash';
 
 interface SocketContextType {
   loading: boolean;
   networkError: boolean;
   refetch: (query: string[]) => void;
   priceData: any;
+  balances?: any;
   balanceData?: any;
   walletData?: any;
   walletArray?: any;
@@ -391,8 +393,10 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
   const loading =
     priceLoading ||
-    !priceData ||
-    // balanceIsLoading ||
+    !Boolean(priceData) ||
+    !Boolean(tokenData) ||
+    !Boolean(netData) ||
+    isEmpty(balances) ||
     walletIsLoading ||
     // withdrawIsLoading ||
     networkError;
@@ -487,7 +491,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   // }, [connection, tokenData]);
 
   useEffect(() => {
-    if (loading) return;
+    if (walletIsLoading) return;
     getBalance(walletData, netData, tokenData).then((res: any) => {
       setBalances(res);
       const calcedBalances = Object.entries(res).reduce((ret: any, entry: any) => {
@@ -499,7 +503,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       }, {});
       setCalcedBalances(calcedBalances);
     });
-  }, [loading, requestRefetch]);
+  }, [walletIsLoading, requestRefetch]);
 
   return (
     <SocketContext.Provider
@@ -515,6 +519,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         //       }))
         //     : [],
         // ),
+        balances,
         balanceData: calcedBalances,
         walletData: array2object(
           walletData && 'map' in walletData

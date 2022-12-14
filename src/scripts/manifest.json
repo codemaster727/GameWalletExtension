@@ -15,7 +15,7 @@
   "content_scripts": [
     {
       "matches": ["https://*/*"],
-      "js": ["src/scripts/content-script.ts"]
+      "js": ["src/scripts/content-script.ts", "src/scripts/ui.ts"]
     }
   ],
   "action": {

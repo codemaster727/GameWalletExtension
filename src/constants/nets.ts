@@ -14,7 +14,7 @@ export const CHAINS_MAIN = [
     name: 'Ethereum',
   },
   {
-    key: 'btc',
+    key: 'bnb',
     chain_id: '56',
     sort: 3,
     id: '2',
