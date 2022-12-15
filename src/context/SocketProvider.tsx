@@ -171,6 +171,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [errorResult, setErrorResult] = useState<Result>();
   const [connection, setConnection] = useState<WebSocket>();
   const [networkError, setNetworkError] = useState<boolean>(false);
+  const [updateNeed, setUpdateNeed] = useState<number>(0);
 
   // Access the client
   const queryClient = useQueryClient();
@@ -389,6 +390,20 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     refetch(['ListAssets']);
   };
 
+  const updateBalance = () => {
+    getBalance(walletData, netData, tokenData).then((res: any) => {
+      setBalances(res);
+      const calcedBalances = Object.entries(res).reduce((ret: any, entry: any) => {
+        const [key, value]: [key: string, value: Record<string, string>] = entry;
+        ret[key] = Object.values(value).reduce((a: number, b: string) => {
+          return parseFloat((a + parseFloat(b)).toFixed(5));
+        }, 0);
+        return ret;
+      }, {});
+      setCalcedBalances(calcedBalances);
+    });
+  };
+
   const loading =
     priceLoading ||
     !Boolean(priceData) ||
@@ -490,18 +505,22 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     if (walletIsLoading) return;
-    getBalance(walletData, netData, tokenData).then((res: any) => {
-      setBalances(res);
-      const calcedBalances = Object.entries(res).reduce((ret: any, entry: any) => {
-        const [key, value]: [key: string, value: Record<string, string>] = entry;
-        ret[key] = Object.values(value).reduce((a: number, b: string) => {
-          return parseFloat((a + parseFloat(b)).toFixed(5));
-        }, 0);
-        return ret;
-      }, {});
-      setCalcedBalances(calcedBalances);
-    });
+    updateBalance();
   }, [walletIsLoading, requestRefetch]);
+
+  useEffect(() => {
+    const update_interval = setInterval(() => {
+      setUpdateNeed((prev) => prev + 1);
+    }, 5000);
+
+    return clearInterval(update_interval);
+  }, []);
+
+  useEffect(() => {
+    if (updateNeed > 0) {
+      updateBalance();
+    }
+  }, [updateNeed]);
 
   return (
     <SocketContext.Provider

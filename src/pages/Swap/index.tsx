@@ -185,10 +185,10 @@ const Swap = () => {
       return false;
     }
     const am = parseFloat(amnt as string);
-    // if (!am || am <= 0 || am > balances[from][fromNet]) {
-    //   setError(' .');
-    //   return false;
-    // }
+    if (!am || am <= 0 || am > balances[from][fromNet]) {
+      setError('Insufficient balance.');
+      return false;
+    }
     setError('');
     return true;
   };
@@ -545,7 +545,7 @@ const Swap = () => {
                 {quoteIsLoading ? (
                   <TailSpin width={20} />
                 ) : (
-                  <Box ml='20px' width={80} sx={{ textAlign: 'right' }}>
+                  <Box ml='20px' width={120} sx={{ textAlign: 'right' }}>
                     <Typography
                       variant='h6'
                       component='h6'
