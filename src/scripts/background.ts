@@ -56,12 +56,12 @@ connect();
 
 chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
   console.log(request);
-  chrome.notifications.create({
-    type: 'basic',
-    iconUrl: '../favicon-32x32.png',
-    title: `keep alive`,
-    message: `.`,
-  });
+  // chrome.notifications.create({
+  //   type: 'basic',
+  //   iconUrl: '../favicon-32x32.png',
+  //   title: `keep alive`,
+  //   message: `.`,
+  // });
   if (!connection_deposit || connection_deposit.readyState !== 1) connect();
   // await sleep(10000);
   // setTimeout(() => {

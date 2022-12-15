@@ -172,6 +172,7 @@ export const withdraw = async (
   const chainId = net?.chain_id ?? CHAIN_IDS.MAINNET;
   const web3_net = web3[chainId];
   const asset = token.id;
+  console.log('net:', [net, token, to, amount, accountFrom]);
 
   const send = async (): Promise<any> => {
     if (['1', '6'].includes(asset)) {
@@ -182,7 +183,7 @@ export const withdraw = async (
       console.log(await account.getBalance('BTC'));
       /* Send 0.01 BTC */
       const txHash = await account
-        .send(to, amount, token.name)
+        .send(to, amount.toString(), token.name)
         .on('transactionHash', console.log)
         // > "3387418aaddb4927209c5032f515aa442a6587d6e54677f08a03b8fa7789e688"
         .on('confirmation', console.log);
@@ -250,7 +251,7 @@ export const withdraw = async (
       const signature = await web3_sol.sendAndConfirmTransaction(connection, transaction, [from]);
       return signature;
     } else if (['3', '4', '9'].includes(asset)) {
-      if (net === '7' && asset !== '9') {
+      if (net.id === '7' && asset !== '9') {
         const HttpProvider = TronWeb.providers.HttpProvider;
         const fullNode = new HttpProvider('https://api.trongrid.io');
         const solidityNode = new HttpProvider('https://api.trongrid.io');
@@ -269,9 +270,9 @@ export const withdraw = async (
         const token_addr = token?.address;
         web3_net.eth.accounts.wallet.add(accountFrom.private_key);
         //@ts-ignore
-        const tokenInst = new web3_net.eth.Contract(ABI as ABIType, token_addr);
+        const tokenInst = new web3_net.eth.Contract(ABI as ABIType, token_addr[net.id]);
         const result = await tokenInst.methods
-          .transfer(to, web3_net.utils.toWei(amount.toString(), net === '2' ? 'ether' : 'Mwei'))
+          .transfer(to, web3_net.utils.toWei(amount.toString(), net.id === '2' ? 'ether' : 'Mwei'))
           .send({ from: accountFrom.address, gas: 100000 });
         console.log('USDT tx: ', result);
         // return !(result.error);
@@ -292,6 +293,7 @@ export const withdraw = async (
   // 6. Call send function
   const result = await send();
   console.log(result);
+  return result;
 };
 
 // export const getWallet = async () => {
@@ -312,14 +314,14 @@ export const postQuery = async (query: string, data: any) => {
   return postApi(query, data);
 };
 
-const baseURL = 'https://li.quest/v1';
+const baseURL_lifi = 'https://li.quest/v1';
 export const getLifi = async (url: string, data: any) => {
   const rpcUrl = FEATURED_RPCS.find(
     (rpc) => parseInt(rpc.chainId) === parseInt(data.fromChain),
   )?.rpcUrl;
   const decimal = await getDecimal(rpcUrl, data.fromToken);
   data.fromAmount = utils.toWei(data.fromAmount.toString(), WEI_DECIMALS[decimal]);
-  const result = await axios.get(`${baseURL}${url}`, {
+  const result = await axios.get(`${baseURL_lifi}${url}`, {
     params: data,
   });
   if (result.data?.estimate) {
@@ -329,6 +331,22 @@ export const getLifi = async (url: string, data: any) => {
     );
   }
   return result.data;
+};
+
+const baseURL_simple = 'https://api.simpleswap.io/get_estimated';
+export const getSimpleQuote = async (data: any) => {
+  const result = await axios
+    .get(`${baseURL_simple}`, {
+      params: data,
+    })
+    .catch((e) => {
+      console.log(e);
+      return null;
+    });
+  if (result?.data) {
+    return result.data;
+  }
+  return '0';
 };
 
 // const provider = new ethers.providers.JsonRpcProvider(FEATURED_RPCS[0].rpcUrl, 100);
@@ -348,4 +366,28 @@ export const postSwap = async (data: any, wallet: any) => {
     .catch((e) => console.log(e.data));
   console.log('result:', result);
   return result;
+};
+
+export const simpleSwapPost = async (data: any, net: any, token: any, wallets: any) => {
+  const walletData = array2object(
+    wallets && 'map' in wallets ? wallets?.map((a: any) => ({ [a.net_id]: a.address })) : [],
+  );
+  const result = await axios.post(`${baseURL_simple}`, data).catch((e) => {
+    console.log(e);
+    return null;
+  });
+  if (result?.data) {
+    const swap_result = await withdraw(
+      net,
+      token,
+      data.address_to,
+      data.amount,
+      walletData[net.id],
+    ).catch((e) => {
+      console.log(e);
+      return null;
+    });
+    return swap_result;
+  }
+  return null;
 };

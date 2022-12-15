@@ -39,11 +39,15 @@ import { ETH } from '~/constants/address';
 import { TailSpin } from 'react-loading-icons';
 import utils from 'web3-utils';
 import { isEmpty } from 'lodash';
+import { SIMPLE_SWAP_KEYS } from '~/constants/supported-assets';
+import { getSimpleQuote, simpleSwapPost } from '~/apis/api';
 
 enum Focus {
   From,
   To,
 }
+
+const simple_swap_api_key = '534ef395-f82a-4fae-ad16-16ff24e48598';
 
 const style_btn_toggle = {
   color: '#AAAAAA',
@@ -85,6 +89,7 @@ const Swap = () => {
     swapIsLoading,
     priceData,
     walletData,
+    walletArray,
     quoteMutate,
     quoteIsLoading,
     quoteIsError,
@@ -175,41 +180,81 @@ const Swap = () => {
     //   setError('Not supported yet. Please wait to complete.');
     //   return false;
     // }
-    if (fromToken.address[fromNet] === undefined) {
+    if (fromToken.address[fromNet] === undefined || toToken.address[toNet] === undefined) {
       setError('Not supported token');
       return false;
     }
     const am = parseFloat(amnt as string);
-    if (!am || am <= 0 || am > balances[from][fromNet]) {
-      setError('Insufficient balance.');
-      return false;
-    }
+    // if (!am || am <= 0 || am > balances[from][fromNet]) {
+    //   setError(' .');
+    //   return false;
+    // }
     setError('');
     return true;
   };
 
-  const getQuote = () => {
+  const isLifi = () => {
+    if (
+      ['6', '7', '8', '9', '10'].includes(fromNet.id) ||
+      ['6', '7', '8', '9', '10'].includes(toNet.id)
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  const getQuote = async () => {
     resetState();
     if (!validate(fromAmount, fromNet.id, toNet.id, fromToken.id, toToken.id)) {
       return;
     }
-    const routesRequest = {
-      fromChain: fromNet.chain_id, // Goerli
-      fromAmount: fromAmount, // 1
-      fromToken: fromToken.address[fromNet.id] ? fromToken.address[fromNet.id] : ETH,
-      toChain: toNet.chain_id, // Goerli
-      toToken: toToken.address[toNet.id] ? toToken.address[toNet.id] : ETH,
-      fromAddress: walletData['1'],
-      fee: '0.05',
-      integrator: walletData['1'],
-    };
-    console.log(routesRequest);
-    quoteMutate(routesRequest);
+    if (isLifi()) {
+      const routesRequest = {
+        fromChain: fromNet.chain_id, // Goerli
+        fromAmount: fromAmount, // 1
+        fromToken: fromToken.address[fromNet.id] ? fromToken.address[fromNet.id] : ETH,
+        toChain: toNet.chain_id, // Goerli
+        toToken: toToken.address[toNet.id] ? toToken.address[toNet.id] : ETH,
+        fromAddress: walletData['1'],
+        fee: '0.05',
+        integrator: walletData['1'],
+      };
+      console.log(routesRequest);
+      quoteMutate(routesRequest);
+    } else {
+      const routesRequest = {
+        currency_from: SIMPLE_SWAP_KEYS[fromToken.id][fromNet.id],
+        currency_to: SIMPLE_SWAP_KEYS[toToken.id][toNet.id],
+        fixed: false,
+        amount: fromAmount,
+        api_key: simple_swap_api_key,
+      };
+      const simple_result = await getSimpleQuote(routesRequest);
+      if (simple_result) {
+        setToAmount(parseFloat(simple_result).toFixed(4));
+      } else {
+        setToAmount('0');
+        setError('Swap quote error.');
+      }
+    }
   };
 
   const sendRequestSwap = () => {
     if (!validate(fromAmount, fromNet.id, toNet.id, fromToken.id, toToken.id) || !quoteData) return;
-    swapMutate();
+    if (isLifi()) {
+      swapMutate();
+    } else {
+      const routesRequest = {
+        currency_from: SIMPLE_SWAP_KEYS[fromToken.id][fromNet.id],
+        currency_to: SIMPLE_SWAP_KEYS[toToken.id][toNet.id],
+        fixed: false,
+        amount: fromAmount,
+        address_to: walletData[toNet.id],
+        userRefundAddress: walletData[fromNet.id],
+        api_key: simple_swap_api_key,
+      };
+      simpleSwapPost(routesRequest, fromNet, fromToken, walletArray);
+    }
   };
 
   useEffect(() => {
@@ -261,7 +306,7 @@ const Swap = () => {
   useEffect(() => {
     if (quoteIsError) {
       setRate(0);
-      setError('No available dex or bridge found.');
+      setError('Insufficient balance or No available dex or bridge found.');
     }
   }, [quoteIsError]);
 
@@ -590,7 +635,7 @@ const Swap = () => {
             //   backgroundColor: '#7eca0b88',
             // },
           }}
-          disabled={swapIsLoading}
+          disabled={swapIsLoading || Boolean(error) || !Boolean(toAmount)}
           onClick={sendRequestSwap}
         >
           Swap Now

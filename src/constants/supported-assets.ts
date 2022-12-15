@@ -175,3 +175,39 @@ export const ASSETS_TEST = [
     label: 'NFT',
   },
 ];
+
+export const SIMPLE_SWAP_KEYS: Record<string, Record<string, string>> = {
+  1: {
+    6: 'btc',
+  },
+  2: {
+    1: 'eth',
+  },
+  3: {
+    1: 'usdterc20',
+    2: 'usdtbep20',
+    4: 'usdtpoly',
+    7: 'usdttrc20',
+  },
+  4: {
+    1: 'usdcerc20',
+    2: 'usdcbep20',
+    4: 'usdcpoly',
+    7: 'usdctrc20',
+  },
+  5: {
+    2: 'bnb-bsc',
+  },
+  6: {
+    8: 'ltc',
+  },
+  7: {
+    9: 'sol',
+  },
+  8: {
+    10: 'xtz',
+  },
+  9: {
+    5: 'op',
+  },
+};

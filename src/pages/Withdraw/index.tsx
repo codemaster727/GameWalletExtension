@@ -78,7 +78,6 @@ const Withdraw = () => {
   const walletData = array2object(
     walletArray && 'map' in walletArray ? walletArray?.map((a: any) => ({ [a.net_id]: a })) : [],
   );
-  const accountFrom: any = walletData[activeNetIndex];
 
   const theme = useTheme();
 
@@ -86,7 +85,7 @@ const Withdraw = () => {
   const token_net_ids = Object.keys(activeToken?.address) ?? [];
   const token_nets = netData?.filter((net: any) => token_net_ids.includes(net.id));
   const activeNet = token_nets && token_nets[activeNetIndex];
-
+  const accountFrom: any = walletData[activeNet.id];
   const handleTokenChange = (event: SelectChangeEvent<typeof activeTokenIndex>) => {
     const {
       target: { value },
@@ -140,7 +139,7 @@ const Withdraw = () => {
       setError('Invalid address.');
       return false;
     }
-    if (!am || am <= 0 || am > Math.min(balanceData[activeToken?.id], 0.01)) {
+    if (!am || am <= 0 || am > balanceData[activeToken?.id]) {
       setError('Insufficient balance.');
       return false;
     }
@@ -172,7 +171,11 @@ const Withdraw = () => {
         address, // SOL address
         parseFloat(amount),
         accountFrom,
-      ).catch((e: ErrorEvent) => setIsLoading(false));
+      ).catch((e: ErrorEvent) => {
+        console.log(e);
+        setError('Something error.');
+        setIsLoading(false);
+      });
       setIsLoading(false);
     }
   };
@@ -399,7 +402,7 @@ const Withdraw = () => {
                     >
                       Withdraw amount
                     </Typography>
-                    <Typography
+                    {/* <Typography
                       variant='h6'
                       component='h6'
                       textAlign='left'
@@ -408,7 +411,7 @@ const Withdraw = () => {
                       mb={1}
                     >
                       Min: 0.00001
-                    </Typography>
+                    </Typography> */}
                   </div>
                   <Paper component='form' sx={style_input_paper}>
                     <NumericFormat
