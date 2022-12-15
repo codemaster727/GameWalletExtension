@@ -200,6 +200,8 @@ const Swap = () => {
       toChain: toNet.chain_id, // Goerli
       toToken: toToken.address[toNet.id] ? toToken.address[toNet.id] : ETH,
       fromAddress: walletData['1'],
+      fee: '0.05',
+      integrator: walletData['1'],
     };
     console.log(routesRequest);
     quoteMutate(routesRequest);

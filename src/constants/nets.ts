@@ -28,42 +28,41 @@ export const CHAINS_MAIN = [
     name: 'Polygon',
   },
   {
-    key: 'txs',
+    key: 'arb',
     chain_id: '42161',
     sort: 5,
     id: '3',
     name: 'Arbitrum',
   },
   {
+    key: 'tron',
     chain_id: '1231',
     sort: 6,
     id: '7',
     name: 'Tron',
   },
   {
+    key: 'ltc',
     chain_id: '0',
     sort: 7,
     id: '8',
     name: 'Litecoin',
   },
   {
+    key: 'sol',
     chain_id: '0',
     sort: 8,
     id: '9',
     name: 'Solana',
   },
   {
+    key: 'xtz',
     chain_id: 'NetXazhm4yetmff',
     sort: 9,
     id: '10',
     name: 'Tezos',
   },
-  {
-    chain_id: '10',
-    sort: 10,
-    id: '5',
-    name: 'Optimism',
-  },
+  { key: 'opt', chain_id: '10', sort: 10, id: '5', name: 'Optimism' },
 ];
 
 export const CHAINS_TEST = [
@@ -124,7 +123,7 @@ export const CHAINS_TEST = [
     name: 'Solana',
   },
   {
-    key: 'txs',
+    key: 'xtz',
     chain_id: 'NetXazhm4yetmff',
     sort: 9,
     id: '10',

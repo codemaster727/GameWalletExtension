@@ -30,6 +30,7 @@
     "vite.config.ts",
     "**/*.ts",
     "**/*.tsx",
+    "./node_modules/tronweb-typings/index.d.ts",
     "./node_modules/@kws1207/types-eth-keyring-controller/index.d.ts"
   ]
   // "exclude": ["node_modules"]

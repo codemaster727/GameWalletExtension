@@ -38,4 +38,9 @@ chrome.runtime.onMessage.addListener((request) => {
   }
 });
 
+// setInterval(() => {
+//   chrome.runtime.sendMessage('keep alive', function (response) {
+//     console.log(response);
+//   });
+// }, 5000);
 export {};

@@ -379,15 +379,13 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   // );
 
   const withdrawRequest = async (
-    net: string,
-    asset: string,
+    net: any,
+    token: any,
     to: string,
     amount: number,
-    wallets: any,
-    nets: any,
-    tokens: any,
+    accountFrom: any,
   ) => {
-    await withdraw(net, asset, to, amount, wallets, nets, tokens);
+    await withdraw(net, token, to, amount, accountFrom);
     refetch(['ListAssets']);
   };
 

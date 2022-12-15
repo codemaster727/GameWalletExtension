@@ -33,6 +33,7 @@ import { style_type_btn_ext, style_type_btn_active_ext } from 'src/components/st
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { NextButtonForSwiper, PrevButtonForSwiper } from '~/components/Buttons/ImageButton';
 import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
+import { array2object } from '~/utils/helper';
 
 Swiper.use([Virtual, Navigation, Pagination]);
 
@@ -73,6 +74,11 @@ const Withdraw = () => {
     withdrawIsLoading,
     withdraw,
   } = useSocket();
+
+  const walletData = array2object(
+    walletArray && 'map' in walletArray ? walletArray?.map((a: any) => ({ [a.net_id]: a })) : [],
+  );
+  const accountFrom: any = walletData[activeNetIndex];
 
   const theme = useTheme();
 
@@ -121,7 +127,7 @@ const Withdraw = () => {
     net: string,
     token_id: string,
   ) => {
-    if (net === '3' || net === '5' || net === '6' || net === '7' || net === '8' || net === '10') {
+    if (net === '3' || net === '5' || net === '7' || net === '8' || net === '10') {
       setError('Not supported yet. Please wait to complete.');
       return false;
     }
@@ -161,13 +167,11 @@ const Withdraw = () => {
       // });
       setIsLoading(true);
       await withdraw(
-        activeNet.id,
-        activeToken.id,
+        activeNet,
+        activeToken,
         address, // SOL address
         parseFloat(amount),
-        walletArray,
-        netData,
-        tokenData,
+        accountFrom,
       ).catch((e: ErrorEvent) => setIsLoading(false));
       setIsLoading(false);
     }

@@ -10,8 +10,8 @@ export type NetworkType = typeof NETWORK_TYPES[keyof typeof NETWORK_TYPES];
  * exhaustive and cannot be used for typing chainId in areas where the user or
  * dapp may specify any chainId.
  */
-export type ChainId = typeof CHAIN_IDS[keyof typeof CHAIN_IDS];
-export type ChainIdTest = typeof CHAIN_IDS_TEST[keyof typeof CHAIN_IDS];
+export type ChainId = typeof CHAIN_IDS_MAIN[keyof typeof CHAIN_IDS_MAIN];
+export type ChainIdTest = typeof CHAIN_IDS_TEST[keyof typeof CHAIN_IDS_TEST];
 
 /**
  * A type that is a union type of all possible hardcoded currency symbols.
@@ -196,7 +196,7 @@ export const NETWORK_IDS = {
  * An object containing all of the chain ids for networks both built in and
  * those that we have added custom code to support our feature set.
  */
-export const CHAIN_IDS = {
+export const CHAIN_IDS_MAIN = {
   MAINNET: '0x1',
   // GOERLI: '0x5',
   // LOCALHOST: '0x539',
@@ -210,7 +210,7 @@ export const CHAIN_IDS = {
   ARBITRUM: '0xa4b1',
   // SOL: '0xe9ac0ce',
   // HARMONY: '0x63564c40',
-  // PALM: '0x2a15c308d',
+  TEZOS: 'NetXazhm4yetmff',
   // SEPOLIA: '0xaa36a7',
   // AURORA: '0x4e454152',
 } as const;
@@ -228,7 +228,7 @@ export const CHAIN_IDS_TEST = {
   ARBITRUM: '0x66eed',
   // SOL: '0xe9ac0ce',
   // HARMONY: '0x63564c40',
-  // PALM: '0x2a15c308d',
+  TEZOS: 'NetXazhm4yetmff',
   // SEPOLIA: '0xaa36a7',
   // AURORA: '0x4e454152',
 } as const;
@@ -251,7 +251,7 @@ export const BNB_DISPLAY_NAME = 'BNB Smart Chain (previously Binance Smart Chain
 export const OPTIMISM_DISPLAY_NAME = 'Optimism';
 export const FANTOM_DISPLAY_NAME = 'Fantom Opera';
 export const HARMONY_DISPLAY_NAME = 'Harmony Mainnet Shard 0';
-export const PALM_DISPLAY_NAME = 'Palm';
+export const TEZOS_DISPLAY_NAME = 'Tezos';
 export const AURORA_DISPLAY_NAME = 'Aurora Mainnet';
 
 export const NODE_ENV: string = 'test1';
@@ -288,7 +288,7 @@ export const CURRENCY_SYMBOLS = {
   ETH: 'ETH',
   FANTOM: 'FTM',
   HARMONY: 'ONE',
-  PALM: 'PALM',
+  TEZOS: 'TEZOS',
   MATIC: 'MATIC',
   TEST_ETH: 'TESTETH',
   USDC: 'USDC',
@@ -442,7 +442,7 @@ export const INFURA_PROVIDER_TYPES = [
   NETWORK_TYPES.SEPOLIA,
 ];
 
-export const TEST_CHAINS = []; //?CHAIN_IDS.GOERLI, CHAIN_IDS.SEPOLIA, CHAIN_IDS.LOCALHOST];
+export const TEST_CHAINS = []; //?CHAIN_IDS_MAIN.GOERLI, CHAIN_IDS_MAIN.SEPOLIA, CHAIN_IDS_MAIN.LOCALHOST];
 
 const typedCapitalize = <K extends string>(k: K): Capitalize<K> =>
   capitalize(k) as Capitalize<typeof k>;
@@ -463,21 +463,21 @@ export const TEST_NETWORK_TICKER_MAP: {
 export const BUILT_IN_NETWORKS = {
   [NETWORK_TYPES.GOERLI]: {
     networkId: NETWORK_IDS.GOERLI,
-    // chainId: CHAIN_IDS.GOERLI,
+    // chainId: CHAIN_IDS_MAIN.GOERLI,
     ticker: TEST_NETWORK_TICKER_MAP[NETWORK_TYPES.GOERLI],
   },
   // [NETWORK_TYPES.SEPOLIA]: {
   //   networkId: NETWORK_IDS.SEPOLIA,
-  //   chainId: CHAIN_IDS.SEPOLIA,
+  //   chainId: CHAIN_IDS_MAIN.SEPOLIA,
   //   ticker: TEST_NETWORK_TICKER_MAP[NETWORK_TYPES.SEPOLIA],
   // },
   [NETWORK_TYPES.MAINNET]: {
     networkId: NETWORK_IDS.MAINNET,
-    chainId: CHAIN_IDS.MAINNET,
+    chainId: CHAIN_IDS_MAIN.MAINNET,
   },
   // [NETWORK_TYPES.LOCALHOST]: {
   //   networkId: NETWORK_IDS.LOCALHOST,
-  //   chainId: CHAIN_IDS.LOCALHOST,
+  //   chainId: CHAIN_IDS_MAIN.LOCALHOST,
   // },
 } as const;
 
@@ -492,37 +492,37 @@ export const NETWORK_TO_NAME_MAP = {
   [NETWORK_IDS.MAINNET]: MAINNET_DISPLAY_NAME,
   [NETWORK_IDS.LOCALHOST]: LOCALHOST_DISPLAY_NAME,
 
-  // [CHAIN_IDS.GOERLI]: GOERLI_DISPLAY_NAME,
-  // [CHAIN_IDS.SEPOLIA]: SEPOLIA_DISPLAY_NAME,
-  [CHAIN_IDS.MAINNET]: MAINNET_DISPLAY_NAME,
-  // [CHAIN_IDS.LOCALHOST]: LOCALHOST_DISPLAY_NAME,
+  // [CHAIN_IDS_MAIN.GOERLI]: GOERLI_DISPLAY_NAME,
+  // [CHAIN_IDS_MAIN.SEPOLIA]: SEPOLIA_DISPLAY_NAME,
+  [CHAIN_IDS_MAIN.MAINNET]: MAINNET_DISPLAY_NAME,
+  // [CHAIN_IDS_MAIN.LOCALHOST]: LOCALHOST_DISPLAY_NAME,
 } as const;
 
 export const CHAIN_ID_TO_TYPE_MAP = {
-  [CHAIN_IDS.MAINNET]: NETWORK_TYPES.MAINNET,
-  // [CHAIN_IDS.GOERLI]: NETWORK_TYPES.GOERLI,
-  // [CHAIN_IDS.SEPOLIA]: NETWORK_TYPES.SEPOLIA,
-  // [CHAIN_IDS.LOCALHOST]: NETWORK_TYPES.LOCALHOST,
+  [CHAIN_IDS_MAIN.MAINNET]: NETWORK_TYPES.MAINNET,
+  // [CHAIN_IDS_MAIN.GOERLI]: NETWORK_TYPES.GOERLI,
+  // [CHAIN_IDS_MAIN.SEPOLIA]: NETWORK_TYPES.SEPOLIA,
+  // [CHAIN_IDS_MAIN.LOCALHOST]: NETWORK_TYPES.LOCALHOST,
 } as const;
 
 export const CHAIN_ID_TO_RPC_URL_MAP = {
-  // [CHAIN_IDS.GOERLI]: GOERLI_RPC_URL,
-  // [CHAIN_IDS.SEPOLIA]: SEPOLIA_RPC_URL,
-  [CHAIN_IDS.MAINNET]: MAINNET_RPC_URL,
-  // [CHAIN_IDS.LOCALHOST]: LOCALHOST_RPC_URL,
+  // [CHAIN_IDS_MAIN.GOERLI]: GOERLI_RPC_URL,
+  // [CHAIN_IDS_MAIN.SEPOLIA]: SEPOLIA_RPC_URL,
+  [CHAIN_IDS_MAIN.MAINNET]: MAINNET_RPC_URL,
+  // [CHAIN_IDS_MAIN.LOCALHOST]: LOCALHOST_RPC_URL,
 } as const;
 
 export const CHAIN_ID_TO_NETWORK_IMAGE_URL_MAP = {
-  [CHAIN_IDS.MAINNET]: ETH_TOKEN_IMAGE_URL,
-  // [CHAIN_IDS.AVALANCHE]: AVAX_TOKEN_IMAGE_URL,
-  [CHAIN_IDS.BSC]: BNB_TOKEN_IMAGE_URL,
-  [CHAIN_IDS.POLYGON]: MATIC_TOKEN_IMAGE_URL,
-  [CHAIN_IDS.ARBITRUM]: AETH_TOKEN_IMAGE_URL,
-  // [CHAIN_IDS.FANTOM]: FTM_TOKEN_IMAGE_URL,
-  // [CHAIN_IDS.HARMONY]: HARMONY_ONE_TOKEN_IMAGE_URL,
-  [CHAIN_IDS.OPTIMISM]: OPTIMISM_TOKEN_IMAGE_URL,
-  // [CHAIN_IDS.PALM]: PALM_TOKEN_IMAGE_URL,
-  // [CHAIN_IDS.AURORA]: AURORA_TOKEN_IMAGE_URL,
+  [CHAIN_IDS_MAIN.MAINNET]: ETH_TOKEN_IMAGE_URL,
+  // [CHAIN_IDS_MAIN.AVALANCHE]: AVAX_TOKEN_IMAGE_URL,
+  [CHAIN_IDS_MAIN.BSC]: BNB_TOKEN_IMAGE_URL,
+  [CHAIN_IDS_MAIN.POLYGON]: MATIC_TOKEN_IMAGE_URL,
+  [CHAIN_IDS_MAIN.ARBITRUM]: AETH_TOKEN_IMAGE_URL,
+  // [CHAIN_IDS_MAIN.FANTOM]: FTM_TOKEN_IMAGE_URL,
+  // [CHAIN_IDS_MAIN.HARMONY]: HARMONY_ONE_TOKEN_IMAGE_URL,
+  [CHAIN_IDS_MAIN.OPTIMISM]: OPTIMISM_TOKEN_IMAGE_URL,
+  // [CHAIN_IDS_MAIN.PALM]: PALM_TOKEN_IMAGE_URL,
+  // [CHAIN_IDS_MAIN.AURORA]: AURORA_TOKEN_IMAGE_URL,
 } as const;
 
 export const NETWORK_ID_TO_ETHERS_NETWORK_NAME_MAP = {
@@ -532,10 +532,10 @@ export const NETWORK_ID_TO_ETHERS_NETWORK_NAME_MAP = {
 } as const;
 
 export const CHAIN_ID_TO_NETWORK_ID_MAP = {
-  [CHAIN_IDS.MAINNET]: NETWORK_IDS.MAINNET,
-  // [CHAIN_IDS.GOERLI]: NETWORK_IDS.GOERLI,
-  // [CHAIN_IDS.SEPOLIA]: NETWORK_IDS.SEPOLIA,
-  // [CHAIN_IDS.LOCALHOST]: NETWORK_IDS.LOCALHOST,
+  [CHAIN_IDS_MAIN.MAINNET]: NETWORK_IDS.MAINNET,
+  // [CHAIN_IDS_MAIN.GOERLI]: NETWORK_IDS.GOERLI,
+  // [CHAIN_IDS_MAIN.SEPOLIA]: NETWORK_IDS.SEPOLIA,
+  // [CHAIN_IDS_MAIN.LOCALHOST]: NETWORK_IDS.LOCALHOST,
 } as const;
 
 export const NATIVE_CURRENCY_TOKEN_IMAGE_MAP = {
@@ -571,8 +571,8 @@ export const HARDFORKS = {
 } as const;
 
 export const CHAIN_ID_TO_GAS_LIMIT_BUFFER_MAP = {
-  [CHAIN_IDS.OPTIMISM]: 1,
-  // [CHAIN_IDS.OPTIMISM_TESTNET]: 1,
+  [CHAIN_IDS_MAIN.OPTIMISM]: 1,
+  // [CHAIN_IDS_MAIN.OPTIMISM_TESTNET]: 1,
 };
 
 /**
@@ -594,13 +594,13 @@ const BUYABLE_CHAIN_ETHEREUM_NETWORK_NAME = 'ethereum';
 // export const BUYABLE_CHAINS_MAP: {
 //   [K in Exclude<
 //     ChainId
-//     | typeof CHAIN_IDS.LOCALHOST
-//     | typeof CHAIN_IDS.PALM
-//     | typeof CHAIN_IDS.HARMONY
-//     | typeof CHAIN_IDS.OPTIMISM_TESTNET
+//     | typeof CHAIN_IDS_MAIN.LOCALHOST
+//     | typeof CHAIN_IDS_MAIN.PALM
+//     | typeof CHAIN_IDS_MAIN.HARMONY
+//     | typeof CHAIN_IDS_MAIN.OPTIMISM_TESTNET
 //   >]: BuyableChainSettings;
 // } = {
-//   [CHAIN_IDS.MAINNET]: {
+//   [CHAIN_IDS_MAIN.MAINNET]: {
 //     nativeCurrency: CURRENCY_SYMBOLS.ETH,
 //     network: BUYABLE_CHAIN_ETHEREUM_NETWORK_NAME,
 //     transakCurrencies: [
@@ -781,15 +781,15 @@ const BUYABLE_CHAIN_ETHEREUM_NETWORK_NAME = 'ethereum';
 //       SUPPORTED_CURRENCY_SYMBOLS.ZRX,
 //     ],
 //   },
-//   [CHAIN_IDS.GOERLI]: {
+//   [CHAIN_IDS_MAIN.GOERLI]: {
 //     nativeCurrency: TEST_NETWORK_TICKER_MAP[NETWORK_TYPES.GOERLI],
 //     network: BUYABLE_CHAIN_ETHEREUM_NETWORK_NAME,
 //   },
-//   [CHAIN_IDS.SEPOLIA]: {
+//   [CHAIN_IDS_MAIN.SEPOLIA]: {
 //     nativeCurrency: TEST_NETWORK_TICKER_MAP[NETWORK_TYPES.SEPOLIA],
 //     network: BUYABLE_CHAIN_ETHEREUM_NETWORK_NAME,
 //   },
-//   [CHAIN_IDS.BSC]: {
+//   [CHAIN_IDS_MAIN.BSC]: {
 //     nativeCurrency: CURRENCY_SYMBOLS.BNB,
 //     network: 'bsc',
 //     transakCurrencies: [SUPPORTED_CURRENCY_SYMBOLS.BNB, SUPPORTED_CURRENCY_SYMBOLS.BUSD],
@@ -801,7 +801,7 @@ const BUYABLE_CHAIN_ETHEREUM_NETWORK_NAME = 'ethereum';
 //       ],
 //     },
 //   },
-//   [CHAIN_IDS.POLYGON]: {
+//   [CHAIN_IDS_MAIN.POLYGON]: {
 //     nativeCurrency: CURRENCY_SYMBOLS.MATIC,
 //     network: 'polygon',
 //     transakCurrencies: [
@@ -823,7 +823,7 @@ const BUYABLE_CHAIN_ETHEREUM_NETWORK_NAME = 'ethereum';
 //       currencies: [SUPPORTED_CURRENCY_SYMBOLS.MATIC, SUPPORTED_CURRENCY_SYMBOLS.MUSDC],
 //     },
 //   },
-//   [CHAIN_IDS.AVALANCHE]: {
+//   [CHAIN_IDS_MAIN.AVALANCHE]: {
 //     nativeCurrency: CURRENCY_SYMBOLS.AVALANCHE,
 //     network: 'avaxcchain',
 //     transakCurrencies: [SUPPORTED_CURRENCY_SYMBOLS.AVALANCHE],
@@ -842,12 +842,12 @@ const BUYABLE_CHAIN_ETHEREUM_NETWORK_NAME = 'ethereum';
 //     },
 //     coinbasePayCurrencies: [SUPPORTED_CURRENCY_SYMBOLS.AVALANCHE],
 //   },
-//   [CHAIN_IDS.FANTOM]: {
+//   [CHAIN_IDS_MAIN.FANTOM]: {
 //     nativeCurrency: CURRENCY_SYMBOLS.FANTOM,
 //     network: 'fantom',
 //     transakCurrencies: [SUPPORTED_CURRENCY_SYMBOLS.FANTOM],
 //   },
-//   [CHAIN_IDS.CELO]: {
+//   [CHAIN_IDS_MAIN.CELO]: {
 //     nativeCurrency: CURRENCY_SYMBOLS.CELO,
 //     network: 'celo',
 //     transakCurrencies: [SUPPORTED_CURRENCY_SYMBOLS.CELO],
@@ -856,12 +856,12 @@ const BUYABLE_CHAIN_ETHEREUM_NETWORK_NAME = 'ethereum';
 //       showOnlyCurrencies: [SUPPORTED_CURRENCY_SYMBOLS.CELO],
 //     },
 //   },
-//   [CHAIN_IDS.OPTIMISM]: {
+//   [CHAIN_IDS_MAIN.OPTIMISM]: {
 //     nativeCurrency: CURRENCY_SYMBOLS.ETH,
 //     network: 'optimism',
 //     transakCurrencies: [SUPPORTED_CURRENCY_SYMBOLS.ETH, SUPPORTED_CURRENCY_SYMBOLS.USDC],
 //   },
-//   [CHAIN_IDS.ARBITRUM]: {
+//   [CHAIN_IDS_MAIN.ARBITRUM]: {
 //     nativeCurrency: CURRENCY_SYMBOLS.ARBITRUM,
 //     network: 'arbitrum',
 //     transakCurrencies: [
@@ -871,7 +871,7 @@ const BUYABLE_CHAIN_ETHEREUM_NETWORK_NAME = 'ethereum';
 //       SUPPORTED_CURRENCY_SYMBOLS.USDS,
 //     ],
 //   },
-//   [CHAIN_IDS.AURORA]: {
+//   [CHAIN_IDS_MAIN.AURORA]: {
 //     nativeCurrency: CURRENCY_SYMBOLS.AURORA,
 //     network: 'aurora',
 //     transakCurrencies: [SUPPORTED_CURRENCY_SYMBOLS.AURORA],
@@ -880,7 +880,7 @@ const BUYABLE_CHAIN_ETHEREUM_NETWORK_NAME = 'ethereum';
 
 export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
   {
-    chainId: CHAIN_IDS.MAINNET,
+    chainId: CHAIN_IDS_MAIN.MAINNET,
     nickname: MAINNET_DISPLAY_NAME,
     rpcUrl: `https://mainnet.infura.io/v3/${infuraProjectId}`,
     ticker: CURRENCY_SYMBOLS.ETH,
@@ -890,7 +890,7 @@ export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
     },
   },
   {
-    chainId: CHAIN_IDS.ARBITRUM,
+    chainId: CHAIN_IDS_MAIN.ARBITRUM,
     nickname: ARBITRUM_DISPLAY_NAME,
     // rpcUrl: `https://arbitrum-mainnet.infura.io/v3/${infuraProjectId}`,
     rpcUrl: 'https://arb-mainnet.g.alchemy.com/v2/1-JwojwPD2Y-YMFs-J9wOCbUMsG2dQYd',
@@ -901,7 +901,7 @@ export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
     },
   },
   // {
-  //   chainId: CHAIN_IDS.AURORA,
+  //   chainId: CHAIN_IDS_MAIN.AURORA,
   //   nickname: AURORA_DISPLAY_NAME,
   //   rpcUrl: `https://aurora-mainnet.infura.io/v3/${infuraProjectId}`,
   //   ticker: CURRENCY_SYMBOLS.AURORA,
@@ -911,7 +911,7 @@ export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
   //   },
   // },
   // {
-  //   chainId: CHAIN_IDS.AVALANCHE,
+  //   chainId: CHAIN_IDS_MAIN.AVALANCHE,
   //   nickname: AVALANCHE_DISPLAY_NAME,
   //   rpcUrl: `https://avalanche-mainnet.infura.io/v3/${infuraProjectId}`,
   //   ticker: CURRENCY_SYMBOLS.AVALANCHE,
@@ -921,7 +921,7 @@ export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
   //   },
   // },
   {
-    chainId: CHAIN_IDS.BSC,
+    chainId: CHAIN_IDS_MAIN.BSC,
     nickname: BNB_DISPLAY_NAME,
     rpcUrl: 'https://bsc-dataseed.binance.org/',
     ticker: CURRENCY_SYMBOLS.BNB,
@@ -931,7 +931,7 @@ export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
     },
   },
   // {
-  //   chainId: CHAIN_IDS.FANTOM,
+  //   chainId: CHAIN_IDS_MAIN.FANTOM,
   //   nickname: FANTOM_DISPLAY_NAME,
   //   rpcUrl: 'https://rpc.ftm.tools/',
   //   ticker: CURRENCY_SYMBOLS.FANTOM,
@@ -941,7 +941,7 @@ export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
   //   },
   // },
   // {
-  //   chainId: CHAIN_IDS.HARMONY,
+  //   chainId: CHAIN_IDS_MAIN.HARMONY,
   //   nickname: HARMONY_DISPLAY_NAME,
   //   rpcUrl: 'https://api.harmony.one/',
   //   ticker: CURRENCY_SYMBOLS.HARMONY,
@@ -951,7 +951,7 @@ export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
   //   },
   // },
   {
-    chainId: CHAIN_IDS.OPTIMISM,
+    chainId: CHAIN_IDS_MAIN.OPTIMISM,
     nickname: OPTIMISM_DISPLAY_NAME,
     // rpcUrl: `https://optimism-mainnet.infura.io/v3/${infuraProjectId}`,
     rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/kPiaxwIV1fZqGTmE3dBwmqKH0033Wik5',
@@ -961,18 +961,8 @@ export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
       imageUrl: OPTIMISM_TOKEN_IMAGE_URL,
     },
   },
-  // {
-  //   chainId: CHAIN_IDS.PALM,
-  //   nickname: PALM_DISPLAY_NAME,
-  //   rpcUrl: `https://palm-mainnet.infura.io/v3/${infuraProjectId}`,
-  //   ticker: CURRENCY_SYMBOLS.PALM,
-  //   rpcPrefs: {
-  //     blockExplorerUrl: 'https://explorer.palm.io/',
-  //     imageUrl: PALM_TOKEN_IMAGE_URL,
-  //   },
-  // },
   {
-    chainId: CHAIN_IDS.POLYGON,
+    chainId: CHAIN_IDS_MAIN.POLYGON,
     nickname: `${POLYGON_DISPLAY_NAME} ${capitalize(NETWORK_TYPES.MAINNET)}`,
     // rpcUrl: `https://polygon-mainnet.infura.io/v3/${infuraProjectId}`,
     rpcUrl: 'https://polygon-mainnet.g.alchemy.com/v2/FXmYqWJOb_4zDHbAM2ZSpoE6FeeMdzKu',
@@ -980,6 +970,16 @@ export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
     rpcPrefs: {
       blockExplorerUrl: 'https://polygonscan.com/',
       imageUrl: MATIC_TOKEN_IMAGE_URL,
+    },
+  },
+  {
+    chainId: CHAIN_IDS_MAIN.TEZOS,
+    nickname: TEZOS_DISPLAY_NAME,
+    rpcUrl: `https://mainnet.api.tez.ie`,
+    ticker: CURRENCY_SYMBOLS.TEZOS,
+    rpcPrefs: {
+      blockExplorerUrl: 'https://tzstats.com/',
+      imageUrl: PALM_TOKEN_IMAGE_URL,
     },
   },
 ];
@@ -1036,6 +1036,16 @@ export const FEATURED_RPCS_TEST: RPCDefinition[] = [
     rpcPrefs: {
       blockExplorerUrl: 'https://polygonscan.com/',
       imageUrl: MATIC_TOKEN_IMAGE_URL,
+    },
+  },
+  {
+    chainId: CHAIN_IDS_MAIN.TEZOS,
+    nickname: TEZOS_DISPLAY_NAME,
+    rpcUrl: `https://ghostnet.ecadinfra.com`,
+    ticker: CURRENCY_SYMBOLS.TEZOS,
+    rpcPrefs: {
+      blockExplorerUrl: 'https://tzstats.com/',
+      imageUrl: PALM_TOKEN_IMAGE_URL,
     },
   },
 ];
