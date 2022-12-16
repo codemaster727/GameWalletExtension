@@ -1,4 +1,6 @@
-export const ASSETS_MAIN = [
+import { Token } from '~/context/types';
+
+export const ASSETS_MAIN: Token[] = [
   {
     address: {
       '6': '',
@@ -88,7 +90,7 @@ export const ASSETS_MAIN = [
   },
 ];
 
-export const ASSETS_TEST = [
+export const ASSETS_TEST: Token[] = [
   {
     address: {
       '6': '',

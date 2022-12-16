@@ -1049,3 +1049,6 @@ export const FEATURED_RPCS_TEST: RPCDefinition[] = [
     },
   },
 ];
+
+export const SOL_MAINNET_ALCHEMY =
+  'https://solana-mainnet.g.alchemy.com/v2/2mB4Sxpe8qEbcA2PUoGxTyTCvpSU0ElP';

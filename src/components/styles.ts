@@ -131,3 +131,16 @@ export const style_input_paper = {
   boxShadow: 'none',
   height: '50px',
 };
+
+export const style_btn_confirm = {
+  backgroundSize: 'stretch',
+  width: '120px',
+  height: '30px',
+  color: 'white',
+  margin: 'auto',
+  borderRadius: '8px',
+  display: 'block',
+  fontSize: '14px',
+  fontWeight: 'bold',
+  backgroundColor: '#0e9d9a',
+};

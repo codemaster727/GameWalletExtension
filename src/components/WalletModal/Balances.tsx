@@ -57,23 +57,22 @@ const Balances = () => {
   const [isUSD, setIsUSD] = useState(true);
   const { loading, priceData, balanceData, tokenData } = useSocket();
 
-  const total_USD_price =
-    !loading &&
-    tokenData &&
-    tokenData
-      ?.map((token: any) => {
-        const USD_Price =
-          parseFloat(balanceData[token.id] ?? '0') *
-          // token.balance *
-          parseFloat(priceData[token.name.concat('-USD')]);
-        return USD_Price;
-      })
-      ?.reduce((a: number, b: number) => a + b, 0);
+  const total_USD_price: number =
+    !loading && tokenData
+      ? tokenData
+          ?.map((token: any) => {
+            const USD_Price =
+              parseFloat(balanceData[token.id] ?? '0') *
+              // token.balance *
+              parseFloat(priceData[token.name.concat('-USD')]);
+            return USD_Price;
+          })
+          ?.reduce((a: number, b: number) => a + b, 0)
+      : 0;
   const total_EUR_price: number =
-    !loading &&
-    tokenData &&
-    priceData &&
-    (total_USD_price * priceData['USDT-EUR']) / priceData['USDT-USD'];
+    !loading && tokenData && priceData
+      ? (total_USD_price * priceData['USDT-EUR']) / priceData['USDT-USD']
+      : 0;
 
   const handleCurrencyChange = (value: boolean) => {
     if (value !== isUSD) {

@@ -45,7 +45,7 @@ export const MenuProps = {
   PaperProps: {
     style: {
       height: ITEM_HEIGHT * 7,
-      width: 140,
+      width: 120,
     },
   },
 };

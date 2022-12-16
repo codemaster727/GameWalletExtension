@@ -263,6 +263,7 @@ export default createGlobalStyle<ITheme>`
 		position: absolute;
 		bottom: 0;
 		display: flex;
+		gap: 0px;
 		align-items: center;
 		justify-content: center;
 		width: 100%;
@@ -273,6 +274,10 @@ export default createGlobalStyle<ITheme>`
 
 	.MuiButtonBase-root {
 		text-transform: unset !important;
+	}
+
+	.MuiSelect-select.MuiInputBase-input {
+		padding: 5px 14px  !important;
 	}
 
 	.balance-btn {

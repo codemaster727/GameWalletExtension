@@ -57,17 +57,17 @@ const Balances = () => {
   const isSwap = tab === '2';
 
   const total_USD_price: number =
-    !loading &&
-    tokenData &&
-    tokenData
-      ?.map((token: any) => {
-        const USD_price =
-          parseFloat(balanceData[token.id] ?? '0') *
-          // token.balance *
-          parseFloat(priceData[token.name.concat('-USD')]);
-        return USD_price;
-      })
-      ?.reduce((a: number, b: number) => a + (b ?? 0), 0);
+    !loading && tokenData
+      ? tokenData
+          ?.map((token: any) => {
+            const USD_price =
+              parseFloat(balanceData[token.id] ?? '0') *
+              // token.balance *
+              parseFloat(priceData[token.name.concat('-USD')]);
+            return USD_price;
+          })
+          ?.reduce((a: number, b: number) => a + (b ?? 0), 0)
+      : 0;
   // const total_EUR_price =
   //   !loading &&
   //   tokenData &&
@@ -84,10 +84,9 @@ const Balances = () => {
   //     })
   //     ?.reduce((a: number, b: number) => a + b, 0);
   const total_EUR_price: number =
-    !loading &&
-    tokenData &&
-    priceData &&
-    (total_USD_price * priceData['USDT-EUR']) / priceData['USDT-USD'];
+    !loading && tokenData && priceData
+      ? (total_USD_price * priceData['USDT-EUR']) / priceData['USDT-USD']
+      : 0;
 
   const total_NFT_price: number = 5000;
 

@@ -15,6 +15,7 @@ import {
   FEATURED_RPCS_MAIN,
   FEATURED_RPCS_TEST,
   NODE_ENV,
+  SOL_MAINNET_ALCHEMY,
 } from 'src/constants/network';
 import { array2object, removePrefix } from '~/utils/helper';
 import ABI from '../constants/abi/ERC20.abi.json';
@@ -52,7 +53,7 @@ const getBtcLtcBalance = async (address: string, symbol: string) => {
 };
 const getSolBalance = async (address: string) => {
   const connection = new web3_sol.Connection(
-    web3_sol.clusterApiUrl(NODE_ENV !== 'test' ? 'devnet' : 'mainnet-beta'),
+    NODE_ENV === 'test' ? web3_sol.clusterApiUrl('devnet') : SOL_MAINNET_ALCHEMY,
   );
   return (
     (await connection.getBalance(new web3_sol.PublicKey(address))) / web3_sol.LAMPORTS_PER_SOL
@@ -107,8 +108,6 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
           let decimal: Promise<string> = new Promise((resolve) => resolve('18'));
           const web3_net = web3[chainId];
           const wallet = walletData[net] as string;
-          console.log(address);
-          console.log(net);
           if (address === '') {
             if (net === '6') {
               balance = getBtcLtcBalance(wallet, 'BTC');
@@ -136,7 +135,6 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
               decimal = tokenInst.methods.decimals().call({});
             }
           }
-          console.log([token.id, net, balance, decimal]);
           return [token.id, net, balance, decimal];
         })
         .flatMap((res) => res);
@@ -148,7 +146,6 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
     const net = result_pros.shift();
     const balance = result_pros.shift();
     const decimal = result_pros.shift();
-    // console.log([token_id, net, balance, decimal]);
     result[token_id] = result[token_id] ?? {};
     if (decimal !== '0') {
       result[token_id][net] = utils.fromWei(
@@ -172,16 +169,10 @@ export const withdraw = async (
   const chainId = net?.chain_id ?? CHAIN_IDS.MAINNET;
   const web3_net = web3[chainId];
   const asset = token.id;
-  console.log('net:', [net, token, to, amount, accountFrom]);
 
   const send = async (): Promise<any> => {
     if (['1', '6'].includes(asset)) {
       const account = new CryptoAccount(accountFrom.private_key);
-      /* Print address */
-      console.log(await account.address('BTC'));
-      /* Print balance */
-      console.log(await account.getBalance('BTC'));
-      /* Send 0.01 BTC */
       const txHash = await account
         .send(to, amount.toString(), token.name)
         .on('transactionHash', console.log)
@@ -234,7 +225,7 @@ export const withdraw = async (
       const secret_key = bs58.decode(accountFrom.private_key as string);
       // Connect to cluster
       const connection = new web3_sol.Connection(
-        web3_sol.clusterApiUrl(NODE_ENV !== 'test' ? 'devnet' : 'mainnet-beta'),
+        NODE_ENV === 'test' ? web3_sol.clusterApiUrl('devnet') : SOL_MAINNET_ALCHEMY,
       );
       // Construct a `Keypair` from secret key
       const from = web3_sol.Keypair.fromSecretKey(secret_key);
@@ -285,14 +276,16 @@ export const withdraw = async (
       // Tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(accountFrom.private_key) });
       // // Using the contract API, the follwing operation is signed using the configured signer:
       // const result = await Tezos.wallet.transfer({ to, amount });
-      // console.log(result);
       // return result;
     } else return null;
   };
 
   // 6. Call send function
   const result = await send();
-  console.log(result);
+  // .catch((e) => {
+  //   return { data: null, e };
+  // });
+  console.log('withdraw result:', result);
   return result;
 };
 
@@ -339,14 +332,14 @@ export const getSimpleQuote = async (data: any) => {
     .get(`${baseURL_simple}`, {
       params: data,
     })
-    .catch((e) => {
-      console.log(e);
-      return null;
+    .then((res: any) => {
+      return { data: res, e: null };
+    })
+    .catch((e: any) => {
+      console.log('simple swap error:', e);
+      return { data: null, e };
     });
-  if (result?.data) {
-    return result.data;
-  }
-  return '0';
+  return result;
 };
 
 // const provider = new ethers.providers.JsonRpcProvider(FEATURED_RPCS[0].rpcUrl, 100);
@@ -354,16 +347,22 @@ export const getSimpleQuote = async (data: any) => {
 //     provider
 // );
 
-export const postSwap = async (data: any, wallet: any) => {
+export const lifiSwapPost = async (data: any, wallets: any) => {
+  // const walletData = array2object(
+  //   wallets && 'map' in wallets ? wallets?.map((a: any) => ({ [a.net_id]: a.address })) : [],
+  // );
+  const wallet = wallets.find((wallet: any) => wallet.net_id === '1');
   const rpcUrl = FEATURED_RPCS.find((rpc) => parseInt(rpc.chainId) === data.chainId)?.rpcUrl;
   // const web3_net = web3[5];
   const web3_net = new Web3(rpcUrl as string);
   web3_net.eth.accounts.wallet.add(wallet.private_key);
   const signedTx = await web3_net.eth.accounts.signTransaction(data, wallet.private_key);
-  const result = await web3_net.eth
-    .sendSignedTransaction(signedTx.rawTransaction as string)
-    .then((res) => res)
-    .catch((e) => console.log(e.data));
+  const result = await web3_net.eth.sendSignedTransaction(signedTx.rawTransaction as string);
+  // .then((res) => res)
+  // .catch((e) => {
+  //   console.log(e);
+  //   return { data: null, e };
+  // });
   console.log('result:', result);
   return result;
 };
@@ -373,8 +372,8 @@ export const simpleSwapPost = async (data: any, net: any, token: any, wallets: a
     wallets && 'map' in wallets ? wallets?.map((a: any) => ({ [a.net_id]: a.address })) : [],
   );
   const result = await axios.post(`${baseURL_simple}`, data).catch((e) => {
-    console.log(e);
-    return null;
+    console.log('1:', e);
+    return { data: null, e };
   });
   if (result?.data) {
     const swap_result = await withdraw(
@@ -384,10 +383,10 @@ export const simpleSwapPost = async (data: any, net: any, token: any, wallets: a
       data.amount,
       walletData[net.id],
     ).catch((e) => {
-      console.log(e);
-      return null;
+      console.log('2:', e);
+      return { data: null, e };
     });
     return swap_result;
   }
-  return null;
+  return result;
 };

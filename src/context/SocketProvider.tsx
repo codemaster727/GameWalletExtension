@@ -1,14 +1,6 @@
 import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import {
-  getQuery,
-  getPrice,
-  postQuery,
-  getBalance,
-  withdraw,
-  getLifi,
-  postSwap,
-} from '../apis/api';
+import { getQuery, getPrice, postQuery, getBalance, withdraw, getLifi } from '../apis/api';
 import BitcoinIcon from '../assets/coingroup/bitcoin.svg';
 import EthIcon from '../assets/coingroup/ethereum.svg';
 import UsdtIcon from '../assets/coingroup/usdt.svg';
@@ -25,7 +17,7 @@ import ArbitrumIcon from '../assets/coingroup/Arbitrum.svg';
 import ArbitrumLogoIcon from '../assets/coingroup/arbitrum_logo.svg';
 import TronIcon from '../assets/coingroup/tron-trx-logo.svg';
 import { array2object } from '../utils/helper';
-import { TransactionMutateParams } from './types';
+import { Token, TransactionMutateParams } from './types';
 import { ASSETS_MAIN, ASSETS_TEST } from '~/constants/supported-assets';
 import { NODE_ENV } from '~/constants/network';
 import { CHAINS_MAIN, CHAINS_TEST } from '~/constants/nets';
@@ -40,7 +32,7 @@ interface SocketContextType {
   balanceData?: any;
   walletData?: any;
   walletArray?: any;
-  tokenData?: any;
+  tokenData: Token[];
   netData?: any;
   transactionIsLoading?: boolean;
   transactionData?: any;
@@ -50,8 +42,9 @@ interface SocketContextType {
   successResult?: Result;
   withdrawMutate?: any;
   withdrawIsLoading?: boolean;
-  swapIsLoading?: boolean;
-  swapMutate?: any;
+  // swapIsLoading?: boolean;
+  // swapMutate?: any;
+  // swapData: any;
   withdraw?: any;
   quoteMutate: any;
   quoteIsError: Boolean;
@@ -244,7 +237,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
           setSuccessResult((prev) => ({
             count: (prev?.count ?? 0) + 1,
             message: `Your withdraw request of ${withdrawal.amount} ${
-              tokenData?.find((a: any) => a.id === withdrawal.token_id)?.name
+              tokenData?.find((a) => a.id === withdrawal.token_id)?.name
             } has been successful. Check your balance.`,
           }));
           refetch(['ListAssets']);
@@ -301,45 +294,45 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     },
   );
 
-  const {
-    status: swapStatus,
-    isLoading: swapIsLoading,
-    isError: swapIsError,
-    mutate: swapMutate,
-    data: swapData,
-  } = useMutation(
-    () => {
-      return postSwap(
-        quoteData.transactionRequest,
-        walletData.find((wallet: any) => wallet.net_id === '1'),
-      );
-    },
-    {
-      onSuccess: (result) => {
-        if (result) {
-          setSuccessResult((prev) => ({
-            count: (prev?.count ?? 0) + 1,
-            message: `Your swap request from ${1} to ${1} has been successful. Check your balance.`,
-          }));
-        } else {
-          setErrorResult((prev) => ({
-            count: (prev?.count ?? 0) + 1,
-            message: `${1} Check your input is correct.`,
-          }));
-        }
-      },
-      onError: (data: any) => {
-        const { error } = data;
-        setErrorResult((prev) => ({
-          count: (prev?.count ?? 0) + 1,
-          message: `Your swap request from ${1} to ${1} has been failed. Please contact to the support team.`,
-        }));
-      },
-      onSettled: () => {
-        refetch(['ListAssets']);
-      },
-    },
-  );
+  // const {
+  //   status: swapStatus,
+  //   isLoading: swapIsLoading,
+  //   isError: swapIsError,
+  //   mutate: swapMutate,
+  //   data: swapData,
+  // } = useMutation(
+  //   () => {
+  //     return postSwap(
+  //       quoteData.transactionRequest,
+  //       walletData.find((wallet: any) => wallet.net_id === '1'),
+  //     );
+  //   },
+  //   {
+  //     onSuccess: (result) => {
+  //       if (result) {
+  //         setSuccessResult((prev) => ({
+  //           count: (prev?.count ?? 0) + 1,
+  //           message: `Your swap request from ${1} to ${1} has been successful. Check your balance.`,
+  //         }));
+  //       } else {
+  //         setErrorResult((prev) => ({
+  //           count: (prev?.count ?? 0) + 1,
+  //           message: `${1} Check your input is correct.`,
+  //         }));
+  //       }
+  //     },
+  //     onError: (data: any) => {
+  //       const { error } = data;
+  //       setErrorResult((prev) => ({
+  //         count: (prev?.count ?? 0) + 1,
+  //         message: `Your swap request from ${1} to ${1} has been failed. Please contact to the support team.`,
+  //       }));
+  //     },
+  //     onSettled: () => {
+  //       refetch(['ListAssets']);
+  //     },
+  //   },
+  // );
 
   // const {
   //   status: swapStatus,
@@ -386,8 +379,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     amount: number,
     accountFrom: any,
   ) => {
-    await withdraw(net, token, to, amount, accountFrom);
+    const result = await withdraw(net, token, to, amount, accountFrom);
     refetch(['ListAssets']);
+    return result;
   };
 
   const updateBalance = () => {
@@ -396,7 +390,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       const calcedBalances = Object.entries(res).reduce((ret: any, entry: any) => {
         const [key, value]: [key: string, value: Record<string, string>] = entry;
         ret[key] = Object.values(value).reduce((a: number, b: string) => {
-          return parseFloat((a + parseFloat(b)).toFixed(5));
+          return parseFloat((a + parseFloat(b)).toString());
         }, 0);
         return ret;
       }, {});
@@ -566,8 +560,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         transactionData: transactionData?.rows,
         transactionTotal: transactionData?.total ? transactionData?.total[0].Total : 0,
         transactionMutate,
-        swapIsLoading,
-        swapMutate,
+        // swapIsLoading,
+        // swapMutate,
+        // swapData,
         withdraw: withdrawRequest,
         quoteIsError,
         quoteData,
