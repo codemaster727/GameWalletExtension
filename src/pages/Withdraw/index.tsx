@@ -75,6 +75,7 @@ const Withdraw = () => {
     withdrawMutate,
     withdrawIsLoading,
     withdraw,
+    updateBalance,
   } = useSocket();
 
   const walletData = array2object(
@@ -189,6 +190,7 @@ const Withdraw = () => {
       });
       setIsLoading(false);
       setWaitingConfirm(false);
+      updateBalance();
     }
   };
 
@@ -577,7 +579,7 @@ const Withdraw = () => {
           <Button
             variant='contained'
             sx={style_btn_confirm}
-            disabled={Boolean(error) || !Boolean(amount) || !Boolean(address)}
+            disabled={!Boolean(amount) || !Boolean(address)}
             onClick={confirmAction}
           >
             Withdraw

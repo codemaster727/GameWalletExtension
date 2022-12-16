@@ -50,6 +50,7 @@ interface SocketContextType {
   quoteIsError: Boolean;
   quoteData: any;
   quoteIsLoading: boolean;
+  updateBalance: () => void;
 }
 
 const init_tokens = [
@@ -379,6 +380,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     amount: number,
     accountFrom: any,
   ) => {
+    console.log('withdraw request:', [net, token, to, amount, accountFrom]);
     const result = await withdraw(net, token, to, amount, accountFrom);
     refetch(['ListAssets']);
     return result;
@@ -568,6 +570,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         quoteData,
         quoteMutate,
         quoteIsLoading,
+        updateBalance,
       }}
     >
       {children}

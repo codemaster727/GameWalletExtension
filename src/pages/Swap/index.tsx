@@ -101,6 +101,7 @@ const Swap = () => {
     quoteIsLoading,
     quoteIsError,
     quoteData,
+    updateBalance,
   } = useSocket();
 
   const { user } = useAuth();
@@ -239,10 +240,11 @@ const Swap = () => {
       const simple_result = await getSimpleQuote(routesRequest);
       if (simple_result.data) {
         setToAmount(parseFloat(simple_result.data.data ?? '0').toFixed(5));
+        setRate(parseFloat(simple_result.data.data ?? '0') / parseFloat(fromAmount));
       } else {
         setToAmount('0');
-        console.log('simpleswap:', simple_result.e.message);
-        setError(`Swap quote error. ${simple_result.e.message}`);
+        console.log('simpleswap:', simple_result.e.message.split(':').pop());
+        setError(`Swap quote error. ${simple_result.e.message.split(':').pop()}`);
       }
     }
   };
@@ -265,7 +267,7 @@ const Swap = () => {
         })
         .catch((e: any) => {
           console.log('lifi result:', e);
-          setError(e.message);
+          setError(e.message.split(':').pop());
         });
     } else {
       const routesRequest = {
@@ -283,11 +285,12 @@ const Swap = () => {
         })
         .catch((e: any) => {
           console.log('simple swap result:', e);
-          setError(e.message);
+          setError(e.message.split(':').pop());
         });
     }
     setIsLoading(false);
     setWaitingConfirm(false);
+    updateBalance();
   };
 
   useEffect(() => {
@@ -336,7 +339,7 @@ const Swap = () => {
 
   useEffect(() => {
     if (toToken.address[toNet.id] === undefined) {
-      setFromTokenIndex(tokenData?.findIndex((token) => token.address[toNet.id] !== undefined));
+      setToTokenIndex(tokenData?.findIndex((token) => token.address[toNet.id] !== undefined));
     }
   }, [toNetIndex]);
 
@@ -668,8 +671,7 @@ const Swap = () => {
                   color={theme.palette.text.secondary}
                   style={{ overflowWrap: 'break-word' }}
                 >
-                  {rate ? 1 : 0} {fromToken?.name} &#8776; {rate.toFixed(precision(rate))}{' '}
-                  {toToken?.name}
+                  {rate ? 1 : 0} {fromToken?.name} &#8776; {rate.toFixed(5)} {toToken?.name}
                 </Typography>
                 <Typography
                   variant='h6'
@@ -711,7 +713,7 @@ const Swap = () => {
           <Button
             variant='contained'
             sx={style_btn_confirm}
-            disabled={Boolean(error) || !Boolean(toAmount)}
+            disabled={!Boolean(fromAmount) || !Boolean(toAmount)}
             onClick={confirmAction}
           >
             Swap Now
