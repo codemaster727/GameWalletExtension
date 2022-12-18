@@ -7,8 +7,9 @@ import TronWeb from 'tronweb';
 //@ts-ignore
 // import { InMemorySigner } from '@taquito/signer';
 //@ts-ignore
-// import { TezosToolkit } from '@taquito/taquito';
+import { TezosToolkit } from '@taquito/taquito';
 // import { TezBridgeSigner } from "@taquito/tezbridge-signer";
+import { Alchemy, AssetTransfersCategory, Network } from 'alchemy-sdk';
 import {
   CHAIN_IDS_MAIN,
   CHAIN_IDS_TEST,
@@ -26,6 +27,8 @@ import axios from 'axios';
 import utils from 'web3-utils';
 import { getDecimal } from '~/utils/web3';
 import { ethers } from 'ethers';
+import { Token, TXDATA } from '~/context/types';
+import { ALCHEMY_API_KEY, COMPARE_API_KEY, PRICE_API_URL } from '~/constants/apis';
 // import { Transaction as TX } from 'ethereumjs-tx';
 
 const API_URL = 'https://li.quest/v1';
@@ -51,6 +54,77 @@ const getBtcLtcBalance = async (address: string, symbol: string) => {
   const { status, data } = balance_data?.data;
   return status === 'success' ? data.confirmed_balance : '0';
 };
+const getBtcLtcTx = async (address: string, symbol: string) => {
+  const tx_data: TXDATA | null = await axios
+    .get(`https://chain.so/api/v2/address/${symbol}/${address}`)
+    .then((res: any) => {
+      if (res.status === 'success') {
+        return res.data.txs
+          .filter((tx: any) => {
+            return !('outgoing' in tx && 'incoming' in tx);
+          })
+          .map((tx: any) => {
+            const direction = 'outgoing' in tx ? 'outgoing' : 'incoming';
+            const puts = 'outgoing' in tx ? 'outputs' : 'inputs';
+            const tx_put = tx[direction][puts];
+            const value = direction === 'outgoing' ? tx_put[0].value : tx[direction].value;
+            return {
+              time: tx.time,
+              hash: tx.txid,
+              direction: direction === 'outgoing' ? 'out' : 'in',
+              amount: value,
+              address: tx_put[0].address,
+            };
+          });
+      }
+    })
+    .catch((e) => {
+      return null;
+    });
+  return tx_data;
+};
+export const getEthTx = async (address: string) => {
+  const config = {
+    apiKey: ALCHEMY_API_KEY,
+    network: Network.ETH_MAINNET,
+  };
+  const alchemy = new Alchemy(config);
+
+  const sendTx = await alchemy.core.getAssetTransfers({
+    fromBlock: '0x0',
+    fromAddress: address,
+    category: ['external', 'internal', 'erc20', 'erc721', 'erc1155'] as AssetTransfersCategory[],
+  });
+  const rcvTx = await alchemy.core.getAssetTransfers({
+    fromBlock: '0x0',
+    toAddress: address,
+    category: ['external', 'internal', 'erc20', 'erc721', 'erc1155'] as AssetTransfersCategory[],
+  });
+  const totalTx = sendTx.transfers.concat(rcvTx.transfers);
+  const blocks = await Promise.all(
+    totalTx.map((tx: any) => {
+      return web3[1].eth.getBlock(parseInt(tx.blockNum));
+    }),
+  );
+  return totalTx
+    .map((tx: any, index: number) => {
+      return {
+        hash: tx.hash,
+        blockNum: tx.blockNum,
+        asset: tx.asset,
+        action: address === tx.from ? 'withdraw' : 'deposit',
+        address: address === tx.from ? tx.to : tx.from,
+        amount: tx.value,
+        net_id: '1',
+        created_at: `${blocks[index].timestamp}000`,
+      };
+    })
+    .sort((tx1: any, tx2: any) => tx2.blockNum - tx1.blockNum);
+};
+export const getBNBTx = async (address: string) => {};
+export const getArbiTx = async (address: string) => {};
+export const getPolyTx = async (address: string) => {};
+export const getOpTx = async (address: string) => {};
 const getSolBalance = async (address: string) => {
   const connection = new web3_sol.Connection(
     NODE_ENV === 'test' ? web3_sol.clusterApiUrl('devnet') : SOL_MAINNET_ALCHEMY,
@@ -81,12 +155,22 @@ const getTronDecimal = async (wallet: string, tokenAddress: string) => {
   const decimal = await contract.methods.decimals().call({ from: wallet });
   return decimal;
 };
-// const getTezosBalance = async (address: string) => {
-//   const Tezos = new TezosToolkit(
-//     FEATURED_RPCS.find((rpc) => rpc.chainId === CHAIN_IDS.TEZOS)?.rpcUrl as string,
-//   );
-//   return await Tezos.tz.getBalance(address).toString();
-// };
+const getTezosBalance = async (address: string) => {
+  // const Tezos = new TezosToolkit(
+  //   FEATURED_RPCS.find((rpc) => rpc.chainId === CHAIN_IDS.TEZOS)?.rpcUrl as string,
+  // );
+  const Tezos = new TezosToolkit('https://carthagenet.SmartPy.io'); //https://mainnet.smartpy.io
+  console.log(Tezos);
+  console.log(Tezos.tz);
+  console.log(Tezos.tz.getBalance);
+  console.log(address);
+  await Tezos.tz
+    .getBalance(address)
+    .then((balance: any) => console.log(`res: ${balance}`))
+    .catch((error: any) => console.log('err:', JSON.stringify(error)));
+  console.log(await Tezos.tz.getBalance(address));
+  return (await Tezos.tz.getBalance(address)).toString();
+};
 
 export const getBalance = async (wallets: any, nets: any, tokens: any) => {
   const result: any = {};
@@ -120,7 +204,7 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
               decimal = new Promise((resolve) => resolve('0'));
             } else if (net === '10') {
               // balance = getTezosBalance(wallet);
-              // decimal = new Promise((resolve) => resolve('6'));
+              decimal = new Promise((resolve) => resolve('6'));
             } else {
               balance = web3_net.eth.getBalance(wallet);
             }
@@ -157,6 +241,23 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
     }
   }
   return result;
+};
+export const getPrice = async (tokenData: Token[]) => {
+  const prices = await axios.get(`${PRICE_API_URL}/pricemulti`, {
+    headers: {
+      api_key: COMPARE_API_KEY,
+    },
+    params: {
+      fsyms: 'BTC,LTC,ETH,BNB,XTZ,OP,SOL,USDT,USDC',
+      tsyms: 'USD',
+    },
+  });
+  console.log('prices:', prices);
+  return Object.keys(prices.data).map((key: string) => {
+    return {
+      [key + '-USD']: prices.data[key]['USD'],
+    };
+  });
 };
 // const HttpProvider = TronWeb.providers.HttpProvider;
 export const withdraw = async (
@@ -299,9 +400,9 @@ export const withdraw = async (
 //   return getApi('/GetSupportedAssets');
 // };
 
-export const getPrice = async () => {
-  return getApi('/GetPrice');
-};
+// export const getPrice = async () => {
+//   return getApi('/GetPrice');
+// };
 
 export const postQuery = async (query: string, data: any) => {
   return postApi(query, data);
@@ -372,7 +473,6 @@ export const simpleSwapPost = async (data: any, net: any, token: any, wallets: a
     wallets && 'map' in wallets ? wallets?.map((a: any) => ({ [a.net_id]: a.address })) : [],
   );
   const result = await axios.post(`${baseURL_simple}`, data).catch((e) => {
-    console.log('1:', e);
     return { data: null, e };
   });
   if (result?.data) {
@@ -383,7 +483,6 @@ export const simpleSwapPost = async (data: any, net: any, token: any, wallets: a
       data.amount,
       walletData[net.id],
     ).catch((e) => {
-      console.log('2:', e);
       return { data: null, e };
     });
     return swap_result;

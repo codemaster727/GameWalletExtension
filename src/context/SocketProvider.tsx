@@ -1,6 +1,14 @@
 import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { getQuery, getPrice, postQuery, getBalance, withdraw, getLifi } from '../apis/api';
+import {
+  getQuery,
+  getPrice,
+  postQuery,
+  getBalance,
+  withdraw,
+  getLifi,
+  getEthTx,
+} from '../apis/api';
 import BitcoinIcon from '../assets/coingroup/bitcoin.svg';
 import EthIcon from '../assets/coingroup/ethereum.svg';
 import UsdtIcon from '../assets/coingroup/usdt.svg';
@@ -16,7 +24,7 @@ import PolygonIcon from '../assets/coingroup/polygon-token.svg';
 import ArbitrumIcon from '../assets/coingroup/Arbitrum.svg';
 import ArbitrumLogoIcon from '../assets/coingroup/arbitrum_logo.svg';
 import TronIcon from '../assets/coingroup/tron-trx-logo.svg';
-import { array2object } from '../utils/helper';
+import { array2object, findById } from '../utils/helper';
 import { Token, TransactionMutateParams } from './types';
 import { ASSETS_MAIN, ASSETS_TEST } from '~/constants/supported-assets';
 import { NODE_ENV } from '~/constants/network';
@@ -51,6 +59,8 @@ interface SocketContextType {
   quoteData: any;
   quoteIsLoading: boolean;
   updateBalance: () => void;
+  ethTx: any;
+  getTx: () => void;
 }
 
 const init_tokens = [
@@ -166,6 +176,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [connection, setConnection] = useState<WebSocket>();
   const [networkError, setNetworkError] = useState<boolean>(false);
   const [updateNeed, setUpdateNeed] = useState<number>(0);
+  const [ethTx, setEthTx] = useState<any>(null);
 
   // Access the client
   const queryClient = useQueryClient();
@@ -400,6 +411,20 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const updatePrice = () => {
+    getPrice(tokenData).then((data) => {
+      data && setPriceData(array2object(data));
+    });
+  };
+
+  const getTx = () => {
+    const address = findById(walletData, '1', 'net_id')?.address;
+    if (!Boolean(address)) return null;
+    getEthTx(address).then((res: any) => {
+      setEthTx(res);
+    });
+  };
+
   const loading =
     priceLoading ||
     !Boolean(priceData) ||
@@ -411,7 +436,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     networkError;
 
   useEffect(() => {
-    getPrice().then((data) => data && setPriceData(array2object(data)));
+    updatePrice();
+    getTx();
   }, []);
 
   useEffect(() => {
@@ -516,6 +542,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     if (updateNeed > 0) {
       updateBalance();
     }
+    if (updateNeed > 0 && updateNeed % 50 === 0) {
+      updatePrice();
+    }
   }, [updateNeed]);
 
   return (
@@ -571,6 +600,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         quoteMutate,
         quoteIsLoading,
         updateBalance,
+        ethTx,
+        getTx,
       }}
     >
       {children}

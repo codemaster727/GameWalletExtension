@@ -48,7 +48,7 @@ const tabs = [
 
 const tabs_second = [
   {
-    name: 'transactions',
+    name: 'Transactions',
     icon: TransactionsIcon,
     active_icon: TransactionsIcon,
     to: 'transactions',

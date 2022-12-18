@@ -8,6 +8,7 @@ export const ASSETS_MAIN: Token[] = [
     id: '1',
     name: 'BTC',
     label: 'Bitcoin',
+    gecko_id: 'bitcoin',
   },
   {
     address: {
@@ -17,6 +18,7 @@ export const ASSETS_MAIN: Token[] = [
     id: '2',
     name: 'ETH',
     label: 'Ethereum',
+    gecko_id: 'ethereum',
   },
   {
     address: {
@@ -28,6 +30,7 @@ export const ASSETS_MAIN: Token[] = [
     id: '3',
     name: 'USDT',
     label: 'USDT',
+    gecko_id: 'tether',
   },
   {
     address: {
@@ -39,6 +42,7 @@ export const ASSETS_MAIN: Token[] = [
     id: '4',
     name: 'USDC',
     label: 'USDC',
+    gecko_id: 'usd-coin',
   },
   {
     address: {
@@ -47,6 +51,7 @@ export const ASSETS_MAIN: Token[] = [
     id: '5',
     name: 'BNB',
     label: 'Binance coin',
+    gecko_id: 'binancecoin',
   },
   {
     address: {
@@ -55,6 +60,7 @@ export const ASSETS_MAIN: Token[] = [
     id: '6',
     name: 'LTC',
     label: 'Litecoin',
+    gecko_id: 'litecoin',
   },
   {
     address: {
@@ -63,6 +69,7 @@ export const ASSETS_MAIN: Token[] = [
     id: '7',
     name: 'SOL',
     label: 'Solana coin',
+    gecko_id: 'solana',
   },
   {
     address: {
@@ -71,6 +78,7 @@ export const ASSETS_MAIN: Token[] = [
     id: '8',
     name: 'XTZ',
     label: 'Tezos',
+    gecko_id: 'tezos',
   },
   {
     address: {
@@ -79,6 +87,7 @@ export const ASSETS_MAIN: Token[] = [
     id: '9',
     name: 'OP',
     label: 'Optimism coin',
+    gecko_id: 'optimism',
   },
   {
     address: {
@@ -87,6 +96,7 @@ export const ASSETS_MAIN: Token[] = [
     id: '10',
     name: 'NFT',
     label: 'NFT',
+    gecko_id: '',
   },
 ];
 
@@ -98,6 +108,7 @@ export const ASSETS_TEST: Token[] = [
     id: '1',
     name: 'BTC',
     label: 'Bitcoin',
+    gecko_id: 'bitcoin',
   },
   {
     address: {
@@ -107,6 +118,7 @@ export const ASSETS_TEST: Token[] = [
     id: '2',
     name: 'ETH',
     label: 'Ethereum',
+    gecko_id: 'ethereum',
   },
   {
     address: {
@@ -117,6 +129,7 @@ export const ASSETS_TEST: Token[] = [
     id: '3',
     name: 'USDT',
     label: 'USDT',
+    gecko_id: 'tether',
   },
   {
     address: {
@@ -127,6 +140,7 @@ export const ASSETS_TEST: Token[] = [
     id: '4',
     name: 'USDC',
     label: 'USDC',
+    gecko_id: 'usd-coin',
   },
   {
     address: {
@@ -135,6 +149,7 @@ export const ASSETS_TEST: Token[] = [
     id: '5',
     name: 'BNB',
     label: 'Binance coin',
+    gecko_id: 'binancecoin',
   },
   {
     address: {
@@ -143,6 +158,7 @@ export const ASSETS_TEST: Token[] = [
     id: '6',
     name: 'LTC',
     label: 'Litecoin',
+    gecko_id: 'litecoin',
   },
   {
     address: {
@@ -151,6 +167,7 @@ export const ASSETS_TEST: Token[] = [
     id: '7',
     name: 'SOL',
     label: 'Solana coin',
+    gecko_id: 'solana',
   },
   {
     address: {
@@ -159,6 +176,7 @@ export const ASSETS_TEST: Token[] = [
     id: '8',
     name: 'XTZ',
     label: 'Tezos',
+    gecko_id: 'tezos',
   },
   {
     address: {
@@ -167,6 +185,7 @@ export const ASSETS_TEST: Token[] = [
     id: '9',
     name: 'OP',
     label: 'Optimism coin',
+    gecko_id: 'optimism',
   },
   {
     address: {
@@ -175,6 +194,7 @@ export const ASSETS_TEST: Token[] = [
     id: '10',
     name: 'NFT',
     label: 'NFT',
+    gecko_id: '',
   },
 ];
 

@@ -16,4 +16,13 @@ export type Token = {
   name: string;
   label: string;
   icon?: string;
+  gecko_id: string;
+};
+
+export type TXDATA = {
+  time: number | string;
+  hash: string;
+  direction: 'out' | 'in';
+  amount: string;
+  address: string;
 };

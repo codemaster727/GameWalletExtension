@@ -24,3 +24,10 @@ export const defaultNetId = (token: any): string => {
   netId = parseInt(netIds[0]);
   return netId.toString();
 };
+
+export const findById = (data: any[], id: string, field?: string) => {
+  console.log('findbyid:', data);
+  console.log('findbyid:', id);
+  if (!Boolean(data)) return null;
+  return data?.find((el: any) => el[field ?? 'id'] === id) ?? null;
+};

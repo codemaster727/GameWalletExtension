@@ -10,7 +10,7 @@ interface Scansites {
   [id: string]: string;
 }
 
-export const scansites: Scansites = {
+export const scansites_main: Scansites = {
   '1': 'https://etherscan.io/tx/',
   '2': 'https://bscscan.com/tx/',
   '3': 'https://arbiscan.io/tx/',

@@ -383,9 +383,6 @@ const Swap = () => {
               <Box>Network error...</Box>
             ) : (
               <Box margin='20px 12px 0' style={{ backgroundColor: 'transparent' }}>
-                <Typography variant='h6' component='h6' textAlign='left' color='#AAAAAA' mb={1}>
-                  You get approximately
-                </Typography>
                 <Paper
                   component='form'
                   sx={style_input_paper}
@@ -682,7 +679,24 @@ const Swap = () => {
                   color={theme.palette.text.secondary}
                   style={{ overflowWrap: 'break-word' }}
                 >
-                  Swap fee: <span style={{ color: theme.palette.text.primary }}>{gasCosts}</span>
+                  Swap fee:{' '}
+                  <span style={{ color: theme.palette.text.primary }}>
+                    {parseFloat(gasCosts).toFixed(8)}
+                  </span>
+                </Typography>
+                <Typography
+                  variant='h6'
+                  component='h6'
+                  textAlign='left'
+                  fontWeight='bold'
+                  alignItems='center'
+                  color={theme.palette.text.secondary}
+                  style={{ overflowWrap: 'break-word' }}
+                >
+                  Total:{' '}
+                  <span style={{ color: theme.palette.text.primary }}>
+                    {fromAmount} + {parseFloat(gasCosts).toFixed(8)}
+                  </span>
                 </Typography>
               </Box>
             )}

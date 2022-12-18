@@ -923,7 +923,7 @@ export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
   {
     chainId: CHAIN_IDS_MAIN.BSC,
     nickname: BNB_DISPLAY_NAME,
-    rpcUrl: 'https://bsc-dataseed.binance.org/',
+    rpcUrl: 'https://bscrpc.com/', //https://bsc-mainnet.gateway.pokt.network/v1/lb/6136201a7bad1500343e248d
     ticker: CURRENCY_SYMBOLS.BNB,
     rpcPrefs: {
       blockExplorerUrl: 'https://bscscan.com/',
@@ -975,7 +975,7 @@ export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
   {
     chainId: CHAIN_IDS_MAIN.TEZOS,
     nickname: TEZOS_DISPLAY_NAME,
-    rpcUrl: `https://mainnet.api.tez.ie`,
+    rpcUrl: `https://mainnet.api.tez.ie`, //`https://mainnet.api.tez.ie`,
     ticker: CURRENCY_SYMBOLS.TEZOS,
     rpcPrefs: {
       blockExplorerUrl: 'https://tzstats.com/',

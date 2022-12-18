@@ -7,10 +7,6 @@ import React, {
   useReducer,
 } from 'react';
 // import bcrypt from 'bcrypt';
-import { useQuery, useMutation, useQueryClient } from 'react-query';
-import { getQuery, getPrice, postQuery } from '../../apis/api';
-import { useNavigate } from 'react-router-dom';
-import { AuthState } from '~/constants';
 import reducer from './Reducers';
 
 interface AuthContextType {

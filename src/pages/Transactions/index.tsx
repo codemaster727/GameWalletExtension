@@ -18,7 +18,7 @@ import ScrollBox from '~/components/Layout/ScrollBox';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useWalletModal } from '../../context/WalletModalProvider';
 import { SelectChangeEvent } from '@mui/material/Select';
-import { scansites_test as scansites } from '../../constants';
+import { scansites_test, scansites_main } from '../../constants';
 import Icon from '~/components/Icon';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
@@ -29,6 +29,7 @@ import { useTheme } from '@mui/material';
 import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
 import { Rings } from 'react-loading-icons';
 import { TransactionMutateParams } from '~/context/types';
+import { NODE_ENV } from '~/constants/network';
 
 const style_type_btn = {
   fontSize: '14px',
@@ -82,6 +83,8 @@ const tabs: Tab[] = [
 
 const transactionTypes = ['deposit', 'withdraw'];
 
+const scansites = NODE_ENV === 'test' ? scansites_test : scansites_main;
+
 const Transactions = () => {
   const [transactionType, setTransactionType] = useState<number>(0);
   const [isDeposit, setIsDeposit] = useState('Deposit');
@@ -95,16 +98,21 @@ const Transactions = () => {
   const {
     balanceData,
     transactionIsLoading,
-    transactionData,
+    // transactionData,
     transactionTotal,
     transactionMutate,
     priceData,
     tokenData,
     networkError,
+    ethTx,
+    getTx,
   } = useSocket();
 
   const theme = useTheme();
 
+  const transactionData = ethTx?.filter((tx: any, index: number) => {
+    return tx.action === transactionTypes[transactionType];
+  });
   const detailTx = transactionData && transactionData[detailIndex];
 
   const handleDetailClick = (index: number) => {
@@ -142,6 +150,11 @@ const Transactions = () => {
       return <CancelOutlinedIcon sx={{ fontSize: '25px' }} strokeWidth={5} />;
     }
   };
+
+  useEffect(() => {
+    getTx();
+  }, []);
+
   useEffect(() => {
     const data = {
       user_id: '1',
@@ -192,137 +205,236 @@ const Transactions = () => {
         ))}
       </Box>
       <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
-      {!(!transactionIsLoading && (transactionTotal ?? 0) === 0) ? (
-        <InfiniteScroll
-          dataLength={items?.length}
-          height={420}
-          next={() => fetchData()}
-          hasMore={!transactionIsLoading && items?.length < (transactionTotal ?? 0)}
-          loader={<Rings style={{ marginBottom: loading ? '50%' : '10px' }} />}
-          scrollThreshold={0.9}
-          endMessage={
-            <p style={{ textAlign: 'center' }}>
-              {!transactionIsLoading &&
-              transactionData !== undefined &&
-              transactionData?.length > 0 &&
-              !loading ? (
-                <b>No more</b>
-              ) : (
-                <Rings style={{ marginBottom: '50%' }} />
-              )}
-            </p>
-          }
-        >
-          {/* {!loading ? ( */}
-          <Box padding='15px'>
-            {items?.length ? (
-              items?.map((tx: any, index: number) => {
-                return (
-                  <Grid
-                    key={tx.hash + tx.id}
-                    container
-                    spacing={1.4}
-                    alignItems='center'
-                    sx={{
-                      color: 'white',
-                      fontSize: '14px',
-                      textAlign: 'center',
-                      alignItems: 'center',
-                      cursor: 'pointer',
-                    }}
-                  >
+      <ScrollBox height={430}>
+        <>
+          {!(!transactionIsLoading && (transactionTotal ?? 0) === 0) ? (
+            // <InfiniteScroll
+            //   dataLength={items?.length}
+            //   height={420}
+            //   next={() => fetchData()}
+            //   hasMore={!transactionIsLoading && items?.length < (transactionTotal ?? 0)}
+            //   loader={<Rings style={{ marginBottom: loading ? '50%' : '10px' }} />}
+            //   scrollThreshold={0.9}
+            //   endMessage={
+            //     <p style={{ textAlign: 'center' }}>
+            //       {!transactionIsLoading &&
+            //       transactionData !== undefined &&
+            //       transactionData?.length > 0 &&
+            //       !loading ? (
+            //         <b>No more</b>
+            //       ) : (
+            //         <Rings style={{ marginBottom: '50%' }} />
+            //       )}
+            //     </p>
+            //   }
+            // >
+            //   {/* {!loading ? ( */}
+            //   <Box padding='15px'>
+            //     {items?.length ? (
+            //       items?.map((tx: any, index: number) => {
+            //         return (
+            //           <Grid
+            //             key={tx.hash + tx.id}
+            //             container
+            //             spacing={1.4}
+            //             alignItems='center'
+            //             sx={{
+            //               color: 'white',
+            //               fontSize: '14px',
+            //               textAlign: 'center',
+            //               alignItems: 'center',
+            //               cursor: 'pointer',
+            //             }}
+            //           >
+            //             <Grid
+            //               item
+            //               xs={4}
+            //               sx={{ ...style_row, color: '#AAAAAA' }}
+            //               onClick={() => handleDetailClick(index)}
+            //             >
+            //               <Typography
+            //                 variant='h6'
+            //                 component='h6'
+            //                 textAlign='center'
+            //                 color='#AAAAAA'
+            //                 mt={1}
+            //                 mb={1}
+            //               >
+            //                 {new Date(tx.created_at).toLocaleString()}
+            //               </Typography>
+            //             </Grid>
+            //             <Grid item xs={4} sx={style_row} onClick={() => handleDetailClick(index)}>
+            //               <div
+            //                 style={{
+            //                   display: 'flex',
+            //                   alignItems: 'center',
+            //                   justifyContent: 'end',
+            //                 }}
+            //               >
+            //                 <Typography
+            //                   variant='h5'
+            //                   component='h5'
+            //                   textAlign='right'
+            //                   fontWeight='bold'
+            //                   color='white'
+            //                   mt={1}
+            //                   mb={1}
+            //                 >
+            //                   {tx.amount}
+            //                 </Typography>
+            //                 &nbsp;&nbsp;
+            //                 {Icon(tokenData.find((token: any) => token.id === tx.token_id)?.icon, 25)}
+            //               </div>
+            //             </Grid>
+            //             <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
+            //               <Typography
+            //                 variant='h5'
+            //                 component='h5'
+            //                 textAlign='center'
+            //                 fontWeight='bold'
+            //                 color='white'
+            //                 alignItems='end'
+            //                 mt={1}
+            //                 mb={1}
+            //               >
+            //                 $
+            //                 {(
+            //                   tx.amount *
+            //                   priceData[
+            //                     `${tokenData.find((token: any) => token.id === tx.token_id)?.name}-USD`
+            //                   ]
+            //                 )?.toFixed(2)}
+            //               </Typography>
+            //             </Grid>
+            //             <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
+            //               <Typography
+            //                 variant='h6'
+            //                 component='h6'
+            //                 textAlign='center'
+            //                 fontWeight='bold'
+            //                 mt={1}
+            //                 mb={1}
+            //                 color={
+            //                   tx.state === 'success'
+            //                     ? theme.palette.primary.main
+            //                     : theme.palette.error.main
+            //                 }
+            //               >
+            //                 {transactionStatus(tx.state)}
+            //               </Typography>
+            //             </Grid>
+            //           </Grid>
+            //         );
+            //       })
+            //     ) : (
+            //       <></>
+            //     )}
+            //   </Box>
+            //   {/* ) : ( */}
+            //   {/* // <Rings style={{ marginTop: '50%' }} /> */}
+            //   <></>
+            //   {/* )} */}
+            // </InfiniteScroll>
+            <Box padding='15px'>
+              {transactionData?.length ? (
+                transactionData.map((tx: any, index: number) => {
+                  return (
                     <Grid
-                      item
-                      xs={4}
-                      sx={{ ...style_row, color: '#AAAAAA' }}
-                      onClick={() => handleDetailClick(index)}
+                      key={tx.hash}
+                      container
+                      spacing={1.4}
+                      alignItems='center'
+                      sx={{
+                        color: 'white',
+                        fontSize: '14px',
+                        textAlign: 'center',
+                        alignItems: 'center',
+                        cursor: 'pointer',
+                      }}
                     >
-                      <Typography
-                        variant='h6'
-                        component='h6'
-                        textAlign='center'
-                        color='#AAAAAA'
-                        mt={1}
-                        mb={1}
-                      >
-                        {new Date(tx.created_at).toLocaleString()}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={4} sx={style_row} onClick={() => handleDetailClick(index)}>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'end',
-                        }}
+                      <Grid
+                        item
+                        xs={4}
+                        sx={{ ...style_row, color: '#AAAAAA' }}
+                        onClick={() => handleDetailClick(index)}
                       >
                         <Typography
-                          variant='h5'
-                          component='h5'
-                          textAlign='right'
-                          fontWeight='bold'
-                          color='white'
+                          variant='h6'
+                          component='h6'
+                          textAlign='center'
+                          color='#AAAAAA'
                           mt={1}
                           mb={1}
                         >
-                          {tx.amount}
+                          {new Date(parseInt(tx?.created_at ?? '0')).toLocaleString()}
                         </Typography>
-                        &nbsp;&nbsp;
-                        {Icon(tokenData.find((token: any) => token.id === tx.token_id)?.icon, 25)}
-                      </div>
+                      </Grid>
+                      <Grid item xs={4} sx={style_row} onClick={() => handleDetailClick(index)}>
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'end',
+                          }}
+                        >
+                          <Typography
+                            variant='h5'
+                            component='h5'
+                            textAlign='right'
+                            fontWeight='bold'
+                            color='white'
+                            mt={1}
+                            mb={1}
+                          >
+                            {parseFloat(tx?.amount ?? 0).toFixed(5)}
+                          </Typography>
+                          &nbsp;&nbsp;
+                          {Icon(tokenData.find((token: any) => token.name === tx.asset)?.icon, 25)}
+                        </div>
+                      </Grid>
+                      <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
+                        <Typography
+                          variant='h5'
+                          component='h5'
+                          textAlign='center'
+                          fontWeight='bold'
+                          color='white'
+                          alignItems='end'
+                          mt={1}
+                          mb={1}
+                        >
+                          ${((tx?.amount ?? 0) * priceData[`${tx.asset}-USD`])?.toFixed(2)}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
+                        <Typography
+                          variant='h6'
+                          component='h6'
+                          textAlign='center'
+                          fontWeight='bold'
+                          mt={1}
+                          mb={1}
+                          color={
+                            tx.state === 'success' || true
+                              ? theme.palette.primary.main
+                              : theme.palette.error.main
+                          }
+                        >
+                          {transactionStatus(tx?.state ?? 'success')}
+                        </Typography>
+                      </Grid>
                     </Grid>
-                    <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
-                      <Typography
-                        variant='h5'
-                        component='h5'
-                        textAlign='center'
-                        fontWeight='bold'
-                        color='white'
-                        alignItems='end'
-                        mt={1}
-                        mb={1}
-                      >
-                        $
-                        {(
-                          tx.amount *
-                          priceData[
-                            `${tokenData.find((token: any) => token.id === tx.token_id)?.name}-USD`
-                          ]
-                        )?.toFixed(2)}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
-                      <Typography
-                        variant='h6'
-                        component='h6'
-                        textAlign='center'
-                        fontWeight='bold'
-                        mt={1}
-                        mb={1}
-                        color={
-                          tx.state === 'success'
-                            ? theme.palette.primary.main
-                            : theme.palette.error.main
-                        }
-                      >
-                        {transactionStatus(tx.state)}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                );
-              })
-            ) : (
-              <></>
-            )}
-          </Box>
-          {/* ) : ( */}
-          {/* // <Rings style={{ marginTop: '50%' }} /> */}
-          <></>
-          {/* )} */}
-        </InfiniteScroll>
-      ) : (
-        'No transaction data'
-      )}
+                  );
+                })
+              ) : (
+                <></>
+              )}
+            </Box>
+          ) : (
+            'No transaction data'
+          )}
+        </>
+      </ScrollBox>
       <Modal
         open={detailShow}
         onClose={() => setDetailShow(false)}
@@ -355,7 +467,7 @@ const Transactions = () => {
                   : theme.palette.error.main
               }
             >
-              {detailTx?.state === 'success' ? 'Success' : 'Fail'}
+              {detailTx?.state === 'success' || true ? 'Success' : 'Fail'}
             </Grid>
             <Grid item xs={4}>
               Txid
@@ -372,28 +484,28 @@ const Transactions = () => {
               </a>
             </Grid>
             <Grid item xs={4}>
-              Order ID
+              BlockNum
             </Grid>
             <Grid item xs={8}>
-              {detailTx?.id}
+              {detailTx?.blockNum}
             </Grid>
             <Grid item xs={4}>
               Currency
             </Grid>
             <Grid item xs={8}>
-              {tokenData?.find((token: any) => token?.id === detailTx?.token_id)?.name}
+              {tokenData?.find((token: any) => token?.name === detailTx?.asset)?.name}
             </Grid>
             <Grid item xs={4}>
               Quantity
             </Grid>
             <Grid item xs={8}>
-              {detailTx?.amount}
+              {parseFloat(detailTx?.amount ?? 0).toFixed(5)}
             </Grid>
             <Grid item xs={4}>
               Time
             </Grid>
             <Grid item xs={8}>
-              {new Date(detailTx?.created_at).toLocaleString()}
+              {new Date(parseInt(detailTx?.created_at ?? '0')).toLocaleString()}
             </Grid>
             {transactionType === 1 && (
               <>
