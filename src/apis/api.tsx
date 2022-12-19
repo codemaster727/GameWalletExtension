@@ -18,7 +18,7 @@ import {
   NODE_ENV,
   SOL_MAINNET_ALCHEMY,
 } from 'src/constants/network';
-import { array2object, removePrefix } from '~/utils/helper';
+import { array2object, findBy, findTokenByNetIdAndAddress, removePrefix } from '~/utils/helper';
 import ABI from '../constants/abi/ERC20.abi.json';
 import { WEI_DECIMALS, WEI_UNITS } from '~/constants/unit';
 import { Chain, Common, Hardfork } from '@ethereumjs/common';
@@ -28,12 +28,26 @@ import utils from 'web3-utils';
 import { getDecimal } from '~/utils/web3';
 import { ethers } from 'ethers';
 import { Token, TXDATA } from '~/context/types';
-import { ALCHEMY_API_KEY, COMPARE_API_KEY, PRICE_API_URL } from '~/constants/apis';
+import {
+  ALCHEMY_API_KEY_TEST,
+  ALCHEMY_API_KEY_MAIN,
+  BSCSCAN_API_KEY,
+  COMPARE_API_KEY,
+  MORALIS_API_URL,
+  MORALIS_API_KEY,
+  PRICE_API_URL,
+  TZSTATS_API_URL,
+  SOLSCAN_API_URL,
+  TRON_API_URL,
+} from '~/constants/apis';
+import { ASSETS_MAIN, ASSETS_TEST } from '~/constants/supported-assets';
 // import { Transaction as TX } from 'ethereumjs-tx';
 
 const API_URL = 'https://li.quest/v1';
 const CHAIN_IDS = NODE_ENV === 'test' ? CHAIN_IDS_TEST : CHAIN_IDS_MAIN;
 const FEATURED_RPCS = NODE_ENV === 'test' ? FEATURED_RPCS_TEST : FEATURED_RPCS_MAIN;
+const tokenData = NODE_ENV === 'test' ? ASSETS_TEST : ASSETS_MAIN;
+const ALCHEMY_API_KEY = NODE_ENV === 'test' ? ALCHEMY_API_KEY_TEST : ALCHEMY_API_KEY_MAIN;
 const web3: Record<string, Web3> = {};
 FEATURED_RPCS.map((rpc: any, index: number) => {
   web3[parseInt(FEATURED_RPCS[index].chainId).toString()] = new Web3(rpc.rpcUrl);
@@ -54,12 +68,14 @@ const getBtcLtcBalance = async (address: string, symbol: string) => {
   const { status, data } = balance_data?.data;
   return status === 'success' ? data.confirmed_balance : '0';
 };
-const getBtcLtcTx = async (address: string, symbol: string) => {
+export const getBtcLtcTx = async (address: string, symbol: string) => {
   const tx_data: TXDATA | null = await axios
     .get(`https://chain.so/api/v2/address/${symbol}/${address}`)
     .then((res: any) => {
+      console.log('btcltc:', res);
       if (res.status === 'success') {
-        return res.data.txs
+        if (!Boolean(res.data.data.total_txs)) return null;
+        return res.data.data.txs
           .filter((tx: any) => {
             return !('outgoing' in tx && 'incoming' in tx);
           })
@@ -76,34 +92,48 @@ const getBtcLtcTx = async (address: string, symbol: string) => {
               address: tx_put[0].address,
             };
           });
-      }
+      } else return null;
     })
     .catch((e) => {
       return null;
     });
   return tx_data;
 };
-export const getEthTx = async (address: string) => {
+const getErcTx = async (address: string, network: Network, chain_id: string, net_id: string) => {
   const config = {
-    apiKey: ALCHEMY_API_KEY,
-    network: Network.ETH_MAINNET,
+    apiKey: ALCHEMY_API_KEY[network],
+    network: network,
   };
   const alchemy = new Alchemy(config);
 
+  let category = ['external'];
+  if (
+    network === Network.ETH_MAINNET ||
+    network === Network.ETH_GOERLI ||
+    network === Network.MATIC_MAINNET ||
+    network === Network.MATIC_MUMBAI
+  ) {
+    category.push('internal');
+  }
+  if (network !== Network.ARB_GOERLI && network !== Network.OPT_GOERLI) {
+    category = category.concat(['erc20', 'erc721', 'erc1155']);
+  }
   const sendTx = await alchemy.core.getAssetTransfers({
     fromBlock: '0x0',
     fromAddress: address,
-    category: ['external', 'internal', 'erc20', 'erc721', 'erc1155'] as AssetTransfersCategory[],
+    category: category as AssetTransfersCategory[],
   });
+  console.log('sendTx:', sendTx);
   const rcvTx = await alchemy.core.getAssetTransfers({
     fromBlock: '0x0',
     toAddress: address,
-    category: ['external', 'internal', 'erc20', 'erc721', 'erc1155'] as AssetTransfersCategory[],
+    category: category as AssetTransfersCategory[],
   });
+  console.log(rcvTx);
   const totalTx = sendTx.transfers.concat(rcvTx.transfers);
   const blocks = await Promise.all(
     totalTx.map((tx: any) => {
-      return web3[1].eth.getBlock(parseInt(tx.blockNum));
+      return web3[chain_id].eth.getBlock(parseInt(tx.blockNum));
     }),
   );
   return totalTx
@@ -115,16 +145,152 @@ export const getEthTx = async (address: string) => {
         action: address === tx.from ? 'withdraw' : 'deposit',
         address: address === tx.from ? tx.to : tx.from,
         amount: tx.value,
-        net_id: '1',
-        created_at: `${blocks[index].timestamp}000`,
+        net_id,
+        created_at: parseInt(`${blocks[index].timestamp}000`),
       };
     })
     .sort((tx1: any, tx2: any) => tx2.blockNum - tx1.blockNum);
 };
-export const getBNBTx = async (address: string) => {};
-export const getArbiTx = async (address: string) => {};
-export const getPolyTx = async (address: string) => {};
-export const getOpTx = async (address: string) => {};
+export const getEthTx = async (address: string) => {
+  return await getErcTx(
+    address,
+    NODE_ENV === 'test' ? Network.ETH_GOERLI : Network.ETH_MAINNET,
+    parseInt(CHAIN_IDS.MAINNET).toString(),
+    '1',
+  );
+};
+export const getArbiTx = async (address: string) => {
+  return await getErcTx(
+    address,
+    NODE_ENV === 'test' ? Network.ARB_GOERLI : Network.ARB_MAINNET,
+    parseInt(CHAIN_IDS.ARBITRUM).toString(),
+    '3',
+  );
+};
+export const getPolyTx = async (address: string) => {
+  return await getErcTx(
+    address,
+    NODE_ENV === 'test' ? Network.MATIC_MUMBAI : Network.MATIC_MAINNET,
+    parseInt(CHAIN_IDS.POLYGON).toString(),
+    '4',
+  );
+};
+export const getOptTx = async (address: string) => {
+  return await getErcTx(
+    address,
+    NODE_ENV === 'test' ? Network.OPT_GOERLI : Network.OPT_MAINNET,
+    parseInt(CHAIN_IDS.OPTIMISM).toString(),
+    '5',
+  );
+};
+export const getBscTx = async (address: string) => {
+  const native_res = await axios.get(`${MORALIS_API_URL}/${address}`, {
+    params: { chain: 'bsc' },
+    headers: { accept: 'application/json', 'X-API-Key': MORALIS_API_KEY },
+  });
+  const bep20_res = await axios.get(`${MORALIS_API_URL}/${address}/erc20/transfers`, {
+    params: { chain: 'bsc' },
+    headers: { accept: 'application/json', 'X-API-Key': MORALIS_API_KEY },
+  });
+  console.log('native_res:', native_res);
+  console.log('bep20_res:', bep20_res);
+  if (!Boolean(native_res) || !Boolean(bep20_res)) return null;
+  const native_txs = native_res.data.result
+    .filter((tx: any) => tx.value > 0)
+    .map((tx: any) => ({
+      hash: tx.hash,
+      blockNum: tx.block_number,
+      asset: 'BNB',
+      action: address === tx.from_address ? 'withdraw' : 'deposit',
+      address: address === tx.from_address ? tx.to_address : tx.from_address,
+      amount: utils.fromWei(tx.value, 'ether'),
+      net_id: '2',
+      created_at: new Date(tx.block_timestamp).getTime(),
+    }));
+  console.log('native_res:', native_txs);
+  const bep20_txs = bep20_res.data.result
+    .filter((tx: any) => tx.value > 0)
+    .filter((tx: any) => findTokenByNetIdAndAddress(tokenData, '2', tx.address))
+    .map((tx: any) => ({
+      hash: tx.transaction_hash,
+      blockNum: tx.block_number,
+      asset: findTokenByNetIdAndAddress(tokenData, '2', tx.address)?.name,
+      action: address === tx.from_address ? 'withdraw' : 'deposit',
+      address: address === tx.from_address ? tx.to_address : tx.from_address,
+      amount: utils.fromWei(tx.value, 'ether'),
+      net_id: '2',
+      created_at: new Date(tx.block_timestamp).getTime(),
+    }));
+  console.log('bep20_res:', bep20_txs);
+  return native_txs.concat(bep20_txs).sort((a: any, b: any) => b.blockNum - a.blockNum);
+};
+export const getTezosTx = async (address: string) => {
+  const res = await axios.get(
+    `${TZSTATS_API_URL}/account/${address}/operations?limit=100&order=desc`,
+  );
+  if (!Boolean(res)) return null;
+  return res.data.map((tx: any) => ({
+    hash: tx.hash,
+    blockNum: tx.height,
+    asset: 'XTZ',
+    action: address === tx.sender ? 'withdraw' : 'deposit',
+    address: address === tx.sender ? tx.receiver : tx.sender,
+    amount: tx.volume.toString(),
+    net_id: '10',
+    created_at: new Date(tx.time).getTime(),
+  }));
+};
+export const getSolTx = async (address: string) => {
+  const res = await axios.get(`${SOLSCAN_API_URL}/account/solTransfers`, {
+    params: {
+      account: address,
+      limit: 20,
+      offset: 0,
+      order: 'desc',
+    },
+  });
+  console.log(res);
+  if (!(Boolean(res) && res.status === 200)) return null;
+  return res.data.data.map((tx: any) => ({
+    hash: tx.txHash,
+    blockNum: tx.slot,
+    asset: 'SOL',
+    action: address === tx.src ? 'withdraw' : 'deposit',
+    address: address === tx.src ? tx.dst : tx.src,
+    amount: utils.fromWei(tx.lamport.toString(), 'gwei'),
+    net_id: '9',
+    created_at: new Date(tx.blockTime * 1000).getTime(),
+  }));
+};
+export const getTronTx = async (address: string) => {
+  const usdt_res = await axios.get(`${TRON_API_URL}/accounts/address/transactions/trc20`, {
+    params: {
+      limit: 20,
+      contract_address: findBy(tokenData, 'id', '3')?.address[7],
+      address,
+    },
+  });
+  const usdc_res = await axios.get(`${TRON_API_URL}/accounts/address/transactions/trc20`, {
+    params: {
+      limit: 20,
+      contract_address: findBy(tokenData, 'id', '4')?.address[7],
+      address,
+    },
+  });
+  console.log(usdt_res);
+  console.log(usdc_res);
+  if (!Boolean(usdt_res)) return null;
+  return usdt_res.data.data.map((tx: any) => ({
+    hash: tx.transactionHash,
+    blockNum: tx.block,
+    asset: 'USDT',
+    action: address === tx.src ? 'withdraw' : 'deposit',
+    address: address === tx.src ? tx.dst : tx.src,
+    amount: utils.fromWei(tx.lamport, 'gwei'),
+    net_id: '9',
+    created_at: new Date(tx.blockTime * 1000).getTime(),
+  }));
+};
 const getSolBalance = async (address: string) => {
   const connection = new web3_sol.Connection(
     NODE_ENV === 'test' ? web3_sol.clusterApiUrl('devnet') : SOL_MAINNET_ALCHEMY,
@@ -159,17 +325,20 @@ const getTezosBalance = async (address: string) => {
   // const Tezos = new TezosToolkit(
   //   FEATURED_RPCS.find((rpc) => rpc.chainId === CHAIN_IDS.TEZOS)?.rpcUrl as string,
   // );
-  const Tezos = new TezosToolkit('https://carthagenet.SmartPy.io'); //https://mainnet.smartpy.io
-  console.log(Tezos);
-  console.log(Tezos.tz);
-  console.log(Tezos.tz.getBalance);
-  console.log(address);
-  await Tezos.tz
-    .getBalance(address)
-    .then((balance: any) => console.log(`res: ${balance}`))
-    .catch((error: any) => console.log('err:', JSON.stringify(error)));
-  console.log(await Tezos.tz.getBalance(address));
-  return (await Tezos.tz.getBalance(address)).toString();
+  // console.log(Tezos);
+  // console.log(Tezos.tz);
+  // console.log(Tezos.tz.getBalance);
+  // console.log(address);
+  // await Tezos.tz
+  //   .getBalance(address)
+  //   .then((balance: any) => console.log(`res: ${balance}`))
+  //   .catch((error: any) => console.log('err:', error));
+  const res = await axios.get(`${TZSTATS_API_URL}/account/${address}`).catch((e) => {
+    console.log(e);
+    return null;
+  });
+  if (!Boolean(res)) return '0';
+  return res?.data.spendable_balance.toString();
 };
 
 export const getBalance = async (wallets: any, nets: any, tokens: any) => {
@@ -203,8 +372,8 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
               balance = getSolBalance(wallet);
               decimal = new Promise((resolve) => resolve('0'));
             } else if (net === '10') {
-              // balance = getTezosBalance(wallet);
-              decimal = new Promise((resolve) => resolve('6'));
+              balance = getTezosBalance(wallet);
+              decimal = new Promise((resolve) => resolve('0'));
             } else {
               balance = web3_net.eth.getBalance(wallet);
             }
@@ -252,7 +421,6 @@ export const getPrice = async (tokenData: Token[]) => {
       tsyms: 'USD',
     },
   });
-  console.log('prices:', prices);
   return Object.keys(prices.data).map((key: string) => {
     return {
       [key + '-USD']: prices.data[key]['USD'],

@@ -8,6 +8,13 @@ import {
   withdraw,
   getLifi,
   getEthTx,
+  getBscTx,
+  getArbiTx,
+  getPolyTx,
+  getOptTx,
+  getTezosTx,
+  getBtcLtcTx,
+  getSolTx,
 } from '../apis/api';
 import BitcoinIcon from '../assets/coingroup/bitcoin.svg';
 import EthIcon from '../assets/coingroup/ethereum.svg';
@@ -24,7 +31,7 @@ import PolygonIcon from '../assets/coingroup/polygon-token.svg';
 import ArbitrumIcon from '../assets/coingroup/Arbitrum.svg';
 import ArbitrumLogoIcon from '../assets/coingroup/arbitrum_logo.svg';
 import TronIcon from '../assets/coingroup/tron-trx-logo.svg';
-import { array2object, findById } from '../utils/helper';
+import { array2object, findBy } from '../utils/helper';
 import { Token, TransactionMutateParams } from './types';
 import { ASSETS_MAIN, ASSETS_TEST } from '~/constants/supported-assets';
 import { NODE_ENV } from '~/constants/network';
@@ -60,6 +67,15 @@ interface SocketContextType {
   quoteIsLoading: boolean;
   updateBalance: () => void;
   ethTx: any;
+  bscTx: any;
+  polyTx: any;
+  arbiTx: any;
+  optTx: any;
+  btcTx: any;
+  ltcTx: any;
+  solTx: any;
+  tezosTx: any;
+  tronTx: any;
   getTx: () => void;
 }
 
@@ -177,6 +193,15 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [networkError, setNetworkError] = useState<boolean>(false);
   const [updateNeed, setUpdateNeed] = useState<number>(0);
   const [ethTx, setEthTx] = useState<any>(null);
+  const [bscTx, setBscTx] = useState<any>(null);
+  const [arbiTx, setArbiTx] = useState<any>(null);
+  const [polyTx, setPolyTx] = useState<any>(null);
+  const [optTx, setOptTx] = useState<any>(null);
+  const [tezosTx, setTezosTx] = useState<any>(null);
+  const [tronTx, setTronTx] = useState<any>(null);
+  const [solTx, setSolTx] = useState<any>(null);
+  const [btcTx, setBtcTx] = useState<any>(null);
+  const [ltcTx, setLtcTx] = useState<any>(null);
 
   // Access the client
   const queryClient = useQueryClient();
@@ -418,10 +443,43 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const getTx = () => {
-    const address = findById(walletData, '1', 'net_id')?.address;
+    let address = findBy(walletData, 'net_id', '1')?.address;
     if (!Boolean(address)) return null;
     getEthTx(address).then((res: any) => {
       setEthTx(res);
+    });
+    // getBscTxTx(address).then((res: any) => {
+    //   setBscTx(res);
+    // });
+    getArbiTx(address).then((res: any) => {
+      setArbiTx(res);
+    });
+    getPolyTx(address).then((res: any) => {
+      setPolyTx(res);
+    });
+    getOptTx(address).then((res: any) => {
+      setOptTx(res);
+    });
+    address = findBy(walletData, 'net_id', '2')?.address;
+    getBscTx(address).then((res: any) => {
+      setBscTx(res);
+    });
+    address = findBy(walletData, 'net_id', '6')?.address;
+    getBtcLtcTx(address, 'BTC').then((res: any) => {
+      setBtcTx(res);
+    });
+    address = findBy(walletData, 'net_id', '8')?.address;
+    getBtcLtcTx(address, 'LTC').then((res: any) => {
+      setLtcTx(res);
+    });
+    address = findBy(walletData, 'net_id', '10')?.address;
+    getTezosTx(address).then((res: any) => {
+      setTezosTx(res);
+    });
+    address = findBy(walletData, 'net_id', '9')?.address;
+    getSolTx(address).then((res: any) => {
+      console.log('sol_tx:', res);
+      setSolTx(res);
     });
   };
 
@@ -601,6 +659,15 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         quoteIsLoading,
         updateBalance,
         ethTx,
+        bscTx,
+        arbiTx,
+        polyTx,
+        optTx,
+        btcTx,
+        ltcTx,
+        solTx,
+        tezosTx,
+        tronTx,
         getTx,
       }}
     >

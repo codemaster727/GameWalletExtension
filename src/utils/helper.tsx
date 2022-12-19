@@ -25,9 +25,12 @@ export const defaultNetId = (token: any): string => {
   return netId.toString();
 };
 
-export const findById = (data: any[], id: string, field?: string) => {
-  console.log('findbyid:', data);
-  console.log('findbyid:', id);
+export const findBy = (data: any[], key: string, value: string) => {
   if (!Boolean(data)) return null;
-  return data?.find((el: any) => el[field ?? 'id'] === id) ?? null;
+  return data?.find((el: any) => el[key ?? 'id'] === value) ?? null;
+};
+
+export const findTokenByNetIdAndAddress = (tokenData: any[], net_id: string, address: string) => {
+  if (!Boolean(tokenData)) return null;
+  return tokenData?.find((el: any) => el.address[net_id] === address) ?? null;
 };

@@ -105,14 +105,35 @@ const Transactions = () => {
     tokenData,
     networkError,
     ethTx,
+    bscTx,
+    arbiTx,
+    polyTx,
+    optTx,
+    btcTx,
+    ltcTx,
+    solTx,
+    tezosTx,
+    tronTx,
     getTx,
   } = useSocket();
 
   const theme = useTheme();
-
-  const transactionData = ethTx?.filter((tx: any, index: number) => {
-    return tx.action === transactionTypes[transactionType];
-  });
+  let totalTxs: any[] = [];
+  if (ethTx) totalTxs = totalTxs.concat(ethTx);
+  if (bscTx) totalTxs = totalTxs.concat(bscTx);
+  if (arbiTx) totalTxs = totalTxs.concat(arbiTx);
+  if (polyTx) totalTxs = totalTxs.concat(polyTx);
+  if (optTx) totalTxs = totalTxs.concat(optTx);
+  if (btcTx) totalTxs = totalTxs.concat(btcTx);
+  if (ltcTx) totalTxs = totalTxs.concat(ltcTx);
+  if (solTx) totalTxs = totalTxs.concat(solTx);
+  if (tezosTx) totalTxs = totalTxs.concat(tezosTx);
+  // if(tronTx) totalTxs.concat(ethTx)
+  const transactionData = totalTxs
+    ?.filter((tx: any, index: number) => {
+      return tx.action === transactionTypes[transactionType];
+    })
+    .sort((tx1: any, tx2: any) => tx2.blockNum - tx1.blockNum);
   const detailTx = transactionData && transactionData[detailIndex];
 
   const handleDetailClick = (index: number) => {
@@ -462,7 +483,7 @@ const Transactions = () => {
               item
               xs={8}
               color={
-                detailTx?.state === 'success'
+                detailTx?.state === 'success' || true
                   ? theme.palette.primary.main
                   : theme.palette.error.main
               }
@@ -505,7 +526,7 @@ const Transactions = () => {
               Time
             </Grid>
             <Grid item xs={8}>
-              {new Date(parseInt(detailTx?.created_at ?? '0')).toLocaleString()}
+              {new Date(detailTx?.created_at ?? 0).toLocaleString()}
             </Grid>
             {transactionType === 1 && (
               <>

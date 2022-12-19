@@ -975,7 +975,7 @@ export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
   {
     chainId: CHAIN_IDS_MAIN.TEZOS,
     nickname: TEZOS_DISPLAY_NAME,
-    rpcUrl: `https://mainnet.api.tez.ie`, //`https://mainnet.api.tez.ie`,
+    rpcUrl: `https://rpc.tzstats.com`, //`https://mainnet.api.tez.ie`,
     ticker: CURRENCY_SYMBOLS.TEZOS,
     rpcPrefs: {
       blockExplorerUrl: 'https://tzstats.com/',
