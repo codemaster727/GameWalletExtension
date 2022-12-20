@@ -1,6 +1,6 @@
 {
-  "short_name": "GameWallet",
-  "name": "GameWallet",
+  "short_name": "EMASYA",
+  "name": "EMASYA",
   "manifest_version": 3,
   "version": "1.0",
   "icons": {
@@ -19,7 +19,7 @@
     }
   ],
   "action": {
-    "default_title": "GameWallet React App",
+    "default_title": "EMASYA",
     "default_popup": "index.html"
   },
   "permissions": [

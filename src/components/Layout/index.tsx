@@ -6,6 +6,7 @@ import NavBar from '../NavBar';
 import { AuthState } from '~/constants';
 import { useSocket } from '~/context/SocketProvider';
 import { Rings } from 'react-loading-icons';
+import LoadingIcon from 'src/assets/utils/loading.gif';
 
 interface LayoutProps {
   children: React.ReactElement;
@@ -21,7 +22,8 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <Box className='extension-box'>
       {loading ? (
-        <Rings style={{ marginTop: '60%' }} />
+        // <Rings style={{ marginTop: '60%' }}  />
+        <img src={LoadingIcon} width={80} style={{ marginTop: '60%' }} />
       ) : (
         <>
           <NavBar />

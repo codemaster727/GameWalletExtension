@@ -15,6 +15,7 @@ import {
   getTezosTx,
   getBtcLtcTx,
   getSolTx,
+  getTronTx,
 } from '../apis/api';
 import BitcoinIcon from '../assets/coingroup/bitcoin.svg';
 import EthIcon from '../assets/coingroup/ethereum.svg';
@@ -435,6 +436,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       setCalcedBalances(calcedBalances);
     });
   };
+  console.log('balances:', balances);
+  console.log('balances:', calcedBalances);
 
   const updatePrice = () => {
     getPrice(tokenData).then((data) => {
@@ -448,9 +451,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     getEthTx(address).then((res: any) => {
       setEthTx(res);
     });
-    // getBscTxTx(address).then((res: any) => {
-    //   setBscTx(res);
-    // });
     getArbiTx(address).then((res: any) => {
       setArbiTx(res);
     });
@@ -466,10 +466,12 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     });
     address = findBy(walletData, 'net_id', '6')?.address;
     getBtcLtcTx(address, 'BTC').then((res: any) => {
+      console.log('btc:', res);
       setBtcTx(res);
     });
     address = findBy(walletData, 'net_id', '8')?.address;
     getBtcLtcTx(address, 'LTC').then((res: any) => {
+      console.log('ltc:', res);
       setLtcTx(res);
     });
     address = findBy(walletData, 'net_id', '10')?.address;
@@ -480,6 +482,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     getSolTx(address).then((res: any) => {
       console.log('sol_tx:', res);
       setSolTx(res);
+    });
+    getTronTx(address).then((res: any) => {
+      setTronTx(res);
     });
   };
 

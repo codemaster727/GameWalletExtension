@@ -39,10 +39,11 @@ import { useAuth } from '~/context/AuthProvider';
 import { ETH } from '~/constants/address';
 import { TailSpin } from 'react-loading-icons';
 import utils from 'web3-utils';
-import { cloneDeep, isEmpty } from 'lodash';
+import { cloneDeep, isEmpty, isError } from 'lodash';
 import { SIMPLE_SWAP_KEYS } from '~/constants/supported-assets';
 import { getSimpleQuote, lifiSwapPost, simpleSwapPost } from '~/apis/api';
 import { Token } from '~/context/types';
+import LoadingIcon from 'src/assets/utils/loading.gif';
 
 enum Focus {
   From,
@@ -77,7 +78,8 @@ const Swap = () => {
   const [gasCosts, setGasCosts] = useState<string>('0.0');
   const [error, setError] = useState<string>('');
   const [waitingConfirm, setWaitingConfirm] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<any>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [swapQuoteIsLoading, setSwapQuoteIsLoading] = useState<boolean>(false);
 
   const fromDeferredAmount = useDeferredValue(fromAmount);
   const toDeferredAmount = useDeferredValue(toAmount);
@@ -165,8 +167,8 @@ const Swap = () => {
   };
 
   const setMax = () => {
-    const amount = Number(balances[fromToken.id][fromNet.id] ?? '0');
-    setFromAmount(amount.toString());
+    const balance = Number(balances[fromToken.id][fromNet.id] ?? '0');
+    setFromAmount(balance.toString());
   };
 
   const validate = (
@@ -201,6 +203,10 @@ const Swap = () => {
     return true;
   };
 
+  const gasCostValidate = () => {
+    let total = quoteData;
+  };
+
   const isLifi = () => {
     if (
       ['6', '7', '8', '9', '10'].includes(fromNet.id) ||
@@ -230,6 +236,7 @@ const Swap = () => {
       console.log(routesRequest);
       quoteMutate(routesRequest);
     } else {
+      setSwapQuoteIsLoading(true);
       const routesRequest = {
         currency_from: SIMPLE_SWAP_KEYS[fromToken.id][fromNet.id],
         currency_to: SIMPLE_SWAP_KEYS[toToken.id][toNet.id],
@@ -238,6 +245,7 @@ const Swap = () => {
         api_key: simple_swap_api_key,
       };
       const simple_result = await getSimpleQuote(routesRequest);
+      console.log('simple_result:', simple_result);
       if (simple_result.data) {
         setToAmount(parseFloat(simple_result.data.data ?? '0').toFixed(5));
         setRate(parseFloat(simple_result.data.data ?? '0') / parseFloat(fromAmount));
@@ -246,6 +254,7 @@ const Swap = () => {
         console.log('simpleswap:', simple_result.e.message.split(':').pop());
         setError(`Swap quote error. ${simple_result.e.message.split(':').pop()}`);
       }
+      setSwapQuoteIsLoading(false);
     }
   };
 
@@ -258,16 +267,20 @@ const Swap = () => {
   };
 
   const sendRequestSwap = async () => {
-    if (!validate(fromAmount, fromNet.id, toNet.id, fromToken.id, toToken.id) || !quoteData) return;
+    if (!validate(fromAmount, fromNet.id, toNet.id, fromToken.id, toToken.id) || !quoteData) {
+      setWaitingConfirm(false);
+      return;
+    }
     setIsLoading(true);
     if (isLifi()) {
-      const result = lifiSwapPost(quoteData.transactionRequest, walletArray)
+      const result = await lifiSwapPost(quoteData.transactionRequest, walletArray)
         .then((res: any) => {
           return res;
         })
         .catch((e: any) => {
           console.log('lifi result:', e);
           setError(e.message.split(':').pop());
+          return null;
         });
     } else {
       const routesRequest = {
@@ -279,17 +292,20 @@ const Swap = () => {
         userRefundAddress: walletData[fromNet.id],
         api_key: simple_swap_api_key,
       };
-      const result = simpleSwapPost(routesRequest, fromNet, fromToken, walletArray)
+      const result = await simpleSwapPost(routesRequest, fromNet, fromToken, walletArray)
         .then((res: any) => {
           return res;
         })
         .catch((e: any) => {
           console.log('simple swap result:', e);
           setError(e.message.split(':').pop());
+          return null;
         });
     }
-    setIsLoading(false);
-    setWaitingConfirm(false);
+    setTimeout(() => {
+      setIsLoading(false);
+      setWaitingConfirm(false);
+    }, 3000);
     updateBalance();
   };
 
@@ -305,30 +321,37 @@ const Swap = () => {
     //   Number(priceData[toToken?.name?.concat('-USD')]);
     console.log(quoteData);
     const timer = setTimeout(() => {
-      if (quoteData?.estimate) {
+      if (quoteData?.estimate && quoteData?.action.toChainId === parseInt(toNet.chain_id)) {
         const rate_curr = Number(quoteData?.estimate.toAmount)
           ? Number(quoteData?.estimate.toAmount) / Number(fromAmount)
           : 0;
         setRate(rate_curr);
-        const amount = Number(quoteData.estimate.toAmount).toFixed(precision(rate_curr));
+        const amount = Number(quoteData.estimate.toAmount).toFixed(5);
         if (focus === Focus.From) {
           setToAmount(amount);
         } else {
           setFromAmount(amount);
         }
-        setGasCosts(
-          quoteData.estimate.gasCosts
-            .map(
-              (gasCost: any) => utils.fromWei(gasCost.amount, 'ether') + ' ' + gasCost.token.symbol,
-            )
-            .join(),
-        );
+        const gas = quoteData.estimate.gasCosts
+          .map(
+            (gasCost: any) => utils.fromWei(gasCost.amount, 'ether') + ' ' + gasCost.token.symbol,
+          )
+          .join();
+        setGasCosts(gas);
+        if (fromToken.name === fromNet.coin) {
+          const balance = Number(balances[fromToken.id][fromNet.id] ?? '0');
+          const new_amount = Math.min(
+            parseFloat(fromAmount),
+            Math.max(balance - parseFloat(gas), 0),
+          );
+          setFromAmount(new_amount.toFixed(18));
+        }
         return () => clearTimeout(timer);
       }
       // else {
       //   setFromAmount('0');
       // }
-    }, 500);
+    }, 1);
   }, [quoteData]);
 
   useEffect(() => {
@@ -364,18 +387,22 @@ const Swap = () => {
       <ScrollBox>
         {waitingConfirm ? (
           <Box textAlign='center'>
-            <Typography
-              variant='h6'
-              component='article'
-              textAlign='center'
-              fontWeight='normal'
-              fontSize='16px'
-              alignItems='center'
-              mt={8}
-              style={{ overflowWrap: 'break-word', textAlign: 'center' }}
-            >
-              Do you want to swap now?
-            </Typography>
+            {!isLoading ? (
+              <Typography
+                variant='h6'
+                component='article'
+                textAlign='center'
+                fontWeight='normal'
+                fontSize='16px'
+                alignItems='center'
+                mt='60%'
+                style={{ overflowWrap: 'break-word', textAlign: 'center' }}
+              >
+                Do you want to swap now?
+              </Typography>
+            ) : (
+              <img src={LoadingIcon} width={80} style={{ marginTop: '60%' }} />
+            )}
           </Box>
         ) : (
           <Box>
@@ -611,8 +638,9 @@ const Swap = () => {
                         )}
                     </Select>
                   </Box>
-                  {quoteIsLoading ? (
-                    <TailSpin width={20} />
+                  {quoteIsLoading || swapQuoteIsLoading ? (
+                    // <TailSpin width={20} />
+                    <img src={LoadingIcon} width={30} />
                   ) : (
                     <Box ml='20px' width={100} sx={{ textAlign: 'right' }}>
                       <Typography
@@ -681,7 +709,7 @@ const Swap = () => {
                 >
                   Swap fee:{' '}
                   <span style={{ color: theme.palette.text.primary }}>
-                    {parseFloat(gasCosts).toFixed(8)}
+                    {parseFloat(gasCosts).toFixed(8)} {fromNet.coin}
                   </span>
                 </Typography>
                 <Typography
@@ -695,7 +723,10 @@ const Swap = () => {
                 >
                   Total:{' '}
                   <span style={{ color: theme.palette.text.primary }}>
-                    {fromAmount} + {parseFloat(gasCosts).toFixed(8)}
+                    {fromNet.coin === fromToken.name
+                      ? parseFloat(fromAmount).toFixed(8) + fromToken.name
+                      : ''}{' '}
+                    + {parseFloat(gasCosts).toFixed(8)} {fromNet.coin}
                   </span>
                 </Typography>
               </Box>
@@ -727,7 +758,7 @@ const Swap = () => {
           <Button
             variant='contained'
             sx={style_btn_confirm}
-            disabled={!Boolean(fromAmount) || !Boolean(toAmount)}
+            disabled={Boolean(error) || !Boolean(fromAmount) || !Boolean(toAmount)}
             onClick={confirmAction}
           >
             Swap Now

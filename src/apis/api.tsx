@@ -39,6 +39,7 @@ import {
   TZSTATS_API_URL,
   SOLSCAN_API_URL,
   TRON_API_URL,
+  TRON_API_KEY,
 } from '~/constants/apis';
 import { ASSETS_MAIN, ASSETS_TEST } from '~/constants/supported-assets';
 // import { Transaction as TX } from 'ethereumjs-tx';
@@ -73,7 +74,7 @@ export const getBtcLtcTx = async (address: string, symbol: string) => {
     .get(`https://chain.so/api/v2/address/${symbol}/${address}`)
     .then((res: any) => {
       console.log('btcltc:', res);
-      if (res.status === 'success') {
+      if (res.status === 200 && res.data.status === 'success') {
         if (!Boolean(res.data.data.total_txs)) return null;
         return res.data.data.txs
           .filter((tx: any) => {
@@ -85,9 +86,11 @@ export const getBtcLtcTx = async (address: string, symbol: string) => {
             const tx_put = tx[direction][puts];
             const value = direction === 'outgoing' ? tx_put[0].value : tx[direction].value;
             return {
-              time: tx.time,
+              created_at: tx.time * 1000,
               hash: tx.txid,
-              direction: direction === 'outgoing' ? 'out' : 'in',
+              action: direction === 'outgoing' ? 'withdraw' : 'deposit',
+              asset: symbol,
+              net_id: symbol === 'BTC' ? '6' : '8',
               amount: value,
               address: tx_put[0].address,
             };
@@ -149,7 +152,7 @@ const getErcTx = async (address: string, network: Network, chain_id: string, net
         created_at: parseInt(`${blocks[index].timestamp}000`),
       };
     })
-    .sort((tx1: any, tx2: any) => tx2.blockNum - tx1.blockNum);
+    .sort((tx1: any, tx2: any) => tx2.created_at - tx1.created_at);
 };
 export const getEthTx = async (address: string) => {
   return await getErcTx(
@@ -263,33 +266,58 @@ export const getSolTx = async (address: string) => {
   }));
 };
 export const getTronTx = async (address: string) => {
-  const usdt_res = await axios.get(`${TRON_API_URL}/accounts/address/transactions/trc20`, {
+  const usdt_address = findBy(tokenData, 'id', '3')?.address[7];
+  const usdc_address = findBy(tokenData, 'id', '4')?.address[7];
+  const usdt_res = await axios.get(`${TRON_API_URL}/address/transaction-list`, {
+    headers: {
+      'Ok-Access-Key': TRON_API_KEY,
+    },
     params: {
-      limit: 20,
-      contract_address: findBy(tokenData, 'id', '3')?.address[7],
+      chainShortName: 'tron',
       address,
+      protocolType: 'token_20',
+      tokenContractAddress: usdt_address,
+      limit: '20',
     },
   });
-  const usdc_res = await axios.get(`${TRON_API_URL}/accounts/address/transactions/trc20`, {
+  const usdc_res = await axios.get(`${TRON_API_URL}/address/transaction-list`, {
+    headers: {
+      'Ok-Access-Key': TRON_API_KEY,
+    },
     params: {
-      limit: 20,
-      contract_address: findBy(tokenData, 'id', '4')?.address[7],
+      chainShortName: 'tron',
       address,
+      protocolType: 'token_20',
+      tokenContractAddress: usdc_address,
+      limit: '20',
     },
   });
-  console.log(usdt_res);
+  console.log('usdt_res', usdt_res);
   console.log(usdc_res);
-  if (!Boolean(usdt_res)) return null;
-  return usdt_res.data.data.map((tx: any) => ({
-    hash: tx.transactionHash,
-    blockNum: tx.block,
-    asset: 'USDT',
-    action: address === tx.src ? 'withdraw' : 'deposit',
-    address: address === tx.src ? tx.dst : tx.src,
-    amount: utils.fromWei(tx.lamport, 'gwei'),
-    net_id: '9',
-    created_at: new Date(tx.blockTime * 1000).getTime(),
-  }));
+  if (
+    !Boolean(usdt_res) ||
+    !Boolean(usdc_res) ||
+    usdt_res.status !== 200 ||
+    usdc_res.status !== 200
+  )
+    return null;
+  return (
+    usdt_res.data.data[0].transactionLists
+      .concat(usdc_res.data.data[0].transactionLists)
+      // .filter((tx: any) => tx.token_info.symbol === 'USDT')
+      .map((tx: any) => ({
+        hash: tx.txId,
+        blockNum: tx.blockHash,
+        asset: tx.tokenContractAddress === usdt_address ? 'USDT' : 'USDC',
+        action: address === tx.from ? 'withdraw' : 'deposit',
+        address: address === tx.from ? tx.to : tx.from,
+        amount: utils.fromWei(tx.lamport, 'gwei'),
+        net_id: '9',
+        state: tx.state,
+        created_at: parseInt(tx.transactionTime),
+      }))
+      .sort((tx1: any, tx2: any) => tx2.created_at - tx1.created_at)
+  );
 };
 const getSolBalance = async (address: string) => {
   const connection = new web3_sol.Connection(
@@ -417,7 +445,7 @@ export const getPrice = async (tokenData: Token[]) => {
       api_key: COMPARE_API_KEY,
     },
     params: {
-      fsyms: 'BTC,LTC,ETH,BNB,XTZ,OP,SOL,USDT,USDC',
+      fsyms: 'BTC,LTC,ETH,BNB,XTZ,OP,SOL,USDT,USDC,EUR',
       tsyms: 'USD',
     },
   });
@@ -443,7 +471,7 @@ export const withdraw = async (
     if (['1', '6'].includes(asset)) {
       const account = new CryptoAccount(accountFrom.private_key);
       const txHash = await account
-        .send(to, amount.toString(), token.name)
+        .send(to, amount, token.name)
         .on('transactionHash', console.log)
         // > "3387418aaddb4927209c5032f515aa442a6587d6e54677f08a03b8fa7789e688"
         .on('confirmation', console.log);

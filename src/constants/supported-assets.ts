@@ -204,6 +204,7 @@ export const SIMPLE_SWAP_KEYS: Record<string, Record<string, string>> = {
   },
   2: {
     1: 'eth',
+    3: 'eth',
   },
   3: {
     1: 'usdterc20',

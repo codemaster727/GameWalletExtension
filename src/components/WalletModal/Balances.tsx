@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { useSocket } from '../../context/SocketProvider';
 import { Rings } from 'react-loading-icons';
+import LoadingIcon from 'src/assets/utils/loading.gif';
 
 const style_type_btn = {
   backgroundColor: '#282b31',
@@ -113,7 +114,8 @@ const Balances = () => {
               {!loading && total_USD_price ? (
                 total_USD_price.toFixed(2)
               ) : (
-                <Rings style={{ marginTop: '50%' }} />
+                // <Rings style={{ marginTop: '50%' }} />
+                <img src={LoadingIcon} width={30} />
               )}
             </Typography>
           ) : (
@@ -128,7 +130,8 @@ const Balances = () => {
               {!loading && total_EUR_price ? (
                 total_EUR_price.toFixed(2)
               ) : (
-                <Rings style={{ marginTop: '50%' }} />
+                // <Rings style={{ marginTop: '50%' }} />
+                <img src={LoadingIcon} width={30} />
               )}
             </Typography>
           )}
@@ -220,7 +223,10 @@ const Balances = () => {
                             color='#95F204'
                           >
                             $&nbsp;
-                            {loading && <Rings style={{ marginTop: '50%' }} />}
+                            {loading && (
+                              // <Rings style={{ marginTop: '50%' }}/>
+                              <img src={LoadingIcon} width={30} />
+                            )}
                             {!loading && USD_Price ? USD_Price.toFixed(2) : ''}
                           </Typography>
                         </TableCell>
@@ -236,7 +242,10 @@ const Balances = () => {
                             color='#FFFF80'
                           >
                             &euro;&nbsp;
-                            {loading && <Rings style={{ marginTop: '50%' }} />}
+                            {loading && (
+                              // <Rings style={{ marginTop: '50%' }} />
+                              <img src={LoadingIcon} width={30} />
+                            )}
                             {!loading && EUR_Price ? EUR_Price.toFixed(2) : ''}
                           </Typography>
                         </TableCell>

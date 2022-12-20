@@ -5,6 +5,7 @@ export const CHAINS_MAIN = [
     sort: 1,
     id: '6',
     name: 'Bitcoin',
+    coin: 'BTC',
   },
   {
     key: 'eth',
@@ -12,6 +13,7 @@ export const CHAINS_MAIN = [
     sort: 2,
     id: '1',
     name: 'Ethereum',
+    coin: 'ETH',
   },
   {
     key: 'bnb',
@@ -19,6 +21,7 @@ export const CHAINS_MAIN = [
     sort: 3,
     id: '2',
     name: 'Binance',
+    coin: 'BNB',
   },
   {
     key: 'pol',
@@ -26,6 +29,7 @@ export const CHAINS_MAIN = [
     sort: 4,
     id: '4',
     name: 'Polygon',
+    coin: 'ETH',
   },
   {
     key: 'arb',
@@ -33,6 +37,7 @@ export const CHAINS_MAIN = [
     sort: 5,
     id: '3',
     name: 'Arbitrum',
+    coin: 'ETH',
   },
   {
     key: 'tron',
@@ -40,6 +45,7 @@ export const CHAINS_MAIN = [
     sort: 6,
     id: '7',
     name: 'Tron',
+    coin: 'TRON',
   },
   {
     key: 'ltc',
@@ -47,6 +53,7 @@ export const CHAINS_MAIN = [
     sort: 7,
     id: '8',
     name: 'Litecoin',
+    coin: 'LTC',
   },
   {
     key: 'sol',
@@ -54,6 +61,7 @@ export const CHAINS_MAIN = [
     sort: 8,
     id: '9',
     name: 'Solana',
+    coin: 'SOL',
   },
   {
     key: 'xtz',
@@ -61,8 +69,9 @@ export const CHAINS_MAIN = [
     sort: 9,
     id: '10',
     name: 'Tezos',
+    coin: 'XTZ',
   },
-  { key: 'opt', chain_id: '10', sort: 10, id: '5', name: 'Optimism' },
+  { key: 'opt', chain_id: '10', sort: 10, id: '5', name: 'Optimism', coin: 'ETH' },
 ];
 
 export const CHAINS_TEST = [
@@ -72,6 +81,7 @@ export const CHAINS_TEST = [
     sort: 1,
     id: '6',
     name: 'Bitcoin',
+    coin: 'BTC',
   },
   {
     key: 'eth',
@@ -79,6 +89,7 @@ export const CHAINS_TEST = [
     sort: 2,
     id: '1',
     name: 'Ethereum',
+    coin: 'ETH',
   },
   {
     key: 'bsc',
@@ -86,6 +97,7 @@ export const CHAINS_TEST = [
     sort: 3,
     id: '2',
     name: 'Binance',
+    coin: 'BNB',
   },
   {
     key: 'pol',
@@ -93,6 +105,7 @@ export const CHAINS_TEST = [
     sort: 4,
     id: '4',
     name: 'Polygon',
+    coin: 'ETH',
   },
   {
     key: 'arb',
@@ -100,6 +113,7 @@ export const CHAINS_TEST = [
     sort: 5,
     id: '3',
     name: 'Arbitrum',
+    coin: 'ETH',
   },
   {
     key: 'tron',
@@ -107,6 +121,7 @@ export const CHAINS_TEST = [
     sort: 6,
     id: '7',
     name: 'Tron',
+    coin: 'TRON',
   },
   {
     key: 'ltc',
@@ -114,6 +129,7 @@ export const CHAINS_TEST = [
     sort: 7,
     id: '8',
     name: 'Litecoin',
+    coin: 'LTC',
   },
   {
     key: 'sol',
@@ -121,6 +137,7 @@ export const CHAINS_TEST = [
     sort: 8,
     id: '9',
     name: 'Solana',
+    coin: 'SOL',
   },
   {
     key: 'xtz',
@@ -128,6 +145,7 @@ export const CHAINS_TEST = [
     sort: 9,
     id: '10',
     name: 'Tezos',
+    coin: 'XTZ',
   },
   {
     key: 'opt',
@@ -135,5 +153,6 @@ export const CHAINS_TEST = [
     sort: 10,
     id: '5',
     name: 'Optimism',
+    coin: 'ETH',
   },
 ];

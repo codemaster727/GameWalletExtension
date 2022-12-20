@@ -129,7 +129,7 @@ const Withdraw = () => {
     net: string,
     token_id: string,
   ) => {
-    if (net === '3' || net === '5' || net === '7' || net === '8' || net === '10') {
+    if (net === '10') {
       setError('Not supported yet. Please wait to complete.');
       return false;
     }
@@ -159,39 +159,36 @@ const Withdraw = () => {
   };
 
   const sendRequestWithdraw = async () => {
-    if (validate(address, amount, activeNet?.id ?? '0', activeToken.id)) {
-      balanceData[activeToken.id] -= parseFloat(amount);
-      // chrome.runtime.sendMessage('test', function (response) {});
-      // chrome.notifications.create({
-      //   type: 'basic',
-      //   iconUrl: 'favicon-32x32.png',
-      //   title: 'Your withdrawal request',
-      //   message: 'After a success withdraw process, you will get tokens soon. Good luck.',
-      // });
-      // withdrawMutate({
-      //   user: '1',
-      //   net: activeNet.id,
-      //   asset: activeToken.id,
-      //   amount: parseFloat(amount),
-      //   receiver: address, // SOL address
-      // });
-      setIsLoading(true);
-      withdraw(
-        activeNet,
-        activeToken,
-        address, // SOL address
-        parseFloat(amount),
-        accountFrom,
-      ).catch((e: any) => {
-        console.log('withdraw result error:', e);
-        setError(e.message.split(':').pop());
-        setIsLoading(false);
-        setWaitingConfirm(false);
-      });
+    if (!validate(address, amount, activeNet?.id ?? '0', activeToken.id) || !Boolean(balanceData)) {
+      setWaitingConfirm(false);
+      return;
+    }
+    balanceData[activeToken.id] -= parseFloat(amount);
+    // chrome.runtime.sendMessage('test', function (response) {});
+    // chrome.notifications.create({
+    //   type: 'basic',
+    //   iconUrl: 'favicon-32x32.png',
+    //   title: 'Your withdrawal request',
+    //   message: 'After a success withdraw process, you will get tokens soon. Good luck.',
+    // });
+    // withdrawMutate({
+    //   user: '1',
+    //   net: activeNet.id,
+    //   asset: activeToken.id,
+    //   amount: parseFloat(amount),
+    //   receiver: address,
+    // });
+    setIsLoading(true);
+    withdraw(activeNet, activeToken, address, parseFloat(amount), accountFrom).catch((e: any) => {
+      console.log('withdraw result error:', e);
+      setError(e.message.split(':').pop());
       setIsLoading(false);
       setWaitingConfirm(false);
-      updateBalance();
-    }
+    });
+    setIsLoading(false);
+    setWaitingConfirm(false);
+    updateBalance();
+    return;
   };
 
   useEffect(() => {

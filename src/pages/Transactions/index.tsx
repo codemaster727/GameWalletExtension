@@ -128,12 +128,12 @@ const Transactions = () => {
   if (ltcTx) totalTxs = totalTxs.concat(ltcTx);
   if (solTx) totalTxs = totalTxs.concat(solTx);
   if (tezosTx) totalTxs = totalTxs.concat(tezosTx);
-  // if(tronTx) totalTxs.concat(ethTx)
+  if (tronTx) totalTxs.concat(tronTx);
   const transactionData = totalTxs
     ?.filter((tx: any, index: number) => {
       return tx.action === transactionTypes[transactionType];
     })
-    .sort((tx1: any, tx2: any) => tx2.blockNum - tx1.blockNum);
+    .sort((tx1: any, tx2: any) => tx2.created_at - tx1.created_at);
   const detailTx = transactionData && transactionData[detailIndex];
 
   const handleDetailClick = (index: number) => {

@@ -78,15 +78,13 @@ const Balances = () => {
   //         // token.balance *
   //         parseFloat(
   //           priceData[token.name.concat('-EUR')] ??
-  //             parseFloat(priceData[token.name.concat('-USD')]) * priceData['USDT-EUR'],
+  //             parseFloat(priceData[token.name.concat('-USD')]) * priceData['EUR-USD'],
   //         );
   //       return EUR_price;
   //     })
   //     ?.reduce((a: number, b: number) => a + b, 0);
   const total_EUR_price: number =
-    !loading && tokenData && priceData
-      ? (total_USD_price * priceData['USDT-EUR']) / priceData['USDT-USD']
-      : 0;
+    !loading && tokenData && priceData ? total_USD_price / priceData['EUR-USD'] : 0;
 
   const total_NFT_price: number = 5000;
 
@@ -290,8 +288,7 @@ const Balances = () => {
                             const USD_price =
                               parseFloat(balanceData[token.id] ?? '0') *
                               parseFloat(priceData[token.name.concat('-USD')]);
-                            const EUR_price =
-                              (USD_price * priceData['USDT-EUR']) / priceData['USDT-USD'];
+                            const EUR_price = USD_price / priceData['EUR-USD'];
                             return (
                               <TableRow
                                 key={token.id}
