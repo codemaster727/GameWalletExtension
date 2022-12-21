@@ -15,7 +15,7 @@
   "content_scripts": [
     {
       "matches": ["https://*/*"],
-      "js": ["src/scripts/content-script.ts", "src/scripts/ui.ts"]
+      "js": ["src/scripts/content-script.ts"]
     }
   ],
   "action": {
@@ -31,5 +31,8 @@
     "notifications",
     "scripting"
   ],
-  "host_permissions": ["https://jgp4iec7b3.execute-api.eu-west-1.amazonaws.com/default/*"]
+  "host_permissions": [
+    "https://jgp4iec7b3.execute-api.eu-west-1.amazonaws.com/default/*",
+    "https://api.tatum.io/*"
+  ]
 }

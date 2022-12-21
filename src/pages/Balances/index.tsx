@@ -26,6 +26,7 @@ import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
 import { balance_actions } from '~/context/StateProvider/Actions/BalanceAction';
 import { defaultNetId, precision } from '~/utils/helper';
 import Swap from '../Swap';
+import LoadingIcon from 'src/assets/utils/loading.gif';
 
 const style_row = {
   padding: '2px 10px',
@@ -265,14 +266,17 @@ const Balances = () => {
                       {'Withdraw'}
                     </MenuItem>
                     <MenuItem
-                      onClick={handleClose}
+                      onClick={() => {
+                        handleClose();
+                        handleTypeChange(2);
+                      }}
                       disableRipple
                       sx={style_menu_item}
-                      component={Link}
-                      to={`/swap/${token}/${
-                        (netData.find((net: any) => net.id === defaultNetId(tokenData[token]))
-                          ?.sort ?? 2) - 1
-                      }`}
+                      // component={Link}
+                      // to={`/swap/${token}/${
+                      //   (netData.find((net: any) => net.id === defaultNetId(tokenData[token]))
+                      //     ?.sort ?? 2) - 1
+                      // }`}
                     >
                       <SwapVertIcon fontSize='large' sx={{ path: { fill: 'white' } }} />
                       {'Swap'}
@@ -310,13 +314,7 @@ const Balances = () => {
                                     mb={2}
                                     color='#0abab5'
                                   >
-                                    {balanceData[token.id]?.toFixed(
-                                      precision(
-                                        Math.floor(
-                                          Math.log10(priceData[token.name.concat('-USD')]),
-                                        ),
-                                      ),
-                                    ) ?? '0'}
+                                    {balanceData[token.id]?.toFixed(5) ?? '0'}
                                     &nbsp;
                                     {token.name}
                                   </Typography>
@@ -398,7 +396,8 @@ const Balances = () => {
                       color={isUSD || isNFT ? 'white' : 'white'}
                       mx={1}
                     >
-                      {!loading && !(total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT'] < 0) ? (
+                      {!loading &&
+                      Boolean(total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT']) ? (
                         isUSD || isNFT ? (
                           <>$&nbsp;</>
                         ) : (
@@ -407,10 +406,12 @@ const Balances = () => {
                       ) : (
                         ''
                       )}
-                      {!loading && !(total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT'] < 0) ? (
+                      {!loading &&
+                      Boolean(total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT']) ? (
                         total_price[!isNFT ? (isUSD ? 'USD' : 'EUR') : 'NFT']?.toFixed(2) ?? ''
                       ) : (
-                        <Rings />
+                        // <Rings />
+                        <img src={LoadingIcon} width={30} />
                       )}
                     </Typography>
                   </>

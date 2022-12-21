@@ -31,7 +31,7 @@ const Login = () => {
 
   return (
     <Box className='extension-box' sx={{ backgroundColor: '#202328' }}>
-      <img src={Logo} width={170} height={170} style={{ borderRadius: '50%', marginTop: '70px' }} />
+      <img src={Logo} width={170} height={170} style={{ marginTop: '70px' }} />
       <Typography variant='h3' component={'article'} fontWeight='bold' marginTop={2}>
         Welcome back!
       </Typography>

@@ -436,8 +436,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       setCalcedBalances(calcedBalances);
     });
   };
-  console.log('balances:', balances);
-  console.log('balances:', calcedBalances);
+  // console.log('balances:', balances);
+  // console.log('balances:', calcedBalances);
 
   const updatePrice = () => {
     getPrice(tokenData).then((data) => {
@@ -449,6 +449,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     let address = findBy(walletData, 'net_id', '1')?.address;
     if (!Boolean(address)) return null;
     getEthTx(address).then((res: any) => {
+      console.log('geteth:', res);
       setEthTx(res);
     });
     getArbiTx(address).then((res: any) => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Button,
   Box,
@@ -118,23 +118,29 @@ const Transactions = () => {
   } = useSocket();
 
   const theme = useTheme();
-  let totalTxs: any[] = [];
-  if (ethTx) totalTxs = totalTxs.concat(ethTx);
-  if (bscTx) totalTxs = totalTxs.concat(bscTx);
-  if (arbiTx) totalTxs = totalTxs.concat(arbiTx);
-  if (polyTx) totalTxs = totalTxs.concat(polyTx);
-  if (optTx) totalTxs = totalTxs.concat(optTx);
-  if (btcTx) totalTxs = totalTxs.concat(btcTx);
-  if (ltcTx) totalTxs = totalTxs.concat(ltcTx);
-  if (solTx) totalTxs = totalTxs.concat(solTx);
-  if (tezosTx) totalTxs = totalTxs.concat(tezosTx);
-  if (tronTx) totalTxs.concat(tronTx);
+  const totalTxs: any[] = useMemo(
+    () =>
+      []
+        .concat(ethTx)
+        .concat(bscTx)
+        .concat(arbiTx)
+        .concat(polyTx)
+        .concat(optTx)
+        .concat(btcTx)
+        .concat(ltcTx)
+        .concat(solTx)
+        .concat(tezosTx)
+        .concat(tronTx),
+    [ethTx, bscTx, arbiTx, polyTx, optTx, btcTx, ltcTx, solTx, tezosTx, tronTx],
+  );
   const transactionData = totalTxs
     ?.filter((tx: any, index: number) => {
-      return tx.action === transactionTypes[transactionType];
+      return tx && tx.action === transactionTypes[transactionType];
     })
     .sort((tx1: any, tx2: any) => tx2.created_at - tx1.created_at);
   const detailTx = transactionData && transactionData[detailIndex];
+  console.log(ethTx);
+  console.log(totalTxs);
 
   const handleDetailClick = (index: number) => {
     setDetailIndex(index);
@@ -357,99 +363,101 @@ const Transactions = () => {
             //   {/* )} */}
             // </InfiniteScroll>
             <Box padding='15px'>
-              {transactionData?.length ? (
-                transactionData.map((tx: any, index: number) => {
-                  return (
-                    <Grid
-                      key={tx.hash}
-                      container
-                      spacing={1.4}
-                      alignItems='center'
-                      sx={{
-                        color: 'white',
-                        fontSize: '14px',
-                        textAlign: 'center',
-                        alignItems: 'center',
-                        cursor: 'pointer',
-                      }}
-                    >
+              {transactionData.length}
+              {transactionData?.length
+                ? transactionData.map((tx: any, index: number) => {
+                    return (
                       <Grid
-                        item
-                        xs={4}
-                        sx={{ ...style_row, color: '#AAAAAA' }}
-                        onClick={() => handleDetailClick(index)}
+                        key={tx.hash}
+                        container
+                        spacing={1.4}
+                        alignItems='center'
+                        sx={{
+                          color: 'white',
+                          fontSize: '14px',
+                          textAlign: 'center',
+                          alignItems: 'center',
+                          cursor: 'pointer',
+                        }}
                       >
-                        <Typography
-                          variant='h6'
-                          component='h6'
-                          textAlign='center'
-                          color='#AAAAAA'
-                          mt={1}
-                          mb={1}
-                        >
-                          {new Date(parseInt(tx?.created_at ?? '0')).toLocaleString()}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={4} sx={style_row} onClick={() => handleDetailClick(index)}>
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'end',
-                          }}
+                        <Grid
+                          item
+                          xs={4}
+                          sx={{ ...style_row, color: '#AAAAAA' }}
+                          onClick={() => handleDetailClick(index)}
                         >
                           <Typography
-                            variant='h5'
-                            component='h5'
-                            textAlign='right'
-                            fontWeight='bold'
-                            color='white'
+                            variant='h6'
+                            component='h6'
+                            textAlign='center'
+                            color='#AAAAAA'
                             mt={1}
                             mb={1}
                           >
-                            {parseFloat(tx?.amount ?? 0).toFixed(5)}
+                            {new Date(parseInt(tx?.created_at ?? '0')).toLocaleString()}
                           </Typography>
-                          &nbsp;&nbsp;
-                          {Icon(tokenData.find((token: any) => token.name === tx.asset)?.icon, 25)}
-                        </div>
+                        </Grid>
+                        <Grid item xs={4} sx={style_row} onClick={() => handleDetailClick(index)}>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'end',
+                            }}
+                          >
+                            <Typography
+                              variant='h5'
+                              component='h5'
+                              textAlign='right'
+                              fontWeight='bold'
+                              color='white'
+                              mt={1}
+                              mb={1}
+                            >
+                              {parseFloat(tx?.amount ?? 0).toFixed(5)}
+                            </Typography>
+                            &nbsp;&nbsp;
+                            {Icon(
+                              tokenData.find((token: any) => token.name === tx.asset)?.icon,
+                              25,
+                            )}
+                          </div>
+                        </Grid>
+                        <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
+                          <Typography
+                            variant='h5'
+                            component='h5'
+                            textAlign='center'
+                            fontWeight='bold'
+                            color='white'
+                            alignItems='end'
+                            mt={1}
+                            mb={1}
+                          >
+                            ${((tx?.amount ?? 0) * priceData[`${tx.asset}-USD`])?.toFixed(2)}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
+                          <Typography
+                            variant='h6'
+                            component='h6'
+                            textAlign='center'
+                            fontWeight='bold'
+                            mt={1}
+                            mb={1}
+                            color={
+                              tx.state === 'success' || true
+                                ? theme.palette.primary.main
+                                : theme.palette.error.main
+                            }
+                          >
+                            {transactionStatus(tx?.state ?? 'success')}
+                          </Typography>
+                        </Grid>
                       </Grid>
-                      <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
-                        <Typography
-                          variant='h5'
-                          component='h5'
-                          textAlign='center'
-                          fontWeight='bold'
-                          color='white'
-                          alignItems='end'
-                          mt={1}
-                          mb={1}
-                        >
-                          ${((tx?.amount ?? 0) * priceData[`${tx.asset}-USD`])?.toFixed(2)}
-                        </Typography>
-                      </Grid>
-                      <Grid item xs={2} sx={style_row} onClick={() => handleDetailClick(index)}>
-                        <Typography
-                          variant='h6'
-                          component='h6'
-                          textAlign='center'
-                          fontWeight='bold'
-                          mt={1}
-                          mb={1}
-                          color={
-                            tx.state === 'success' || true
-                              ? theme.palette.primary.main
-                              : theme.palette.error.main
-                          }
-                        >
-                          {transactionStatus(tx?.state ?? 'success')}
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  );
-                })
-              ) : (
-                <></>
-              )}
+                    );
+                  })
+                : null}
             </Box>
           ) : (
             'No transaction data'

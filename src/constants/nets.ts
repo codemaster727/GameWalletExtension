@@ -6,6 +6,7 @@ export const CHAINS_MAIN = [
     id: '6',
     name: 'Bitcoin',
     coin: 'BTC',
+    gas: '0.0001',
   },
   {
     key: 'eth',
@@ -14,6 +15,7 @@ export const CHAINS_MAIN = [
     id: '1',
     name: 'Ethereum',
     coin: 'ETH',
+    gas: '0.0005',
   },
   {
     key: 'bnb',
@@ -22,6 +24,7 @@ export const CHAINS_MAIN = [
     id: '2',
     name: 'Binance',
     coin: 'BNB',
+    gas: '0.005',
   },
   {
     key: 'pol',
@@ -30,6 +33,7 @@ export const CHAINS_MAIN = [
     id: '4',
     name: 'Polygon',
     coin: 'ETH',
+    gas: '0.0005',
   },
   {
     key: 'arb',
@@ -38,6 +42,7 @@ export const CHAINS_MAIN = [
     id: '3',
     name: 'Arbitrum',
     coin: 'ETH',
+    gas: '0.0005',
   },
   {
     key: 'tron',
@@ -46,6 +51,7 @@ export const CHAINS_MAIN = [
     id: '7',
     name: 'Tron',
     coin: 'TRON',
+    gas: '0.05',
   },
   {
     key: 'ltc',
@@ -54,6 +60,7 @@ export const CHAINS_MAIN = [
     id: '8',
     name: 'Litecoin',
     coin: 'LTC',
+    gas: '0.01',
   },
   {
     key: 'sol',
@@ -62,6 +69,7 @@ export const CHAINS_MAIN = [
     id: '9',
     name: 'Solana',
     coin: 'SOL',
+    gas: '0.00005',
   },
   {
     key: 'xtz',
@@ -70,8 +78,9 @@ export const CHAINS_MAIN = [
     id: '10',
     name: 'Tezos',
     coin: 'XTZ',
+    gas: '0.05',
   },
-  { key: 'opt', chain_id: '10', sort: 10, id: '5', name: 'Optimism', coin: 'ETH' },
+  { key: 'opt', chain_id: '10', sort: 10, id: '5', name: 'Optimism', coin: 'ETH', gas: '0.0005' },
 ];
 
 export const CHAINS_TEST = [
@@ -82,6 +91,7 @@ export const CHAINS_TEST = [
     id: '6',
     name: 'Bitcoin',
     coin: 'BTC',
+    gas: '0.0001',
   },
   {
     key: 'eth',
@@ -90,6 +100,7 @@ export const CHAINS_TEST = [
     id: '1',
     name: 'Ethereum',
     coin: 'ETH',
+    gas: '0.0005',
   },
   {
     key: 'bsc',
@@ -98,6 +109,7 @@ export const CHAINS_TEST = [
     id: '2',
     name: 'Binance',
     coin: 'BNB',
+    gas: '0.005',
   },
   {
     key: 'pol',
@@ -106,6 +118,7 @@ export const CHAINS_TEST = [
     id: '4',
     name: 'Polygon',
     coin: 'ETH',
+    gas: '0.0005',
   },
   {
     key: 'arb',
@@ -114,6 +127,7 @@ export const CHAINS_TEST = [
     id: '3',
     name: 'Arbitrum',
     coin: 'ETH',
+    gas: '0.0005',
   },
   {
     key: 'tron',
@@ -122,6 +136,7 @@ export const CHAINS_TEST = [
     id: '7',
     name: 'Tron',
     coin: 'TRON',
+    gas: '0.05',
   },
   {
     key: 'ltc',
@@ -130,6 +145,7 @@ export const CHAINS_TEST = [
     id: '8',
     name: 'Litecoin',
     coin: 'LTC',
+    gas: '0.01',
   },
   {
     key: 'sol',
@@ -138,6 +154,7 @@ export const CHAINS_TEST = [
     id: '9',
     name: 'Solana',
     coin: 'SOL',
+    gas: '0.00005',
   },
   {
     key: 'xtz',
@@ -146,6 +163,7 @@ export const CHAINS_TEST = [
     id: '10',
     name: 'Tezos',
     coin: 'XTZ',
+    gas: '0.05',
   },
   {
     key: 'opt',
@@ -154,5 +172,6 @@ export const CHAINS_TEST = [
     id: '5',
     name: 'Optimism',
     coin: 'ETH',
+    gas: '0.0005',
   },
 ];

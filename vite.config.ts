@@ -10,7 +10,7 @@ import inject from '@rollup/plugin-inject';
 export default defineConfig({
   plugins: [react(), crx({ manifest }), tsconfigPaths()],
   build: {
-    chunkSizeWarningLimit: 3200,
+    chunkSizeWarningLimit: 6400,
     rollupOptions: {
       plugins: [inject({ Buffer: ['Buffer', 'Buffer'], process: 'process' }) as Plugin],
     },

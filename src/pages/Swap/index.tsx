@@ -44,13 +44,12 @@ import { SIMPLE_SWAP_KEYS } from '~/constants/supported-assets';
 import { getSimpleQuote, lifiSwapPost, simpleSwapPost } from '~/apis/api';
 import { Token } from '~/context/types';
 import LoadingIcon from 'src/assets/utils/loading.gif';
+import { simple_swap_api_key } from '~/constants/apis';
 
 enum Focus {
   From,
   To,
 }
-
-const simple_swap_api_key = '534ef395-f82a-4fae-ad16-16ff24e48598';
 
 const style_btn_toggle = {
   color: '#AAAAAA',
@@ -78,7 +77,7 @@ const Swap = () => {
   const [gasCosts, setGasCosts] = useState<string>('0.0');
   const [error, setError] = useState<string>('');
   const [waitingConfirm, setWaitingConfirm] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSwapping, setIsSwapping] = useState<boolean>(false);
   const [swapQuoteIsLoading, setSwapQuoteIsLoading] = useState<boolean>(false);
 
   const fromDeferredAmount = useDeferredValue(fromAmount);
@@ -164,6 +163,7 @@ const Swap = () => {
     setRate(0);
     setToAmount('0');
     setGasCosts('0.0');
+    setError('');
   };
 
   const setMax = () => {
@@ -241,7 +241,7 @@ const Swap = () => {
         currency_from: SIMPLE_SWAP_KEYS[fromToken.id][fromNet.id],
         currency_to: SIMPLE_SWAP_KEYS[toToken.id][toNet.id],
         fixed: false,
-        amount: fromAmount,
+        amount: parseFloat(fromAmount),
         api_key: simple_swap_api_key,
       };
       const simple_result = await getSimpleQuote(routesRequest);
@@ -271,9 +271,10 @@ const Swap = () => {
       setWaitingConfirm(false);
       return;
     }
-    setIsLoading(true);
+    let result = null;
+    setIsSwapping(true);
     if (isLifi()) {
-      const result = await lifiSwapPost(quoteData.transactionRequest, walletArray)
+      result = await lifiSwapPost(quoteData.transactionRequest, walletArray)
         .then((res: any) => {
           return res;
         })
@@ -287,12 +288,13 @@ const Swap = () => {
         currency_from: SIMPLE_SWAP_KEYS[fromToken.id][fromNet.id],
         currency_to: SIMPLE_SWAP_KEYS[toToken.id][toNet.id],
         fixed: false,
-        amount: fromAmount,
+        amount: parseFloat(fromAmount),
         address_to: walletData[toNet.id],
-        userRefundAddress: walletData[fromNet.id],
-        api_key: simple_swap_api_key,
+        // user_refund_address: walletData[fromNet.id],
+        // api_key: simple_swap_api_key,
       };
-      const result = await simpleSwapPost(routesRequest, fromNet, fromToken, walletArray)
+      console.log(JSON.parse(JSON.stringify(routesRequest)));
+      result = await simpleSwapPost(routesRequest, fromNet, fromToken, walletArray)
         .then((res: any) => {
           return res;
         })
@@ -301,12 +303,14 @@ const Swap = () => {
           setError(e.message.split(':').pop());
           return null;
         });
+      console.log('result:', result);
     }
     setTimeout(() => {
-      setIsLoading(false);
+      setIsSwapping(false);
       setWaitingConfirm(false);
     }, 3000);
     updateBalance();
+    return result;
   };
 
   useEffect(() => {
@@ -344,7 +348,7 @@ const Swap = () => {
             parseFloat(fromAmount),
             Math.max(balance - parseFloat(gas), 0),
           );
-          setFromAmount(new_amount.toFixed(18));
+          setFromAmount(new_amount ? new_amount.toFixed(18) : '0');
         }
         return () => clearTimeout(timer);
       }
@@ -387,7 +391,7 @@ const Swap = () => {
       <ScrollBox>
         {waitingConfirm ? (
           <Box textAlign='center'>
-            {!isLoading ? (
+            {!isSwapping ? (
               <Typography
                 variant='h6'
                 component='article'
@@ -395,13 +399,13 @@ const Swap = () => {
                 fontWeight='normal'
                 fontSize='16px'
                 alignItems='center'
-                mt='60%'
+                mt='45%'
                 style={{ overflowWrap: 'break-word', textAlign: 'center' }}
               >
                 Do you want to swap now?
               </Typography>
             ) : (
-              <img src={LoadingIcon} width={80} style={{ marginTop: '60%' }} />
+              <img src={LoadingIcon} width={80} style={{ marginTop: '45%' }} />
             )}
           </Box>
         ) : (
@@ -709,7 +713,12 @@ const Swap = () => {
                 >
                   Swap fee:{' '}
                   <span style={{ color: theme.palette.text.primary }}>
-                    {parseFloat(gasCosts).toFixed(8)} {fromNet.coin}
+                    {Boolean(error)
+                      ? '0'
+                      : Boolean(parseFloat(gasCosts))
+                      ? parseFloat(gasCosts).toFixed(8)
+                      : netData[fromNetIndex].gas}{' '}
+                    {fromNet.coin}
                   </span>
                 </Typography>
                 <Typography
@@ -726,7 +735,13 @@ const Swap = () => {
                     {fromNet.coin === fromToken.name
                       ? parseFloat(fromAmount).toFixed(8) + fromToken.name
                       : ''}{' '}
-                    + {parseFloat(gasCosts).toFixed(8)} {fromNet.coin}
+                    +{' '}
+                    {Boolean(error)
+                      ? '0'
+                      : Boolean(parseFloat(gasCosts))
+                      ? parseFloat(gasCosts).toFixed(8)
+                      : netData[fromNetIndex].gas}{' '}
+                    {fromNet.coin}
                   </span>
                 </Typography>
               </Box>
@@ -735,7 +750,7 @@ const Swap = () => {
         )}
       </ScrollBox>
       <Box className='bottom-box'>
-        {waitingConfirm ? (
+        {waitingConfirm && !isSwapping ? (
           <>
             <Button
               variant='contained'
@@ -758,7 +773,14 @@ const Swap = () => {
           <Button
             variant='contained'
             sx={style_btn_confirm}
-            disabled={Boolean(error) || !Boolean(fromAmount) || !Boolean(toAmount)}
+            disabled={
+              Boolean(error) ||
+              !Boolean(fromAmount) ||
+              !Boolean(toAmount) ||
+              quoteIsLoading ||
+              swapQuoteIsLoading ||
+              isSwapping
+            }
             onClick={confirmAction}
           >
             Swap Now

@@ -35,6 +35,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { NextButtonForSwiper, PrevButtonForSwiper } from '~/components/Buttons/ImageButton';
 import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
 import { array2object } from '~/utils/helper';
+import LoadingIcon from 'src/assets/utils/loading.gif';
 
 Swiper.use([Virtual, Navigation, Pagination]);
 
@@ -68,7 +69,7 @@ const Withdraw = () => {
 
   const {
     networkError,
-    balanceData,
+    balances,
     walletArray,
     tokenData,
     netData,
@@ -88,7 +89,7 @@ const Withdraw = () => {
   const token_net_ids = Object.keys(activeToken?.address) ?? [];
   const token_nets = netData?.filter((net: any) => token_net_ids.includes(net.id));
   const activeNet = token_nets && token_nets[activeNetIndex];
-  const accountFrom: any = walletData[activeNet.id];
+  const accountFrom: any = walletData[activeNet?.id];
   const handleTokenChange = (event: SelectChangeEvent<typeof activeTokenIndex>) => {
     const {
       target: { value },
@@ -142,7 +143,7 @@ const Withdraw = () => {
       setError('Invalid address.');
       return false;
     }
-    if (!am || am <= 0 || am > balanceData[activeToken?.id]) {
+    if (!am || am <= 0 || am > balances[activeToken?.id][activeNet?.id]) {
       setError('Insufficient balance.');
       return false;
     }
@@ -159,11 +160,11 @@ const Withdraw = () => {
   };
 
   const sendRequestWithdraw = async () => {
-    if (!validate(address, amount, activeNet?.id ?? '0', activeToken.id) || !Boolean(balanceData)) {
+    if (!validate(address, amount, activeNet?.id ?? '0', activeToken.id) || !Boolean(balances)) {
       setWaitingConfirm(false);
       return;
     }
-    balanceData[activeToken.id] -= parseFloat(amount);
+    balances[activeToken?.id][activeNet?.id] -= parseFloat(amount);
     // chrome.runtime.sendMessage('test', function (response) {});
     // chrome.notifications.create({
     //   type: 'basic',
@@ -173,19 +174,23 @@ const Withdraw = () => {
     // });
     // withdrawMutate({
     //   user: '1',
-    //   net: activeNet.id,
+    //   net: activeNet?.id,
     //   asset: activeToken.id,
     //   amount: parseFloat(amount),
     //   receiver: address,
     // });
     setIsLoading(true);
-    withdraw(activeNet, activeToken, address, parseFloat(amount), accountFrom).catch((e: any) => {
-      console.log('withdraw result error:', e);
-      setError(e.message.split(':').pop());
+    await withdraw(activeNet, activeToken, address, parseFloat(amount), accountFrom).catch(
+      (e: any) => {
+        console.log('withdraw result error:', e);
+        setError(e.message.split(':').pop());
+        setIsLoading(false);
+        setWaitingConfirm(false);
+      },
+    );
+    setTimeout(() => {
       setIsLoading(false);
-      setWaitingConfirm(false);
-    });
-    setIsLoading(false);
+    }, 1000);
     setWaitingConfirm(false);
     updateBalance();
     return;
@@ -196,7 +201,8 @@ const Withdraw = () => {
     setAmount(
       (
         Math.floor(
-          ((parseFloat(balanceData[activeToken?.id]) * parseFloat(percent)) / 100) * 100000,
+          ((parseFloat(balances[activeToken?.id][activeNet?.id]) * parseFloat(percent)) / 100) *
+            100000,
         ) / 100000
       ).toString(),
     );
@@ -271,18 +277,22 @@ const Withdraw = () => {
         <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
         {waitingConfirm ? (
           <Box textAlign='center'>
-            <Typography
-              variant='h6'
-              component='article'
-              textAlign='center'
-              fontWeight='normal'
-              fontSize='16px'
-              alignItems='center'
-              mt={8}
-              style={{ overflowWrap: 'break-word', textAlign: 'center' }}
-            >
-              Do you want to withdraw now?
-            </Typography>
+            {!isLoading ? (
+              <Typography
+                variant='h6'
+                component='article'
+                textAlign='center'
+                fontWeight='normal'
+                fontSize='16px'
+                alignItems='center'
+                mt='45%'
+                style={{ overflowWrap: 'break-word', textAlign: 'center' }}
+              >
+                Do you want to withdraw now?
+              </Typography>
+            ) : (
+              <img src={LoadingIcon} width={80} style={{ marginTop: '45%' }} />
+            )}
           </Box>
         ) : (
           <Box>
@@ -298,7 +308,7 @@ const Withdraw = () => {
             >
               Current balance:&nbsp;
               <span style={{ color: '#0abab5' }}>
-                {balanceData[activeToken?.id]?.toFixed(5) ?? '0'}
+                {parseFloat(balances[activeToken?.id][activeNet?.id])?.toFixed(5) ?? '0'}
                 &nbsp;
                 {activeToken?.name}
               </span>
@@ -576,7 +586,7 @@ const Withdraw = () => {
           <Button
             variant='contained'
             sx={style_btn_confirm}
-            disabled={!Boolean(amount) || !Boolean(address)}
+            disabled={!Boolean(amount) || !Boolean(address) || isLoading}
             onClick={confirmAction}
           >
             Withdraw

@@ -102,7 +102,7 @@ const NavBar = () => {
         alt='logo32'
         width={40}
         height={40}
-        style={{ cursor: 'pointer', borderRadius: '20px' }}
+        style={{ cursor: 'pointer' }}
         onClick={() => navigate('/balances/0')}
       />
       <Button sx={{ marginLeft: 'auto', minWidth: '40px', padding: 0 }} onClick={handleClick}>

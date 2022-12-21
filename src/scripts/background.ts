@@ -2,6 +2,7 @@
 import KeyringController from 'eth-keyring-controller';
 import { HARDWARE_KEYRING_TYPES } from '~/shared/constants/hardware-wallets';
 import WalletController from './wallet-controller';
+import CryptoAccount from 'send-crypto';
 
 let tokenData;
 let controller: WalletController | undefined;
@@ -120,14 +121,19 @@ async function initialize() {
   try {
     // const initState = await loadStateFromPersistence();
     // const initLangCode = await getFirstPreferredLangCode();
-    setupController({}, {});
+    // setupController({}, {});
     // if (!isManifestV3) {
     //   await loadPhishingWarningPage();
     // }
     // await sendReadyMessageToTabs();
     // log.info('Wallet initialization complete.');
     // resolveInitialization();
+    // const account = new CryptoAccount('T7dtc5jNvbHSAgb5APydse35nh6cqjfkKxKfN9Af4CNnWzcauZy5');
+    // const txHash = await account
+    //   .send('LhqVEXZnrskH9sC9umM4AeeZTzdhGcgChb', 0.001, 'LTC')
+    //   .on('transactionHash', console.log);
   } catch (error) {
+    console.log(error);
     // rejectInitialization(error);
   }
 }

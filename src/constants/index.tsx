@@ -18,7 +18,7 @@ export const scansites_main: Scansites = {
   '5': 'https://optimistic.etherscan.io/tx/',
   '6': 'https://www.blockchain.com/btc/tx/',
   '7': 'https://tronscan.org/#/transaction/',
-  '8': 'https://blockexplorer.one/litecoin/mainnet/blockHash/',
+  '8': 'https://blockexplorer.one/litecoin/mainnet/tx/',
   '9': 'https://solscan.io/tx/',
   '10': 'https://tzkt.io/',
 };

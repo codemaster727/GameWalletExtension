@@ -2,6 +2,7 @@ import { getApi, postApi } from './DefaultRequest';
 import Web3 from 'web3';
 import * as web3_sol from '@solana/web3.js';
 import CryptoAccount from 'send-crypto';
+// const CryptoAccount = require('send-crypto');
 //@ts-ignore
 import TronWeb from 'tronweb';
 //@ts-ignore
@@ -10,6 +11,7 @@ import TronWeb from 'tronweb';
 import { TezosToolkit } from '@taquito/taquito';
 // import { TezBridgeSigner } from "@taquito/tezbridge-signer";
 import { Alchemy, AssetTransfersCategory, Network } from 'alchemy-sdk';
+import { TatumLtcSDK } from '@tatumio/ltc';
 import {
   CHAIN_IDS_MAIN,
   CHAIN_IDS_TEST,
@@ -40,10 +42,14 @@ import {
   SOLSCAN_API_URL,
   TRON_API_URL,
   TRON_API_KEY,
+  simple_swap_api_key,
+  BTC_LTC_API_URL,
+  TATUM_API_KEY,
 } from '~/constants/apis';
 import { ASSETS_MAIN, ASSETS_TEST } from '~/constants/supported-assets';
 // import { Transaction as TX } from 'ethereumjs-tx';
 
+// const ltcSDK = TatumLtcSDK({ apiKey: '7d5c2721-9499-43c7-9487-d4e956c71e67_100' });
 const API_URL = 'https://li.quest/v1';
 const CHAIN_IDS = NODE_ENV === 'test' ? CHAIN_IDS_TEST : CHAIN_IDS_MAIN;
 const FEATURED_RPCS = NODE_ENV === 'test' ? FEATURED_RPCS_TEST : FEATURED_RPCS_MAIN;
@@ -61,40 +67,46 @@ export const getQuery = async (data: any) => {
 
 const getBtcLtcBalance = async (address: string, symbol: string) => {
   const balance_data = await axios
-    .get(`https://chain.so/api/v2/get_address_balance/${symbol}/${address}`)
+    .get(`${BTC_LTC_API_URL}/get_address_balance/${symbol}/${address}`)
     .catch((e) => {
       return null;
     });
   if (!Boolean(balance_data)) return '0';
   const { status, data } = balance_data?.data;
-  return status === 'success' ? data.confirmed_balance : '0';
+  return status === 'success' ? data.confirmed_balance.toString() : '0';
 };
 export const getBtcLtcTx = async (address: string, symbol: string) => {
   const tx_data: TXDATA | null = await axios
-    .get(`https://chain.so/api/v2/address/${symbol}/${address}`)
+    .get(`${BTC_LTC_API_URL}/address/${symbol}/${address}`)
     .then((res: any) => {
       console.log('btcltc:', res);
       if (res.status === 200 && res.data.status === 'success') {
         if (!Boolean(res.data.data.total_txs)) return null;
-        return res.data.data.txs
-          .filter((tx: any) => {
-            return !('outgoing' in tx && 'incoming' in tx);
-          })
-          .map((tx: any) => {
-            const direction = 'outgoing' in tx ? 'outgoing' : 'incoming';
-            const puts = 'outgoing' in tx ? 'outputs' : 'inputs';
-            const tx_put = tx[direction][puts];
-            const value = direction === 'outgoing' ? tx_put[0].value : tx[direction].value;
-            return {
-              created_at: tx.time * 1000,
-              hash: tx.txid,
-              action: direction === 'outgoing' ? 'withdraw' : 'deposit',
-              asset: symbol,
-              net_id: symbol === 'BTC' ? '6' : '8',
-              amount: value,
-              address: tx_put[0].address,
-            };
-          });
+        return (
+          res.data.data.txs
+            // .filter((tx: any) => {
+            //   return !('outgoing' in tx && 'incoming' in tx);
+            // })
+            .map((tx: any) => {
+              const out_value = parseFloat(tx?.outgoing?.value ?? '0');
+              const in_value = parseFloat(tx?.incoming?.value ?? '0');
+              console.log(out_value);
+              console.log(in_value);
+              const direction = out_value > in_value ? 'outgoing' : 'incoming';
+              const tx_put = direction === 'outgoing' && tx[direction]['outputs'];
+              const value = direction === 'outgoing' ? tx_put[0]?.value ?? '0' : tx.incoming.value;
+              return {
+                created_at: tx.time * 1000,
+                hash: tx.txid,
+                blockNum: tx.block_no,
+                action: direction === 'outgoing' ? 'withdraw' : 'deposit',
+                asset: symbol,
+                net_id: symbol === 'BTC' ? '6' : '8',
+                amount: value,
+                address: tx_put && tx_put[0]?.address,
+              };
+            })
+        );
       } else return null;
     })
     .catch((e) => {
@@ -463,19 +475,74 @@ export const withdraw = async (
   amount: number,
   accountFrom: any,
 ) => {
+  console.log('withdraw:', [net, token, to, amount, accountFrom]);
   const chainId = net?.chain_id ?? CHAIN_IDS.MAINNET;
   const web3_net = web3[chainId];
   const asset = token.id;
 
   const send = async (): Promise<any> => {
     if (['1', '6'].includes(asset)) {
-      const account = new CryptoAccount(accountFrom.private_key);
-      const txHash = await account
-        .send(to, amount, token.name)
-        .on('transactionHash', console.log)
-        // > "3387418aaddb4927209c5032f515aa442a6587d6e54677f08a03b8fa7789e688"
-        .on('confirmation', console.log);
-      return txHash;
+      const account = new CryptoAccount(
+        'db15d694c086191dc23f2570f8d48a3ab625cd45e5859d00b626d7659df51c78',
+      );
+      console.log(account);
+      console.log(await account.address('LTC'));
+      // console.log(await account.getBalance('LTC'));
+      // const txHash = await account
+      //   .send(to, amount, token.name)
+      //   .on('transactionHash', console.log)
+      //   .on('confirmation', console.log);
+      // const options = { testnet: false };
+      console.log(accountFrom);
+      // const { txId } = await ltcSDK.transaction.sendTransaction(
+      //   {
+      //     fromAddress: [
+      //       {
+      //         address: accountFrom.address,
+      //         privateKey: accountFrom.private_key,
+      //       },
+      //     ],
+      //     to: [
+      //       {
+      //         address: to,
+      //         value: amount,
+      //       },
+      //     ],
+      //     // fee: fee,
+      //     // changeAddress: accountFrom.address,
+      //   },
+      //   options,
+      // );
+      // console.log(`Transaction sent: ${txId}`);
+      // return txId;
+      const fee = asset === '6' ? 0.01 : 0.0001;
+      const resp = await axios.post(
+        `https://api.tatum.io/v3/litecoin/transaction`,
+        {
+          fromAddress: [
+            {
+              address: accountFrom.address,
+              privateKey: accountFrom.private_key,
+            },
+          ],
+          to: [
+            {
+              address: to,
+              value: amount,
+            },
+          ],
+          fee,
+          changeAddress: accountFrom.address,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': TATUM_API_KEY,
+          },
+        },
+      );
+      console.log(resp);
+      return resp;
     } else if (['2', '5'].includes(asset)) {
       const nonce = await web3_net.eth.getTransactionCount(accountFrom?.address, 'latest');
       const gasPrice = await web3_net.eth.getGasPrice();
@@ -492,6 +559,7 @@ export const withdraw = async (
         value: web3_net.utils.toHex(web3_net.utils.toWei(amount.toString(), 'ether')),
         nonce: nonce,
       };
+      console.log('txdata:', txData);
       // 4. Sign tx with PK
       // const createTransaction = await web3.eth.accounts.signTransaction(
       //     txData,
@@ -623,10 +691,13 @@ export const getLifi = async (url: string, data: any) => {
   return result.data;
 };
 
-const baseURL_simple = 'https://api.simpleswap.io/get_estimated';
+const baseURL_simple = 'https://api.simpleswap.io';
 export const getSimpleQuote = async (data: any) => {
   const result = await axios
-    .get(`${baseURL_simple}`, {
+    .get(`${baseURL_simple}/get_estimated`, {
+      headers: {
+        api_key: simple_swap_api_key,
+      },
       params: data,
     })
     .then((res: any) => {
@@ -666,21 +737,32 @@ export const lifiSwapPost = async (data: any, wallets: any) => {
 
 export const simpleSwapPost = async (data: any, net: any, token: any, wallets: any) => {
   const walletData = array2object(
-    wallets && 'map' in wallets ? wallets?.map((a: any) => ({ [a.net_id]: a.address })) : [],
+    wallets && 'map' in wallets ? wallets?.map((a: any) => ({ [a.net_id]: a })) : [],
   );
-  const result = await axios.post(`${baseURL_simple}`, data).catch((e) => {
-    return { data: null, e };
+  console.log('data:', data);
+  const result = await axios.post(`${baseURL_simple}/create_exchange`, data, {
+    headers: {
+      api_key: simple_swap_api_key,
+    },
+    params: {
+      api_key: simple_swap_api_key,
+    },
   });
+  // .catch((e) => {
+  //   return { data: null, e };
+  // });
+  console.log(result);
   if (result?.data) {
     const swap_result = await withdraw(
       net,
       token,
-      data.address_to,
+      result.data.address_from,
       data.amount,
       walletData[net.id],
-    ).catch((e) => {
-      return { data: null, e };
-    });
+    );
+    // .catch((e) => {
+    //   return { data: null, e };
+    // });
     return swap_result;
   }
   return result;
