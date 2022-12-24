@@ -50,7 +50,7 @@ export const CHAINS_MAIN = [
     sort: 6,
     id: '7',
     name: 'Tron',
-    coin: 'TRON',
+    coin: 'TRX',
     gas: '0.05',
   },
   {

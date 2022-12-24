@@ -4,6 +4,7 @@
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": true,
+    "checkJs": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
     // "noUnusedLocals": true,
@@ -31,7 +32,8 @@
     "**/*.ts",
     "**/*.tsx",
     "./node_modules/tronweb-typings/index.d.ts",
-    "./node_modules/@kws1207/types-eth-keyring-controller/index.d.ts"
+    "./node_modules/@kws1207/types-eth-keyring-controller/index.d.ts",
+    "litecore-lib-ltc.d.ts"
   ]
   // "exclude": ["node_modules"]
 }

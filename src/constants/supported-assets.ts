@@ -14,6 +14,8 @@ export const ASSETS_MAIN: Token[] = [
     address: {
       '1': '',
       '3': '',
+      '4': '',
+      '5': '',
     },
     id: '2',
     name: 'ETH',
@@ -98,6 +100,15 @@ export const ASSETS_MAIN: Token[] = [
     label: 'NFT',
     gecko_id: '',
   },
+  {
+    address: {
+      '7': '',
+    },
+    id: '11',
+    name: 'TRX',
+    label: 'Tron coin',
+    gecko_id: 'tron',
+  },
 ];
 
 export const ASSETS_TEST: Token[] = [
@@ -114,6 +125,8 @@ export const ASSETS_TEST: Token[] = [
     address: {
       '1': '',
       '3': '',
+      '4': '',
+      '5': '',
     },
     id: '2',
     name: 'ETH',
@@ -196,6 +209,15 @@ export const ASSETS_TEST: Token[] = [
     label: 'NFT',
     gecko_id: '',
   },
+  {
+    address: {
+      '7': '',
+    },
+    id: '11',
+    name: 'TRX',
+    label: 'Tron coin',
+    gecko_id: 'tron',
+  },
 ];
 
 export const SIMPLE_SWAP_KEYS: Record<string, Record<string, string>> = {
@@ -204,7 +226,6 @@ export const SIMPLE_SWAP_KEYS: Record<string, Record<string, string>> = {
   },
   2: {
     1: 'eth',
-    3: 'eth',
   },
   3: {
     1: 'usdterc20',
@@ -232,5 +253,8 @@ export const SIMPLE_SWAP_KEYS: Record<string, Record<string, string>> = {
   },
   9: {
     5: 'op',
+  },
+  11: {
+    7: 'trx',
   },
 };

@@ -66,6 +66,7 @@ interface SocketContextType {
   quoteIsError: Boolean;
   quoteData: any;
   quoteIsLoading: boolean;
+  quoteStatus: any;
   updateBalance: () => void;
   ethTx: any;
   bscTx: any;
@@ -154,6 +155,11 @@ const init_tokens = [
     EUR: 1159.92,
   },
   {
+    id: '11',
+    name: 'TRX',
+    icon: TronIcon,
+  },
+  {
     id: '10',
     name: 'NFT',
     icon: NFTIcon,
@@ -192,6 +198,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [errorResult, setErrorResult] = useState<Result>();
   const [connection, setConnection] = useState<WebSocket>();
   const [networkError, setNetworkError] = useState<boolean>(false);
+  const [transactionIsLoading, setTransactionIsLoading] = useState<boolean>(true);
   const [updateNeed, setUpdateNeed] = useState<number>(0);
   const [ethTx, setEthTx] = useState<any>(null);
   const [bscTx, setBscTx] = useState<any>(null);
@@ -203,6 +210,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [solTx, setSolTx] = useState<any>(null);
   const [btcTx, setBtcTx] = useState<any>(null);
   const [ltcTx, setLtcTx] = useState<any>(null);
+  const [updateInterval, setUpdateInterval] = useState<any>(null);
 
   // Access the client
   const queryClient = useQueryClient();
@@ -237,26 +245,26 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     setRequestRefetch((previous) => previous + 1);
   };
 
-  const {
-    status: transactionStatus,
-    isLoading: transactionIsLoading,
-    isError: transactionIsError,
-    mutate: transactionMutate,
-    data: transactionData,
-  } = useMutation(
-    (data: TransactionMutateParams) => {
-      return postQuery('/ListTransactions', data);
-    },
-    {
-      onError: (data: any) => {
-        const { error } = data;
-        setErrorResult((prev) => ({
-          count: (prev?.count ?? 0) + 1,
-          message: `Fetching Transactions failed due to server errors. ${error}`,
-        }));
-      },
-    },
-  );
+  // const {
+  //   status: transactionStatus,
+  //   isLoading: transactionIsLoading,
+  //   isError: transactionIsError,
+  //   mutate: transactionMutate,
+  //   data: transactionData,
+  // } = useMutation(
+  //   (data: TransactionMutateParams) => {
+  //     return postQuery('/ListTransactions', data);
+  //   },
+  //   {
+  //     onError: (data: any) => {
+  //       const { error } = data;
+  //       setErrorResult((prev) => ({
+  //         count: (prev?.count ?? 0) + 1,
+  //         message: `Fetching Transactions failed due to server errors. ${error}`,
+  //       }));
+  //     },
+  //   },
+  // );
 
   const {
     status: withdrawStatus,
@@ -417,7 +425,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     amount: number,
     accountFrom: any,
   ) => {
-    console.log('withdraw request:', [net, token, to, amount, accountFrom]);
     const result = await withdraw(net, token, to, amount, accountFrom);
     refetch(['ListAssets']);
     return result;
@@ -436,8 +443,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       setCalcedBalances(calcedBalances);
     });
   };
-  // console.log('balances:', balances);
-  // console.log('balances:', calcedBalances);
 
   const updatePrice = () => {
     getPrice(tokenData).then((data) => {
@@ -445,11 +450,11 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const getTx = () => {
+  const getTx = async () => {
+    setTransactionIsLoading(true);
     let address = findBy(walletData, 'net_id', '1')?.address;
     if (!Boolean(address)) return null;
-    getEthTx(address).then((res: any) => {
-      console.log('geteth:', res);
+    await getEthTx(address).then((res: any) => {
       setEthTx(res);
     });
     getArbiTx(address).then((res: any) => {
@@ -467,12 +472,10 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     });
     address = findBy(walletData, 'net_id', '6')?.address;
     getBtcLtcTx(address, 'BTC').then((res: any) => {
-      console.log('btc:', res);
       setBtcTx(res);
     });
     address = findBy(walletData, 'net_id', '8')?.address;
     getBtcLtcTx(address, 'LTC').then((res: any) => {
-      console.log('ltc:', res);
       setLtcTx(res);
     });
     address = findBy(walletData, 'net_id', '10')?.address;
@@ -481,12 +484,14 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     });
     address = findBy(walletData, 'net_id', '9')?.address;
     getSolTx(address).then((res: any) => {
-      console.log('sol_tx:', res);
       setSolTx(res);
     });
     getTronTx(address).then((res: any) => {
       setTronTx(res);
     });
+    setTimeout(() => {
+      setTransactionIsLoading(false);
+    }, 1000);
   };
 
   const loading =
@@ -595,11 +600,13 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   }, [walletIsLoading, requestRefetch]);
 
   useEffect(() => {
+    if (updateInterval) {
+      clearTimeout(updateInterval);
+    }
     const update_interval = setInterval(() => {
       setUpdateNeed((prev) => prev + 1);
     }, 5000);
-
-    return clearInterval(update_interval);
+    setUpdateInterval(update_interval);
   }, []);
 
   useEffect(() => {
@@ -652,9 +659,9 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         withdrawMutate,
         withdrawIsLoading,
         transactionIsLoading,
-        transactionData: transactionData?.rows,
-        transactionTotal: transactionData?.total ? transactionData?.total[0].Total : 0,
-        transactionMutate,
+        // transactionData: transactionData?.rows,
+        // transactionTotal: transactionData?.total ? transactionData?.total[0].Total : 0,
+        // transactionMutate,
         // swapIsLoading,
         // swapMutate,
         // swapData,
@@ -663,6 +670,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         quoteData,
         quoteMutate,
         quoteIsLoading,
+        quoteStatus,
         updateBalance,
         ethTx,
         bscTx,

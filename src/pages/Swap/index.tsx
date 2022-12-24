@@ -34,17 +34,17 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { NextButtonForSwiper, PrevButtonForSwiper } from '~/components/Buttons/ImageButton';
 import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
 import { grey } from '@mui/material/colors';
-import { precision } from '~/utils/helper';
+import { findBy, precision } from '~/utils/helper';
 import { useAuth } from '~/context/AuthProvider';
 import { ETH } from '~/constants/address';
 import { TailSpin } from 'react-loading-icons';
 import utils from 'web3-utils';
 import { cloneDeep, isEmpty, isError } from 'lodash';
 import { SIMPLE_SWAP_KEYS } from '~/constants/supported-assets';
-import { getSimpleQuote, lifiSwapPost, simpleSwapPost } from '~/apis/api';
+import { estimateGasSend, getLifi, getSimpleQuote, lifiSwapPost, simpleSwapPost } from '~/apis/api';
 import { Token } from '~/context/types';
 import LoadingIcon from 'src/assets/utils/loading.gif';
-import { simple_swap_api_key } from '~/constants/apis';
+// import { SIMPLE_SWAP_API_KEY } from '~/constants/apis';
 
 enum Focus {
   From,
@@ -74,11 +74,12 @@ const Swap = () => {
   const [toAmount, setToAmount] = useState<string>('0');
   const [focus, setFocus] = useState<Focus>(Focus.From);
   const [rate, setRate] = useState<number>(0);
-  const [gasCosts, setGasCosts] = useState<string>('0.0');
+  const [gasCosts, setGasCosts] = useState<string>('0.00');
   const [error, setError] = useState<string>('');
   const [waitingConfirm, setWaitingConfirm] = useState<boolean>(false);
   const [isSwapping, setIsSwapping] = useState<boolean>(false);
   const [swapQuoteIsLoading, setSwapQuoteIsLoading] = useState<boolean>(false);
+  const [simpleQuoteData, setSimpleQuoteData] = useState<any>();
 
   const fromDeferredAmount = useDeferredValue(fromAmount);
   const toDeferredAmount = useDeferredValue(toAmount);
@@ -102,6 +103,7 @@ const Swap = () => {
     quoteIsLoading,
     quoteIsError,
     quoteData,
+    quoteStatus,
     updateBalance,
   } = useSocket();
 
@@ -118,12 +120,14 @@ const Swap = () => {
     const {
       target: { value },
     } = event;
+    if (toNetIndex === fromNetIndex && value === toTokenIndex) return;
     setFromTokenIndex(value as number);
   };
   const handleFromNetChange = (event: SelectChangeEvent<typeof fromNetIndex>) => {
     const {
       target: { value },
     } = event;
+    if (toNetIndex === value && fromTokenIndex === toTokenIndex) return;
     setFromNetIndex(value as number);
   };
 
@@ -131,12 +135,14 @@ const Swap = () => {
     const {
       target: { value },
     } = event;
+    if (toNetIndex === fromNetIndex && value === fromTokenIndex) return;
     setToTokenIndex(value as number);
   };
   const handleToNetChange = (event: SelectChangeEvent<typeof toNetIndex>) => {
     const {
       target: { value },
     } = event;
+    if (value === fromNetIndex && fromTokenIndex === toTokenIndex) return;
     setToNetIndex(value as number);
   };
 
@@ -162,13 +168,54 @@ const Swap = () => {
   const resetState = () => {
     setRate(0);
     setToAmount('0');
-    setGasCosts('0.0');
+    // setGasCosts('0.0');
     setError('');
   };
 
-  const setMax = () => {
+  const setMax = async () => {
     const balance = Number(balances[fromToken.id][fromNet.id] ?? '0');
-    setFromAmount(balance.toString());
+    let gas = '0';
+    if (!Boolean(balance)) {
+      setFromAmount('0');
+      return;
+    }
+    if (fromToken.name === fromNet.coin) {
+      if (isLifi()) {
+        const routesRequest = {
+          fromChain: fromNet.chain_id, // Goerli
+          fromAmount: balance, // 1
+          fromToken: fromToken.address[fromNet.id] ? fromToken.address[fromNet.id] : ETH,
+          toChain: toNet.chain_id, // Goerli
+          toToken: toToken.address[toNet.id] ? toToken.address[toNet.id] : ETH,
+          fromAddress: walletData['1'],
+        };
+        const new_quoteData = await getLifi('/quote', routesRequest);
+        gas = new_quoteData.estimate.gasCosts.map((gasCost: any) =>
+          utils.fromWei(gasCost.amount, 'ether'),
+        );
+      } else {
+        gas = await estimateGasSend(fromNet, fromToken, walletData['1'], balance.toString());
+      }
+
+      if (gasCostValidate(gas)) {
+        let max_amount = balance - parseFloat(gas);
+        setFromAmount(max_amount.toString());
+      } else {
+        setFromAmount('0');
+      }
+
+      // const max_amount = Math.min(
+      //   parseFloat(fromAmount),
+      //   Math.max(balance - parseFloat(gas), 0),
+      // );
+      // if (new_amount) {
+      //   setFromAmount(new_amount.toFixed(18));
+      // } else {
+      //   setError('Insufficient gas.');
+      // }
+    } else {
+      setFromAmount(balance.toString());
+    }
   };
 
   const validate = (
@@ -178,24 +225,12 @@ const Swap = () => {
     from: string,
     to: string,
   ) => {
-    // if (["3", "5", "6", "7", "8", "9", "10"].includes(fromNet) || ["3", "5", "6", "7", "8", "9", "10"].includes(toNet)) {
-    //   setError('Not supported yet. Please wait to complete.');
-    //   return false;
-    // }
-    // if (from !== '2' && from !== '3' && from !== '4') {
-    //   setError('Not supported yet. Please wait to complete.');
-    //   return false;
-    // }
-    // if (to !== '2' && to !== '3' && to !== '4') {
-    //   setError('Not supported yet. Please wait to complete.');
-    //   return false;
-    // }
     if (fromToken.address[fromNet] === undefined || toToken.address[toNet] === undefined) {
       setError('Not supported token');
       return false;
     }
     const am = parseFloat(amnt as string);
-    if (!am || am <= 0 || am > balances[from][fromNet]) {
+    if (!am || am < 0 || am > balances[from][fromNet]) {
       setError('Insufficient balance.');
       return false;
     }
@@ -203,8 +238,18 @@ const Swap = () => {
     return true;
   };
 
-  const gasCostValidate = () => {
-    let total = quoteData;
+  const gasCostValidate = (gas: string) => {
+    setGasCosts(gas);
+    const coin_balance = balances[findBy(tokenData, 'name', fromNet.coin).id][fromNet.id];
+
+    // const txData = cloneDeep(quoteData.estimate.transactionRequest);
+    // txData.chainId = parseInt(txData.chainId);
+    // const gas = await estimateGasLifi(fromNet.chain_id, txData);
+    const result = !(coin_balance - parseFloat(gas) < 0);
+    if (!result) {
+      setError('Insufficient gas.');
+    }
+    return result;
   };
 
   const isLifi = () => {
@@ -219,6 +264,7 @@ const Swap = () => {
 
   const getQuote = async () => {
     resetState();
+    if (Number(fromAmount) <= 0) return;
     if (!validate(fromAmount, fromNet.id, toNet.id, fromToken.id, toToken.id)) {
       return;
     }
@@ -233,7 +279,6 @@ const Swap = () => {
         // fee: '0.05',
         // integrator: walletData['1'],
       };
-      console.log(routesRequest);
       quoteMutate(routesRequest);
     } else {
       setSwapQuoteIsLoading(true);
@@ -242,18 +287,10 @@ const Swap = () => {
         currency_to: SIMPLE_SWAP_KEYS[toToken.id][toNet.id],
         fixed: false,
         amount: parseFloat(fromAmount),
-        api_key: simple_swap_api_key,
+        // api_key: SIMPLE_SWAP_API_KEY,
       };
       const simple_result = await getSimpleQuote(routesRequest);
-      console.log('simple_result:', simple_result);
-      if (simple_result.data) {
-        setToAmount(parseFloat(simple_result.data.data ?? '0').toFixed(5));
-        setRate(parseFloat(simple_result.data.data ?? '0') / parseFloat(fromAmount));
-      } else {
-        setToAmount('0');
-        console.log('simpleswap:', simple_result.e.message.split(':').pop());
-        setError(`Swap quote error. ${simple_result.e.message.split(':').pop()}`);
-      }
+      setSimpleQuoteData(simple_result);
       setSwapQuoteIsLoading(false);
     }
   };
@@ -274,13 +311,18 @@ const Swap = () => {
     let result = null;
     setIsSwapping(true);
     if (isLifi()) {
-      result = await lifiSwapPost(quoteData.transactionRequest, walletArray)
+      result = await lifiSwapPost(
+        quoteData.transactionRequest,
+        walletArray,
+        fromToken.address[fromNet.id],
+        fromAmount,
+      )
         .then((res: any) => {
           return res;
         })
         .catch((e: any) => {
-          console.log('lifi result:', e);
-          setError(e.message.split(':').pop());
+          console.log('lifi result error:', e);
+          setError(`${e.response?.data.message}.`);
           return null;
         });
     } else {
@@ -290,20 +332,18 @@ const Swap = () => {
         fixed: false,
         amount: parseFloat(fromAmount),
         address_to: walletData[toNet.id],
-        // user_refund_address: walletData[fromNet.id],
-        // api_key: simple_swap_api_key,
+        user_refund_address: walletData[fromNet.id],
+        // api_key: SIMPLE_SWAP_API_KEY,
       };
-      console.log(JSON.parse(JSON.stringify(routesRequest)));
       result = await simpleSwapPost(routesRequest, fromNet, fromToken, walletArray)
         .then((res: any) => {
           return res;
         })
         .catch((e: any) => {
-          console.log('simple swap result:', e);
-          setError(e.message.split(':').pop());
+          console.log('simple swap error:', e);
+          setError(`${e?.response?.data.message}.`);
           return null;
         });
-      console.log('result:', result);
     }
     setTimeout(() => {
       setIsSwapping(false);
@@ -315,17 +355,21 @@ const Swap = () => {
 
   useEffect(() => {
     if (loading || isEmpty(balances)) return;
-    const amount = Number(balances[fromToken.id][fromNet.id] ?? '0');
-    setFromAmount(amount.toString());
+    // const amount = Number(balances[fromToken.id][fromNet.id] ?? '0');
+    // setFromAmount(amount.toString());
+    setMax();
   }, [fromTokenIndex, fromNetIndex]);
 
   useEffect(() => {
     // const rate_curr =
     //   Number(priceData[fromToken?.name?.concat('-USD')]) /
     //   Number(priceData[toToken?.name?.concat('-USD')]);
-    console.log(quoteData);
     const timer = setTimeout(() => {
-      if (quoteData?.estimate && quoteData?.action.toChainId === parseInt(toNet.chain_id)) {
+      if (
+        quoteData?.estimate &&
+        quoteData?.action.toChainId === parseInt(toNet.chain_id) &&
+        quoteData?.action.toToken.symbol === toToken.name
+      ) {
         const rate_curr = Number(quoteData?.estimate.toAmount)
           ? Number(quoteData?.estimate.toAmount) / Number(fromAmount)
           : 0;
@@ -336,20 +380,11 @@ const Swap = () => {
         } else {
           setFromAmount(amount);
         }
-        const gas = quoteData.estimate.gasCosts
-          .map(
-            (gasCost: any) => utils.fromWei(gasCost.amount, 'ether') + ' ' + gasCost.token.symbol,
-          )
-          .join();
-        setGasCosts(gas);
-        if (fromToken.name === fromNet.coin) {
-          const balance = Number(balances[fromToken.id][fromNet.id] ?? '0');
-          const new_amount = Math.min(
-            parseFloat(fromAmount),
-            Math.max(balance - parseFloat(gas), 0),
-          );
-          setFromAmount(new_amount ? new_amount.toFixed(18) : '0');
-        }
+        const gas = quoteData.estimate.gasCosts.map((gasCost: any) =>
+          utils.fromWei(gasCost.amount, 'ether'),
+        );
+        setGasCosts(parseFloat(gas).toString());
+
         return () => clearTimeout(timer);
       }
       // else {
@@ -359,14 +394,51 @@ const Swap = () => {
   }, [quoteData]);
 
   useEffect(() => {
+    if (simpleQuoteData) {
+      if (simpleQuoteData.data) {
+        setToAmount(parseFloat(simpleQuoteData.data.data ?? '0').toFixed(5));
+        setRate(parseFloat(simpleQuoteData.data.data ?? '0') / parseFloat(fromAmount));
+      } else {
+        setToAmount('0');
+        console.log('simpleswap:', simpleQuoteData.e?.response?.data?.message);
+        setError(`Swap quote error. ${simpleQuoteData.e?.response?.data?.message}.}`);
+      }
+    }
+  }, [simpleQuoteData]);
+
+  useEffect(() => {
     if (fromToken.address[fromNet.id] === undefined) {
       setFromTokenIndex(tokenData?.findIndex((token) => token.address[fromNet.id] !== undefined));
+    }
+    if (!isLifi()) {
+      const balance = Number(balances[fromToken.id][fromNet.id] ?? '0');
+      if (balance) {
+        estimateGasSend(fromNet, fromToken, walletData['1'], balance.toString()).then(
+          (gas: string) => {
+            setGasCosts(gas);
+          },
+        );
+      } else {
+        setGasCosts('0');
+      }
     }
   }, [fromNetIndex]);
 
   useEffect(() => {
     if (toToken.address[toNet.id] === undefined) {
       setToTokenIndex(tokenData?.findIndex((token) => token.address[toNet.id] !== undefined));
+    }
+    if (!isLifi()) {
+      const balance = Number(balances[fromToken.id][fromNet.id] ?? '0');
+      if (balance > 0) {
+        estimateGasSend(fromNet, fromToken, walletData['1'], balance.toString()).then(
+          (gas: string) => {
+            setGasCosts(gas);
+          },
+        );
+      } else {
+        setGasCosts('0');
+      }
     }
   }, [toNetIndex]);
 
@@ -382,6 +454,7 @@ const Swap = () => {
   useEffect(() => {
     if (quoteIsError) {
       setRate(0);
+      console.log('quote error:', quoteData);
       setError('Insufficient balance or No available dex or bridge found.');
     }
   }, [quoteIsError]);
@@ -466,6 +539,7 @@ const Swap = () => {
                             key={net?.id}
                             value={index}
                             sx={style_menuitem}
+                            disabled={index === toNetIndex && fromTokenIndex === toTokenIndex}
                           >
                             {Icon(net.icon, 18)}
                             &nbsp;
@@ -593,6 +667,7 @@ const Swap = () => {
                             key={net?.id}
                             value={index}
                             sx={style_menuitem}
+                            disabled={index === fromNetIndex && fromTokenIndex === toTokenIndex}
                           >
                             {Icon(net.icon, 18)}
                             &nbsp;
@@ -632,7 +707,7 @@ const Swap = () => {
                               key={token?.id}
                               value={index}
                               sx={style_menuitem}
-                              disabled={index === fromTokenIndex}
+                              disabled={index === fromTokenIndex && fromNetIndex === toNetIndex}
                             >
                               {Icon(token.icon, 18)}
                               &nbsp;
@@ -717,7 +792,7 @@ const Swap = () => {
                       ? '0'
                       : Boolean(parseFloat(gasCosts))
                       ? parseFloat(gasCosts).toFixed(8)
-                      : netData[fromNetIndex].gas}{' '}
+                      : fromNet.gas}{' '}
                     {fromNet.coin}
                   </span>
                 </Typography>
@@ -733,9 +808,8 @@ const Swap = () => {
                   Total:{' '}
                   <span style={{ color: theme.palette.text.primary }}>
                     {fromNet.coin === fromToken.name
-                      ? parseFloat(fromAmount).toFixed(8) + fromToken.name
-                      : ''}{' '}
-                    +{' '}
+                      ? parseFloat(fromAmount).toFixed(8) + fromToken.name + ' + '
+                      : ''}
                     {Boolean(error)
                       ? '0'
                       : Boolean(parseFloat(gasCosts))

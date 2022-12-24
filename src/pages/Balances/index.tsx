@@ -65,7 +65,7 @@ const Balances = () => {
               parseFloat(balanceData[token.id] ?? '0') *
               // token.balance *
               parseFloat(priceData[token.name.concat('-USD')]);
-            return USD_price;
+            return USD_price ?? 0;
           })
           ?.reduce((a: number, b: number) => a + (b ?? 0), 0)
       : 0;

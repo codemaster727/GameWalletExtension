@@ -8,7 +8,6 @@ const accountSlice = createSlice({
     createNewAccount(state: any[], action) {
       const { payload } = action;
       const seed = createNewVaultAndGetSeedPhrase(payload);
-      console.log(seed);
       state.push({
         seed,
       });

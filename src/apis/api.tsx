@@ -1,17 +1,18 @@
 import { getApi, postApi } from './DefaultRequest';
 import Web3 from 'web3';
+import { TransactionConfig } from 'web3-core';
 import * as web3_sol from '@solana/web3.js';
 import CryptoAccount from 'send-crypto';
 // const CryptoAccount = require('send-crypto');
+import bitcoin from 'bitcore-lib';
+import * as litecoin from 'bitcore-lib-ltc';
+
 //@ts-ignore
 import TronWeb from 'tronweb';
-//@ts-ignore
-// import { InMemorySigner } from '@taquito/signer';
-//@ts-ignore
+import { InMemorySigner } from '@taquito/signer';
 import { TezosToolkit } from '@taquito/taquito';
-// import { TezBridgeSigner } from "@taquito/tezbridge-signer";
+import { TezBridgeSigner } from '@taquito/tezbridge-signer';
 import { Alchemy, AssetTransfersCategory, Network } from 'alchemy-sdk';
-import { TatumLtcSDK } from '@tatumio/ltc';
 import {
   CHAIN_IDS_MAIN,
   CHAIN_IDS_TEST,
@@ -26,7 +27,7 @@ import { WEI_DECIMALS, WEI_UNITS } from '~/constants/unit';
 import { Chain, Common, Hardfork } from '@ethereumjs/common';
 import bs58 from 'bs58';
 import axios from 'axios';
-import utils from 'web3-utils';
+import utils, { AbiType, fromDecimal } from 'web3-utils';
 import { getDecimal } from '~/utils/web3';
 import { ethers } from 'ethers';
 import { Token, TXDATA } from '~/context/types';
@@ -42,13 +43,17 @@ import {
   SOLSCAN_API_URL,
   TRON_API_URL,
   TRON_API_KEY,
-  simple_swap_api_key,
+  SIMPLE_SWAP_API_KEY,
   BTC_LTC_API_URL,
   TATUM_API_KEY,
 } from '~/constants/apis';
 import { ASSETS_MAIN, ASSETS_TEST } from '~/constants/supported-assets';
+import pushTx from './push-tx';
+import getUTXOs from './get-utxos';
 // import { Transaction as TX } from 'ethereumjs-tx';
-
+// console.log(crypto);
+// console.log(crypto.getHashes);
+// console.log(crypto.subtle.encrypt);
 // const ltcSDK = TatumLtcSDK({ apiKey: '7d5c2721-9499-43c7-9487-d4e956c71e67_100' });
 const API_URL = 'https://li.quest/v1';
 const CHAIN_IDS = NODE_ENV === 'test' ? CHAIN_IDS_TEST : CHAIN_IDS_MAIN;
@@ -56,9 +61,11 @@ const FEATURED_RPCS = NODE_ENV === 'test' ? FEATURED_RPCS_TEST : FEATURED_RPCS_M
 const tokenData = NODE_ENV === 'test' ? ASSETS_TEST : ASSETS_MAIN;
 const ALCHEMY_API_KEY = NODE_ENV === 'test' ? ALCHEMY_API_KEY_TEST : ALCHEMY_API_KEY_MAIN;
 const web3: Record<string, Web3> = {};
-FEATURED_RPCS.map((rpc: any, index: number) => {
-  web3[parseInt(FEATURED_RPCS[index].chainId).toString()] = new Web3(rpc.rpcUrl);
-});
+FEATURED_RPCS.filter((rpc: any, index: number) => parseInt(rpc.chainId)).map(
+  (rpc: any, index: number) => {
+    web3[parseInt(rpc.chainId).toString()] = new Web3(rpc.rpcUrl);
+  },
+);
 
 export const getQuery = async (data: any) => {
   const { queryKey } = data;
@@ -73,13 +80,12 @@ const getBtcLtcBalance = async (address: string, symbol: string) => {
     });
   if (!Boolean(balance_data)) return '0';
   const { status, data } = balance_data?.data;
-  return status === 'success' ? data.confirmed_balance.toString() : '0';
+  return status === 'success' ? data.confirmed_balance : '0';
 };
 export const getBtcLtcTx = async (address: string, symbol: string) => {
   const tx_data: TXDATA | null = await axios
     .get(`${BTC_LTC_API_URL}/address/${symbol}/${address}`)
     .then((res: any) => {
-      console.log('btcltc:', res);
       if (res.status === 200 && res.data.status === 'success') {
         if (!Boolean(res.data.data.total_txs)) return null;
         return (
@@ -90,8 +96,6 @@ export const getBtcLtcTx = async (address: string, symbol: string) => {
             .map((tx: any) => {
               const out_value = parseFloat(tx?.outgoing?.value ?? '0');
               const in_value = parseFloat(tx?.incoming?.value ?? '0');
-              console.log(out_value);
-              console.log(in_value);
               const direction = out_value > in_value ? 'outgoing' : 'incoming';
               const tx_put = direction === 'outgoing' && tx[direction]['outputs'];
               const value = direction === 'outgoing' ? tx_put[0]?.value ?? '0' : tx.incoming.value;
@@ -138,13 +142,11 @@ const getErcTx = async (address: string, network: Network, chain_id: string, net
     fromAddress: address,
     category: category as AssetTransfersCategory[],
   });
-  console.log('sendTx:', sendTx);
   const rcvTx = await alchemy.core.getAssetTransfers({
     fromBlock: '0x0',
     toAddress: address,
     category: category as AssetTransfersCategory[],
   });
-  console.log(rcvTx);
   const totalTx = sendTx.transfers.concat(rcvTx.transfers);
   const blocks = await Promise.all(
     totalTx.map((tx: any) => {
@@ -207,8 +209,6 @@ export const getBscTx = async (address: string) => {
     params: { chain: 'bsc' },
     headers: { accept: 'application/json', 'X-API-Key': MORALIS_API_KEY },
   });
-  console.log('native_res:', native_res);
-  console.log('bep20_res:', bep20_res);
   if (!Boolean(native_res) || !Boolean(bep20_res)) return null;
   const native_txs = native_res.data.result
     .filter((tx: any) => tx.value > 0)
@@ -222,7 +222,6 @@ export const getBscTx = async (address: string) => {
       net_id: '2',
       created_at: new Date(tx.block_timestamp).getTime(),
     }));
-  console.log('native_res:', native_txs);
   const bep20_txs = bep20_res.data.result
     .filter((tx: any) => tx.value > 0)
     .filter((tx: any) => findTokenByNetIdAndAddress(tokenData, '2', tx.address))
@@ -236,7 +235,6 @@ export const getBscTx = async (address: string) => {
       net_id: '2',
       created_at: new Date(tx.block_timestamp).getTime(),
     }));
-  console.log('bep20_res:', bep20_txs);
   return native_txs.concat(bep20_txs).sort((a: any, b: any) => b.blockNum - a.blockNum);
 };
 export const getTezosTx = async (address: string) => {
@@ -250,7 +248,7 @@ export const getTezosTx = async (address: string) => {
     asset: 'XTZ',
     action: address === tx.sender ? 'withdraw' : 'deposit',
     address: address === tx.sender ? tx.receiver : tx.sender,
-    amount: tx.volume.toString(),
+    amount: tx?.volume?.toString() ?? '0',
     net_id: '10',
     created_at: new Date(tx.time).getTime(),
   }));
@@ -264,7 +262,6 @@ export const getSolTx = async (address: string) => {
       order: 'desc',
     },
   });
-  console.log(res);
   if (!(Boolean(res) && res.status === 200)) return null;
   return res.data.data.map((tx: any) => ({
     hash: tx.txHash,
@@ -304,8 +301,6 @@ export const getTronTx = async (address: string) => {
       limit: '20',
     },
   });
-  console.log('usdt_res', usdt_res);
-  console.log(usdc_res);
   if (
     !Boolean(usdt_res) ||
     !Boolean(usdc_res) ||
@@ -350,6 +345,15 @@ const getTronBalance = async (wallet: string, tokenAddress: string) => {
   const balance = await contract.methods.balanceOf(wallet).call({ from: wallet });
   return balance.toString();
 };
+const getTrxBalance = async (wallet: string) => {
+  const HttpProvider = TronWeb.providers.HttpProvider;
+  const fullNode = new HttpProvider('https://api.trongrid.io');
+  const solidityNode = new HttpProvider('https://api.trongrid.io');
+  const eventServer = new HttpProvider('https://api.trongrid.io');
+  const tronWeb = new TronWeb(fullNode, solidityNode, eventServer);
+  const balance = await tronWeb.trx.getBalance(wallet);
+  return balance.toString();
+};
 const getTronDecimal = async (wallet: string, tokenAddress: string) => {
   const HttpProvider = TronWeb.providers.HttpProvider;
   const fullNode = new HttpProvider('https://api.trongrid.io');
@@ -362,17 +366,15 @@ const getTronDecimal = async (wallet: string, tokenAddress: string) => {
   return decimal;
 };
 const getTezosBalance = async (address: string) => {
-  // const Tezos = new TezosToolkit(
-  //   FEATURED_RPCS.find((rpc) => rpc.chainId === CHAIN_IDS.TEZOS)?.rpcUrl as string,
-  // );
+  const Tezos = new TezosToolkit(
+    FEATURED_RPCS.find((rpc) => rpc.chainId === CHAIN_IDS.TEZOS)?.rpcUrl as string,
+  );
   // console.log(Tezos);
   // console.log(Tezos.tz);
   // console.log(Tezos.tz.getBalance);
-  // console.log(address);
-  // await Tezos.tz
-  //   .getBalance(address)
-  //   .then((balance: any) => console.log(`res: ${balance}`))
-  //   .catch((error: any) => console.log('err:', error));
+  const xtz_bal = await Tezos.tz.getBalance(address);
+  // .then((balance: any) => console.log(`tezos: ${balance}`))
+  // .catch((error: any) => console.log('tezps err:', error));
   const res = await axios.get(`${TZSTATS_API_URL}/account/${address}`).catch((e) => {
     console.log(e);
     return null;
@@ -414,6 +416,9 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
             } else if (net === '10') {
               balance = getTezosBalance(wallet);
               decimal = new Promise((resolve) => resolve('0'));
+            } else if (net === '7') {
+              balance = getTrxBalance(wallet);
+              decimal = new Promise((resolve) => resolve('6'));
             } else {
               balance = web3_net.eth.getBalance(wallet);
             }
@@ -452,12 +457,17 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
   return result;
 };
 export const getPrice = async (tokenData: Token[]) => {
+  // const account = new CryptoAccount(
+  //   'db15d694c086191dc23f2570f8d48a3ab625cd45e5859d00b626d7659df51c78',
+  // );
+  // // console.log(await account.address('LTC'));
+  // console.log(await account.getBalance('LTC'));
   const prices = await axios.get(`${PRICE_API_URL}/pricemulti`, {
     headers: {
       api_key: COMPARE_API_KEY,
     },
     params: {
-      fsyms: 'BTC,LTC,ETH,BNB,XTZ,OP,SOL,USDT,USDC,EUR',
+      fsyms: 'BTC,LTC,ETH,BNB,XTZ,OP,SOL,USDT,USDC,TRX,EUR',
       tsyms: 'USD',
     },
   });
@@ -468,6 +478,7 @@ export const getPrice = async (tokenData: Token[]) => {
   });
 };
 // const HttpProvider = TronWeb.providers.HttpProvider;
+
 export const withdraw = async (
   net: any,
   token: any,
@@ -475,25 +486,116 @@ export const withdraw = async (
   amount: number,
   accountFrom: any,
 ) => {
-  console.log('withdraw:', [net, token, to, amount, accountFrom]);
   const chainId = net?.chain_id ?? CHAIN_IDS.MAINNET;
   const web3_net = web3[chainId];
   const asset = token.id;
+  const rpc_url = FEATURED_RPCS.find(
+    (rpc) => parseInt(rpc.chainId) === parseInt(net.chain_id),
+  )?.rpcUrl;
 
   const send = async (): Promise<any> => {
-    if (['1', '6'].includes(asset)) {
-      const account = new CryptoAccount(
-        'db15d694c086191dc23f2570f8d48a3ab625cd45e5859d00b626d7659df51c78',
-      );
-      console.log(account);
-      console.log(await account.address('LTC'));
+    if (['1'].includes(asset)) {
+      // const account = new CryptoAccount(
+      //   'db15d694c086191dc23f2570f8d48a3ab625cd45e5859d00b626d7659df51c78',
+      // );
+      // console.log(await account.address('LTC'));
       // console.log(await account.getBalance('LTC'));
       // const txHash = await account
       //   .send(to, amount, token.name)
       //   .on('transactionHash', console.log)
       //   .on('confirmation', console.log);
       // const options = { testnet: false };
-      console.log(accountFrom);
+      // const { txId } = await ltcSDK.transaction.sendTransaction(
+      //   {
+      //     fromAddress: [
+      //       {
+      //         address: accountFrom.address,
+      //         privateKey: accountFrom.private_key,
+      //       },
+      //     ],
+      //     to: [
+      //       {
+      //         address: to,
+      //         value: amount,
+      //       },
+      //     ],
+      //     // fee: fee,
+      //     // changeAddress: accountFrom.address,
+      //   },
+      //   options,
+      // );
+      // console.log(`Transaction sent: ${txId}`);
+      // return txId;
+      const fee = asset === '6' ? 0.01 : 0.0001;
+      // const resp = await axios.post(
+      //   `https://api.tatum.io/v3/litecoin/transaction`,
+      //   {
+      //     fromAddress: [
+      //       {
+      //         address: accountFrom.address,
+      //         privateKey: accountFrom.private_key,
+      //       },
+      //     ],
+      //     to: [
+      //       {
+      //         address: to,
+      //         value: amount,
+      //       },
+      //     ],
+      //     fee,
+      //     changeAddress: accountFrom.address,
+      //   },
+      //   {
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //       'x-api-key': TATUM_API_KEY,
+      //     },
+      //   },
+      // );
+
+      // console.log(litecoin.default());
+      // const PrivateKey = asset === '6' ? bitcoin.PrivateKey : litecoin.PrivateKey;
+      // const Transaction = asset === '6' ? bitcoin.Transaction : litecoin.Transaction;
+      const { PrivateKey, Transaction } = bitcoin;
+      const pvtKey = new PrivateKey(accountFrom?.private_key);
+      let utxos = await getUTXOs(accountFrom?.address, net.name.toLowerCase());
+
+      //   // TODO: replace with actual input selection or disable (uncomment)
+      //   // NOTE: the current code selects always the first spendable input (usually the latest transaction, as it's using the blockchain.info `/unspent` endpoint)
+      //   // utxos = [ utxos[0] ]
+
+      console.log('utxos:', utxos);
+      if (!utxos) {
+        throw Error(
+          `No spendable outputs were found, please fund the address or wait for transactions to confirm`,
+        );
+      }
+
+      const tx = new Transaction()
+        .from(utxos)
+        .to(accountFrom?.address, amount)
+        .change(accountFrom?.address)
+        .fee(5000)
+        .sign(pvtKey);
+
+      const txHex = tx.serialize();
+
+      console.log('tx:', txHex);
+
+      const result = await pushTx(txHex, net.name.toLowerCase());
+      console.log('txHash:', result?.status);
+      return result;
+    } else if (['6'].includes(asset)) {
+      // const account = new CryptoAccount(
+      //   'db15d694c086191dc23f2570f8d48a3ab625cd45e5859d00b626d7659df51c78',
+      // );
+      // console.log(await account.address('LTC'));
+      // console.log(await account.getBalance('LTC'));
+      // const txHash = await account
+      //   .send(to, amount, token.name)
+      //   .on('transactionHash', console.log)
+      //   .on('confirmation', console.log);
+      // const options = { testnet: false };
       // const { txId } = await ltcSDK.transaction.sendTransaction(
       //   {
       //     fromAddress: [
@@ -541,8 +643,37 @@ export const withdraw = async (
           },
         },
       );
-      console.log(resp);
       return resp;
+
+      // console.log(litecoin.default());
+      // const PrivateKey = asset === '6' ? bitcoin.PrivateKey : litecoin.PrivateKey;
+      // const Transaction = asset === '6' ? bitcoin.Transaction : litecoin.Transaction;
+
+      // const { PrivateKey, Transaction } = bitcoin;
+      // const pvtKey = new PrivateKey(accountFrom?.private_key);
+      // let utxos = await getUTXOs(accountFrom?.address, net.name.toLowerCase());
+
+      // console.log('utxos:', utxos);
+      // if (!utxos) {
+      //   throw Error(
+      //     `No spendable outputs were found, please fund the address or wait for transactions to confirm`,
+      //   );
+      // }
+
+      // const tx = new Transaction()
+      //   .from(utxos)
+      //   .to(accountFrom?.address, amount)
+      //   .change(accountFrom?.address)
+      //   .fee(5000)
+      //   .sign(pvtKey);
+
+      // const txHex = tx.serialize();
+
+      // console.log('tx:', txHex);
+
+      // const result = await pushTx(txHex, net.name.toLowerCase());
+      // console.log('txHash:', result?.status);
+      // return result;
     } else if (['2', '5'].includes(asset)) {
       const nonce = await web3_net.eth.getTransactionCount(accountFrom?.address, 'latest');
       const gasPrice = await web3_net.eth.getGasPrice();
@@ -619,30 +750,60 @@ export const withdraw = async (
         // const decimal = await contract.methods.decimals().call({from: accountFrom.address});
         const resp = await contract.methods
           .transfer(to, web3_net.utils.toWei(amount.toString(), 'Mwei'))
-          .send({ from: accountFrom.address });
-        console.log('transfer:', resp);
+          .send({ from: accountFrom.address, gasLimit: '0x30000' });
         return resp;
       } else {
         const token_addr = token?.address;
         web3_net.eth.accounts.wallet.add(accountFrom.private_key);
         //@ts-ignore
         const tokenInst = new web3_net.eth.Contract(ABI as ABIType, token_addr[net.id]);
+        const decimal = await getDecimal(rpc_url, token_addr[net.id]);
+
         const result = await tokenInst.methods
-          .transfer(to, web3_net.utils.toWei(amount.toString(), net.id === '2' ? 'ether' : 'Mwei'))
-          .send({ from: accountFrom.address, gas: 100000 });
+          .transfer(to, web3_net.utils.toWei(amount.toString(), WEI_DECIMALS[decimal] ?? 'ether'))
+          .send({ from: accountFrom.address, gasLimit: '0x30000' });
         console.log('USDT tx: ', result);
         // return !(result.error);
         return result;
       }
     } else if (asset === '8') {
-      // const Tezos = new TezosToolkit(
-      //   FEATURED_RPCS.find((rpc) => rpc.chainId === net.chain_id)?.rpcUrl as string,
-      // );
-      // Tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(accountFrom.private_key) });
-      // // Using the contract API, the follwing operation is signed using the configured signer:
-      // const result = await Tezos.wallet.transfer({ to, amount });
-      // return result;
-    } else return null;
+      console.log('8:', FEATURED_RPCS.find((rpc) => rpc.chainId === net.chain_id)?.rpcUrl);
+      const Tezos = new TezosToolkit(
+        FEATURED_RPCS.find((rpc) => rpc.chainId === net.chain_id)?.rpcUrl as string,
+      );
+      Tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(accountFrom.private_key) });
+      // Using the contract API, the follwing operation is signed using the configured signer:
+      const result = await Tezos.wallet
+        .transfer({ to, amount })
+        .send()
+        .catch((e: any) => console.log(e));
+      console.log(result);
+      return result;
+    } else if (asset === '11') {
+      let headers = null;
+      // if (AppKey) {
+      //     headers = { "TRON-PRO-API-KEY": AppKey };
+      // }
+      // const tronWeb = new TronWeb({
+      //     fullHost: 'https://api.shasta.trongrid.io',
+      //     headers: headers,
+      //     privateKey: accountFrom.private_key,
+      // });
+      const HttpProvider = TronWeb.providers.HttpProvider;
+      const fullNode = new HttpProvider('https://api.trongrid.io');
+      const solidityNode = new HttpProvider('https://api.trongrid.io');
+      const eventServer = new HttpProvider('https://api.trongrid.io');
+      const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, accountFrom.private_key);
+      const tradeobj = await tronWeb.transactionBuilder.sendTrx(
+        tronWeb.address.toHex(to),
+        amount * 1000 * 1000,
+        tronWeb.address.toHex(accountFrom.address),
+      );
+      const signedtxn = await tronWeb.trx.sign(tradeobj, accountFrom.private_key);
+      const receipt = await tronWeb.trx.sendRawTransaction(signedtxn);
+      console.log('transfer:', receipt);
+      return receipt;
+    }
   };
 
   // 6. Call send function
@@ -695,10 +856,10 @@ const baseURL_simple = 'https://api.simpleswap.io';
 export const getSimpleQuote = async (data: any) => {
   const result = await axios
     .get(`${baseURL_simple}/get_estimated`, {
-      headers: {
-        api_key: simple_swap_api_key,
-      },
-      params: data,
+      // headers: {
+      //   api_key: SIMPLE_SWAP_API_KEY,
+      // },
+      params: { ...data, api_key: SIMPLE_SWAP_API_KEY },
     })
     .then((res: any) => {
       return { data: res, e: null };
@@ -715,7 +876,7 @@ export const getSimpleQuote = async (data: any) => {
 //     provider
 // );
 
-export const lifiSwapPost = async (data: any, wallets: any) => {
+export const lifiSwapPost = async (data: any, wallets: any, token: string, amount: string) => {
   // const walletData = array2object(
   //   wallets && 'map' in wallets ? wallets?.map((a: any) => ({ [a.net_id]: a.address })) : [],
   // );
@@ -724,6 +885,20 @@ export const lifiSwapPost = async (data: any, wallets: any) => {
   // const web3_net = web3[5];
   const web3_net = new Web3(rpcUrl as string);
   web3_net.eth.accounts.wallet.add(wallet.private_key);
+  if (data.value === '0x00') {
+    //@ts-ignore
+    const tokenInst = new web3_net.eth.Contract(ABI as ABIType, token);
+    const decimal = await tokenInst.methods.decimals().call({});
+    const allowance = utils.fromWei(
+      await tokenInst.methods.allowance(wallet.address, data.to).call({}),
+      WEI_DECIMALS[decimal as keyof typeof WEI_DECIMALS],
+    );
+    if (parseFloat(allowance) < parseFloat(amount)) {
+      const approve = await tokenInst.methods
+        .approve(data.to, utils.toWei(amount, WEI_DECIMALS[decimal as keyof typeof WEI_DECIMALS]))
+        .send({ from: wallet.address, gasLimit: '0x30000' });
+    }
+  }
   const signedTx = await web3_net.eth.accounts.signTransaction(data, wallet.private_key);
   const result = await web3_net.eth.sendSignedTransaction(signedTx.rawTransaction as string);
   // .then((res) => res)
@@ -739,13 +914,12 @@ export const simpleSwapPost = async (data: any, net: any, token: any, wallets: a
   const walletData = array2object(
     wallets && 'map' in wallets ? wallets?.map((a: any) => ({ [a.net_id]: a })) : [],
   );
-  console.log('data:', data);
   const result = await axios.post(`${baseURL_simple}/create_exchange`, data, {
-    headers: {
-      api_key: simple_swap_api_key,
-    },
+    // headers: {
+    //   api_key: SIMPLE_SWAP_API_KEY,
+    // },
     params: {
-      api_key: simple_swap_api_key,
+      api_key: SIMPLE_SWAP_API_KEY,
     },
   });
   // .catch((e) => {
@@ -766,4 +940,53 @@ export const simpleSwapPost = async (data: any, net: any, token: any, wallets: a
     return swap_result;
   }
   return result;
+};
+
+// export const estimateGasLifi = async (chain_id: string, data: any) => {
+//   const gasPrice = await web3[chain_id].eth.getGasPrice().catch((e) => '0');
+//   if (chain_id !== '0') {
+//     const gas = await web3[chain_id].eth.estimateGas({ ...data, gasPrice }).catch((e) => '0');
+//     return utils.fromWei(gas.toString(), 'ether');
+//   }
+//   return '0';
+// };
+
+export const estimateGasSend = async (
+  net: any,
+  token: any,
+  to: string,
+  amount: string,
+  // wallet_address: any,
+) => {
+  if (['1', '2', '3', '4', '5'].includes(net.id)) {
+    const web3_net = web3[net.chain_id];
+    const gasPrice = await web3_net.eth.getGasPrice().catch((e) => '0');
+    let gas = '21000';
+    let approve_gas = '0';
+    const token_address = token.address[net.id];
+    if (token_address !== '') {
+      //@ts-ignore
+      const tokenInst = new web3_net.eth.Contract(ABI as ABIType, token_address);
+      const decimal = await tokenInst.methods.decimals().call({});
+      // const allowance = utils.fromWei(
+      //   await tokenInst.methods.allowance(wallet_address, to).call({}),
+      //   WEI_DECIMALS[decimal as keyof typeof WEI_DECIMALS],
+      // );
+      // console.log(allowance);
+      // if (parseFloat(allowance) < parseFloat(amount)) {
+      //   approve_gas = await tokenInst.methods
+      //     .approve(to, utils.toWei(amount, WEI_DECIMALS[decimal as keyof typeof WEI_DECIMALS]))
+      //     .estimateGas({ from: wallet_address });
+      // }
+      gas = await tokenInst.methods
+        .transfer(to, utils.fromWei(amount, WEI_DECIMALS[decimal as keyof typeof WEI_DECIMALS]))
+        .estimateGas({ gasPrice })
+        .catch((e: any) => '0');
+    }
+    const gas_cost =
+      parseFloat(utils.fromWei(gasPrice, 'ether')) * (parseFloat(gas) + parseFloat(approve_gas));
+    return gas_cost.toString();
+  } else {
+    return net.gas;
+  }
 };

@@ -15,13 +15,15 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
   const navigate = useNavigate();
   const { authed } = useAuth();
-  const { loading } = useSocket();
+  const { loading, networkError } = useSocket();
   // if (authed !== AuthState.AUTHED) {
   //   return <div>{children}</div>;
   // } else {
   return (
     <Box className='extension-box'>
-      {loading ? (
+      {networkError ? (
+        <Box style={{ marginTop: '60%' }}>Network Error...</Box>
+      ) : loading ? (
         // <Rings style={{ marginTop: '60%' }}  />
         <img src={LoadingIcon} width={80} style={{ marginTop: '60%' }} />
       ) : (

@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom';
 import { useSocket } from '../../context/SocketProvider';
 import ScrollBox from '~/components/Layout/ScrollBox';
 // @ts-ignore
-import InfiniteScroll from 'react-infinite-scroll-component';
+// import InfiniteScroll from 'react-infinite-scroll-component';
 import { useWalletModal } from '../../context/WalletModalProvider';
 import { SelectChangeEvent } from '@mui/material/Select';
 import { scansites_test, scansites_main } from '../../constants';
@@ -23,6 +23,7 @@ import Icon from '~/components/Icon';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import LoadingIcon from 'src/assets/utils/loading.gif';
 import 'swiper/swiper-bundle.css';
 import './transactions.scss';
 import { useTheme } from '@mui/material';
@@ -99,7 +100,7 @@ const Transactions = () => {
     balanceData,
     transactionIsLoading,
     // transactionData,
-    transactionTotal,
+    // transactionTotal,
     transactionMutate,
     priceData,
     tokenData,
@@ -133,14 +134,19 @@ const Transactions = () => {
         .concat(tronTx),
     [ethTx, bscTx, arbiTx, polyTx, optTx, btcTx, ltcTx, solTx, tezosTx, tronTx],
   );
-  const transactionData = totalTxs
+  const transactionTotal = totalTxs.length;
+  const tx_deposit = totalTxs
     ?.filter((tx: any, index: number) => {
-      return tx && tx.action === transactionTypes[transactionType];
+      return tx && tx.action === transactionTypes[0];
     })
     .sort((tx1: any, tx2: any) => tx2.created_at - tx1.created_at);
+  const tx_withdraw = totalTxs
+    ?.filter((tx: any, index: number) => {
+      return tx && tx.action === transactionTypes[1];
+    })
+    .sort((tx1: any, tx2: any) => tx2.created_at - tx1.created_at);
+  const transactionData = transactionType === 0 ? tx_deposit : tx_withdraw;
   const detailTx = transactionData && transactionData[detailIndex];
-  console.log(ethTx);
-  console.log(totalTxs);
 
   const handleDetailClick = (index: number) => {
     setDetailIndex(index);
@@ -154,27 +160,29 @@ const Transactions = () => {
   };
 
   const fetchData = () => {
-    const count =
-      transactionCount + 10 >= (transactionTotal ?? 0) ? transactionTotal : transactionCount + 10;
-    const data: TransactionMutateParams = {
-      user_id: '1',
-      limit: count ?? 0,
-      page: 0,
-      type: transactionTypes[transactionType],
-    };
-    setTransactionCount(count as number);
-    setLoading(false);
+    // const count =
+    //   transactionCount + 10 >= (transactionTotal ?? 0) ? transactionTotal : transactionCount + 10;
+    // const data: TransactionMutateParams = {
+    //   user_id: '1',
+    //   limit: count ?? 0,
+    //   page: 0,
+    //   type: transactionTypes[transactionType],
+    // };
+    // setTransactionCount(count as number);
+    // setLoading(false);
     // setTotalTransactions(transactionTotal??0);
-    transactionMutate(data);
+    // transactionMutate(data);
     // if (count === (transactionTotal ?? 100) && transactionTotal != 0) {
     //   setHasMore(false);
     // }
   };
   let transactionStatus = (value: string) => {
     if (value === 'success') {
-      return <CheckCircleOutlineOutlinedIcon sx={{ fontSize: '25px' }} strokeWidth={5} />;
+      return (
+        <CheckCircleOutlineOutlinedIcon sx={{ fontSize: '25px', width: '20px' }} strokeWidth={5} />
+      );
     } else {
-      return <CancelOutlinedIcon sx={{ fontSize: '25px' }} strokeWidth={5} />;
+      return <CancelOutlinedIcon sx={{ fontSize: '25px', width: '20px' }} strokeWidth={5} />;
     }
   };
 
@@ -193,16 +201,16 @@ const Transactions = () => {
     // setLoading(true);
     // setHasMore(true);
     setItems([]);
-    transactionMutate(data);
+    // transactionMutate(data);
   }, [transactionType]);
 
-  useEffect(() => {
-    if (!transactionIsLoading) {
-      // setLoading(false);
-      if (transactionData?.length !== items?.length)
-        setTimeout(() => setItems(transactionData), 1000);
-    }
-  }, [transactionIsLoading]);
+  // useEffect(() => {
+  //   if (!transactionIsLoading) {
+  //     // setLoading(false);
+  //     if (transactionData?.length !== items?.length)
+  //       setTimeout(() => setItems(transactionData), 1000);
+  //   }
+  // }, [transactionIsLoading]);
 
   return (
     <Box className='base-box'>
@@ -233,8 +241,10 @@ const Transactions = () => {
       </Box>
       <hr style={{ border: 'none', backgroundColor: 'grey', height: '1px' }} />
       <ScrollBox height={430}>
-        <>
-          {!(!transactionIsLoading && (transactionTotal ?? 0) === 0) ? (
+        {!(!transactionIsLoading && (transactionTotal ?? 0) === 0) ? (
+          transactionIsLoading ? (
+            <img src={LoadingIcon} width={80} style={{ marginTop: '45%' }} />
+          ) : (
             // <InfiniteScroll
             //   dataLength={items?.length}
             //   height={420}
@@ -363,12 +373,11 @@ const Transactions = () => {
             //   {/* )} */}
             // </InfiniteScroll>
             <Box padding='15px'>
-              {transactionData.length}
               {transactionData?.length
                 ? transactionData.map((tx: any, index: number) => {
                     return (
                       <Grid
-                        key={tx.hash}
+                        key={tx.hash + transactionType + index}
                         container
                         spacing={1.4}
                         alignItems='center'
@@ -380,6 +389,14 @@ const Transactions = () => {
                           cursor: 'pointer',
                         }}
                       >
+                        {/* <Grid
+                          item
+                          xs={2}
+                          sx={{ ...style_row, color: '#AAAAAA' }}
+                          onClick={() => handleDetailClick(index)}
+                        >
+                          {transactionType}-{index}
+                        </Grid> */}
                         <Grid
                           item
                           xs={4}
@@ -459,10 +476,21 @@ const Transactions = () => {
                   })
                 : null}
             </Box>
-          ) : (
-            'No transaction data'
-          )}
-        </>
+          )
+        ) : (
+          <Typography
+            variant='h6'
+            component='article'
+            textAlign='center'
+            fontWeight='normal'
+            fontSize='16px'
+            alignItems='center'
+            mt='45%'
+            style={{ overflowWrap: 'break-word', textAlign: 'center' }}
+          >
+            No transaction data
+          </Typography>
+        )}
       </ScrollBox>
       <Modal
         open={detailShow}

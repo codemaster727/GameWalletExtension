@@ -56,7 +56,6 @@ const connect = () => {
 connect();
 
 chrome.runtime.onMessage.addListener(async function (request, sender, sendResponse) {
-  console.log(request);
   // chrome.notifications.create({
   //   type: 'basic',
   //   iconUrl: '../favicon-32x32.png',

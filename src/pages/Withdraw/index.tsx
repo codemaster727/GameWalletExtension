@@ -130,10 +130,10 @@ const Withdraw = () => {
     net: string,
     token_id: string,
   ) => {
-    if (net === '10') {
-      setError('Not supported yet. Please wait to complete.');
-      return false;
-    }
+    // if (net === '10') {
+    //   setError('Not supported yet. Please wait to complete.');
+    //   return false;
+    // }
     if (token_id === '10') {
       setError('Not supported yet. Please wait to complete.');
       return false;
@@ -183,7 +183,7 @@ const Withdraw = () => {
     await withdraw(activeNet, activeToken, address, parseFloat(amount), accountFrom).catch(
       (e: any) => {
         console.log('withdraw result error:', e);
-        setError(e.message.split(':').pop());
+        setError(`${e.message.split(':').pop()}. ${e?.response?.data}`);
         setIsLoading(false);
         setWaitingConfirm(false);
       },
@@ -512,8 +512,8 @@ const Withdraw = () => {
 
                     {error ? (
                       <Typography
-                        variant='h6'
-                        component='h6'
+                        variant='h5'
+                        component='article'
                         textAlign='left'
                         fontWeight='bold'
                         alignItems='center'
