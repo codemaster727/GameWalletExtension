@@ -1,3 +1,6 @@
+import browser from 'webextension-polyfill';
+import {} from 'src/scripts/ui';
+console.log('content-script');
 // let count = 1;
 // count++;
 
@@ -11,7 +14,6 @@
 // });
 
 // const button = document.createElement('button');
-// button.innerHTML = 'here1';
 // button.addEventListener('click', () => {
 //   // chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
 //   //   tabURL = tabs[0].id;
@@ -43,4 +45,6 @@ chrome.runtime.onMessage.addListener((request) => {
 //     console.log(response);
 //   });
 // }, 5000);
-export {};
+
+chrome.runtime.sendMessage('UI start1');
+browser.runtime.sendMessage('UI start');

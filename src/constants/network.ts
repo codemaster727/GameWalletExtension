@@ -1,7 +1,7 @@
 import { capitalize } from 'lodash';
 /**
  * A type representing any valid value for 'type' for setProviderType and other
- * methods that add or manipulate networks in MetaMask state.
+ * methods that add or manipulate networks in Emasya Wallet state.
  */
 export type NetworkType = typeof NETWORK_TYPES[keyof typeof NETWORK_TYPES];
 
@@ -76,7 +76,7 @@ type RPCPreferences = {
 };
 
 /**
- * An object that describes a network to be used inside of MetaMask
+ * An object that describes a network to be used inside of Emasya Wallet
  */
 type RPCDefinition = {
   /**
@@ -155,7 +155,7 @@ type BuyableChainSettings = {
 /**
  * Throughout the extension we set the current provider by referencing its
  * "type", which can be any of the values in the below object. These values
- * represent the built-in networks of MetaMask, including test nets, as well
+ * represent the built-in networks of Emasya Wallet, including test nets, as well
  * as "rpc" which is the "type" of a custom network added by the user or via
  * wallet_addEthereumChain.
  */
@@ -923,7 +923,7 @@ export const FEATURED_RPCS_MAIN: RPCDefinition[] = [
   {
     chainId: CHAIN_IDS_MAIN.BSC,
     nickname: BNB_DISPLAY_NAME,
-    rpcUrl: 'https://bscrpc.com/', //https://bsc-mainnet.gateway.pokt.network/v1/lb/6136201a7bad1500343e248d
+    rpcUrl: 'https://bsc-dataseed2.binance.org', //https://bsc-mainnet.gateway.pokt.network/v1/lb/6136201a7bad1500343e248d
     ticker: CURRENCY_SYMBOLS.BNB,
     rpcPrefs: {
       blockExplorerUrl: 'https://bscscan.com/',

@@ -1,7 +1,8 @@
-import KeyringController from 'eth-keyring-controller';
+// import KeyringController from '@metamask/eth-keyring-controller';
 import log from 'loglevel';
 
 import { KEYRING_TYPES } from '../../shared/constants/keyrings';
+const { KeyringController } = require('@metamask/eth-keyring-controller');
 
 const seedPhraseVerifier = {
   /**
@@ -22,6 +23,7 @@ const seedPhraseVerifier = {
     }
 
     const keyringController = new KeyringController({});
+    console.log('key:', keyringController);
     const Keyring = keyringController.getKeyringClassForType(KEYRING_TYPES.HD_KEY_TREE);
     const opts = {
       mnemonic: seedPhrase,

@@ -52,6 +52,9 @@ export default ({ command }: { command: any }) => {
           // builtinsPlugin as Plugin,
         ],
       },
+      commonjsOptions: {
+        transformMixedEsModules: true,
+      },
     },
     optimizeDeps: {
       esbuildOptions: {

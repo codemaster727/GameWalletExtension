@@ -27,6 +27,7 @@ import {
   style_input_paper,
   style_menuitem,
   style_select,
+  style_textfield,
 } from '~/components/styles';
 import { useTheme } from '@mui/material';
 import { grey } from '@mui/material/colors';
@@ -34,8 +35,9 @@ import { style_type_btn_ext, style_type_btn_active_ext } from 'src/components/st
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { NextButtonForSwiper, PrevButtonForSwiper } from '~/components/Buttons/ImageButton';
 import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
-import { array2object } from '~/utils/helper';
+import { array2object, findBy } from '~/utils/helper';
 import LoadingIcon from 'src/assets/utils/loading.gif';
+import { estimateGasSend } from '~/apis/api';
 
 Swiper.use([Virtual, Navigation, Pagination]);
 
@@ -48,36 +50,23 @@ const style_btn_toggle = {
   width: '40px',
 };
 
-const style_textfield = {
-  color: 'white',
-  fontSize: '14px',
-  fontWeight: 'bold',
-};
-
 const Withdraw = () => {
   const [activeTokenIndex, setActiveTokenIndex] = useState(0);
   const [percent, setPercent] = useState<string>('');
   const [activeTokenTypeIndex, setActiveTokenTypeIndex] = useState(0);
   const [address, setAddress] = useState<string>('');
-  const [amount, setAmount] = useState<string>('0.0001');
+  const [amount, setAmount] = useState<string>('0');
   const [error, setError] = useState<any>('');
   const [isLoading, setIsLoading] = useState<any>(false);
   const [activeNetIndex, setActiveNetIndex] = useState<number>(0);
   const [waitingConfirm, setWaitingConfirm] = useState<boolean>(false);
+  const [gasCosts, setGasCosts] = useState<string>('0');
+  const [gasEnough, setGasEnough] = useState<boolean>(false);
 
   const { token } = useParams();
 
-  const {
-    networkError,
-    balances,
-    walletArray,
-    tokenData,
-    netData,
-    withdrawMutate,
-    withdrawIsLoading,
-    withdraw,
-    updateBalance,
-  } = useSocket();
+  const { networkError, balances, walletArray, tokenData, netData, withdraw, updateBalance } =
+    useSocket();
 
   const walletData = array2object(
     walletArray && 'map' in walletArray ? walletArray?.map((a: any) => ({ [a.net_id]: a })) : [],
@@ -151,6 +140,24 @@ const Withdraw = () => {
     return true;
   };
 
+  const gasCostValidate = (gas: string) => {
+    setGasCosts(gas);
+    const coin_balance = balances[findBy(tokenData, 'name', activeNet.coin).id][activeNet.id];
+    console.log('coin_balance:', coin_balance);
+    // const txData = cloneDeep(quoteData.estimate.transactionRequest);
+    // txData.chainId = parseInt(txData.chainId);
+    // const gas = await estimateGasLifi(fromNet.chain_id, txData);
+    const result = !(parseFloat(coin_balance) - parseFloat(gas) < 0);
+    console.log(result);
+    if (!result) {
+      setGasEnough(false);
+      setError('Insufficient gas.');
+    } else {
+      setGasEnough(true);
+    }
+    return result;
+  };
+
   const confirmAction = () => {
     setWaitingConfirm(true);
   };
@@ -161,7 +168,7 @@ const Withdraw = () => {
 
   const sendRequestWithdraw = async () => {
     if (!validate(address, amount, activeNet?.id ?? '0', activeToken.id) || !Boolean(balances)) {
-      setWaitingConfirm(false);
+      // setWaitingConfirm(false);
       return;
     }
     balances[activeToken?.id][activeNet?.id] -= parseFloat(amount);
@@ -211,6 +218,25 @@ const Withdraw = () => {
   useEffect(() => {
     setActiveTokenIndex(parseInt(token ?? '0'));
   }, [token]);
+
+  useEffect(() => {
+    if (!Boolean(address) || !Boolean(amount) || amount === '0') return;
+    validate(address, amount, activeNet?.id ?? '0', activeToken.id);
+    const getCost = async () => {
+      setIsLoading(true);
+      const gas = await estimateGasSend(activeNet, activeToken, address, amount)
+        .then((res) => res)
+        .catch((e) => {
+          console.log(e);
+          setError('Error in your input');
+          return '0';
+        });
+      setGasCosts(gas);
+      gasCostValidate(gas);
+      setIsLoading(false);
+    };
+    getCost();
+  }, [activeNet, activeToken, address, amount]);
 
   return (
     <Box className='base-box'>
@@ -526,7 +552,7 @@ const Withdraw = () => {
                     ) : null}
                   </>
                 )}
-                <Typography
+                {/* <Typography
                   variant='h5'
                   component='h5'
                   textAlign='left'
@@ -539,24 +565,44 @@ const Withdraw = () => {
                   Fee&nbsp;
                   <span style={{ color: '#0abab5' }}>
                     0.05%
-                    {/* {1}
-                  &nbsp;
-                  {activeToken?.name} */}
+                  </span>
+                </Typography> */}
+                <Typography
+                  variant='h6'
+                  component='article'
+                  textAlign='left'
+                  fontWeight='bold'
+                  alignItems='left'
+                  color={theme.palette.text.secondary}
+                  style={{ overflowWrap: 'break-word' }}
+                  mt={2}
+                >
+                  Gas fee:{' '}
+                  <span style={{ color: theme.palette.text.primary }}>
+                    {Boolean(parseFloat(gasCosts)) ? parseFloat(gasCosts).toFixed(8) : gasCosts}{' '}
+                    {activeNet.coin}
                   </span>
                 </Typography>
-                {/* <Typography
-                variant='h6'
-                textAlign='left'
-                padding='0'
-                fontSize='14px'
-                component='article'
-                color='#AAAAAA'
-                mt={2}
-              >
-                For security purposes, large or suspicious withdrawal may take 1-6 hours for audit
-                process. <br />
-                We appreciate your patience!
-              </Typography> */}
+                <Typography
+                  variant='h6'
+                  component='h6'
+                  textAlign='left'
+                  fontWeight='bold'
+                  alignItems='left'
+                  color={theme.palette.text.secondary}
+                  style={{ overflowWrap: 'break-word' }}
+                >
+                  Total:{' '}
+                  <span style={{ color: theme.palette.text.primary }}>
+                    {activeNet.coin === activeToken.name
+                      ? parseFloat(amount).toFixed(parseFloat(amount) ? 8 : 0) +
+                        activeToken.name +
+                        ' + '
+                      : ''}
+                    {Boolean(parseFloat(gasCosts)) ? parseFloat(gasCosts).toFixed(8) : gasCosts}{' '}
+                    {activeNet.coin}
+                  </span>
+                </Typography>
               </Box>
             )}
           </Box>
@@ -582,11 +628,20 @@ const Withdraw = () => {
               Confirm
             </Button>
           </>
+        ) : isLoading ? (
+          <img src={LoadingIcon} width={30} />
         ) : (
           <Button
             variant='contained'
             sx={style_btn_confirm}
-            disabled={!Boolean(amount) || !Boolean(address) || isLoading}
+            disabled={
+              !Boolean(amount) ||
+              amount === '0' ||
+              !Boolean(address) ||
+              isLoading ||
+              parseFloat(gasCosts) === 0 ||
+              !gasEnough
+            }
             onClick={confirmAction}
           >
             Withdraw

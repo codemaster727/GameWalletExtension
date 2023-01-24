@@ -1,5 +1,7 @@
 import pify from 'pify';
 import { isManifestV3 } from '../../shared/modules/mv3.utils';
+import browser from 'webextension-polyfill';
+// import PortStream from 'extension-port-stream';
 
 // // A simplified pify maybe?
 // function pify(apiObject) {
@@ -52,17 +54,23 @@ export function dropQueue(silently: boolean) {
 
 // add action to queue
 const executeActionOrAddToRetryQueue = (item: any) => {
+  console.log('executeActionOrAddToRetryQueue');
   if (actionRetryQueue.some((act) => act.actionId === item.actionId)) {
     return;
   }
+  console.log(background);
+  console.log(item);
 
-  if (background && background.connectionStream.readable) {
+  if ((background && background.connectionStream.readable) || true) {
+    console.log('executeActionOrAddToRetryQueue Background');
     executeAction({
       action: item,
       disconnectSideeffect: () => actionRetryQueue.push(item),
     });
   } else {
+    console.log('executeActionOrAddToRetryQueue Item');
     actionRetryQueue.push(item);
+    // item.resolve();
   }
 };
 
@@ -114,6 +122,7 @@ export const callBackgroundMethod = (
   callback: any,
   actionId = generateActionId(), // current date is not guaranteed to be unique
 ) => {
+  console.log('callBackgroundMethod');
   if (isManifestV3) {
     const resolve = (value: any) => callback(null, value);
     const reject = (err: any) => callback(err);
@@ -135,16 +144,17 @@ async function executeAction({
   action: any;
   disconnectSideeffect: any;
 }) {
-  const {
-    request: { method, args },
-    resolve,
-    reject,
-  } = action;
+  const { request, resolve, reject } = action;
   try {
-    resolve(await promisifiedBackground[method](...args));
+    // const res = await promisifiedBackground[method](...args);
+    console.log('sending message...');
+    const res = await browser.runtime.sendMessage(request);
+    console.log('Res', res);
+    resolve(res);
   } catch (err) {
+    console.log('ERr', err);
     if (
-      background.DisconnectError && // necessary to not break compatibility with background stubs or non-default implementations
+      background?.DisconnectError && // necessary to not break compatibility with background stubs or non-default implementations
       err instanceof background.DisconnectError
     ) {
       disconnectSideeffect(action);
@@ -201,3 +211,9 @@ export async function _setBackgroundConnection(backgroundConnection: any) {
     processActionRetryQueue();
   }
 }
+
+// setup stream to background
+// let extensionPort = browser.runtime.connect({ name: 'popup' });
+// console.log(extensionPort);
+// let connectionStream = new PortStream(extensionPort);
+// _setBackgroundConnection(connectionStream);

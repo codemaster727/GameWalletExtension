@@ -13,7 +13,6 @@
 // // });
 
 // const button = document.createElement('button');
-// button.innerHTML = 'here1';
 // button.addEventListener('click', () => {
 //   // chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
 //   //   tabURL = tabs[0].id;

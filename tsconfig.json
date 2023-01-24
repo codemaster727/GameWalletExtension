@@ -33,7 +33,8 @@
     "**/*.tsx",
     "./node_modules/tronweb-typings/index.d.ts",
     "./node_modules/@kws1207/types-eth-keyring-controller/index.d.ts",
-    "litecore-lib-ltc.d.ts"
+    "litecore-lib-ltc.d.ts",
+    "src/pages/first-time-flow/seed-phrase/confirm-seed-phrase/index.js"
   ]
   // "exclude": ["node_modules"]
 }

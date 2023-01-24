@@ -27,6 +27,7 @@ export const ASSETS_MAIN: Token[] = [
       '1': '0xdac17f958d2ee523a2206206994597c13d831ec7',
       '2': '0x55d398326f99059ff775485246999027b3197955',
       '4': '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
+      '5': '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
       '7': 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t',
     },
     id: '3',
@@ -37,8 +38,9 @@ export const ASSETS_MAIN: Token[] = [
   {
     address: {
       '1': '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-      '2': '0x55d398326f99059ff775485246999027b3197955',
-      '4': '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
+      '2': '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d',
+      '4': '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+      '5': '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
       '7': 'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8',
     },
     id: '4',

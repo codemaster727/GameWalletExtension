@@ -24,6 +24,7 @@ import Icon from '~/components/Icon';
 import { MenuProps } from '~/constants';
 import {
   style_box_address,
+  style_btn_confirm,
   style_input_paper,
   style_menuitem,
   style_select,
@@ -34,6 +35,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { NextButtonForSwiper, PrevButtonForSwiper } from '~/components/Buttons/ImageButton';
 import ButtonWithActive from '~/components/Buttons/ButtonWithActive';
 import { token_images } from '../Balances';
+import { estimateGasSend, estimateGasSendNft } from '~/apis/api';
+import { findBy } from '~/utils/helper';
+import LoadingIcon from 'src/assets/utils/loading.gif';
 
 Swiper.use([Virtual, Navigation, Pagination]);
 
@@ -53,46 +57,30 @@ const style_textfield = {
 };
 
 const WithdrawNFT = () => {
-  const [activeTokenIndex, setActiveTokenIndex] = useState(0);
-  const [percent, setPercent] = useState<string>('');
-  const [activeTokenTypeIndex, setActiveTokenTypeIndex] = useState(0);
   const [address, setAddress] = useState<string>('');
-  const [amount, setAmount] = useState<string>('0.0001');
-  const [error, setError] = useState<any>({});
-  const [activeNetIndex, setActiveNetIndex] = useState<number>(0);
+  const [error, setError] = useState<string>('');
+  const [gasCosts, setGasCosts] = useState<string>('0');
+  const [gasEnough, setGasEnough] = useState<boolean>(false);
+  const [waitingConfirm, setWaitingConfirm] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<any>(false);
 
-  const navigate = useNavigate();
   const { token } = useParams();
 
-  const { networkError, balanceData, tokenData, netData, withdrawMutate, withdrawIsLoading } =
-    useSocket();
+  const {
+    networkError,
+    walletData,
+    balances,
+    netData,
+    tokenData,
+    nftList,
+    nftStatus,
+    withdrawNft,
+  } = useSocket();
 
+  const { ownedNfts } = nftList;
+  const nft = ownedNfts[token ?? '0'];
   const theme = useTheme();
-
-  const activeToken = tokenData[activeTokenIndex];
-  const token_net_ids = Object.keys(activeToken?.address) ?? [];
-  const token_nets = netData?.filter((net: any) => token_net_ids.includes(net.id));
-  const activeNet = token_nets[activeNetIndex];
-
-  const handleTokenChange = (event: SelectChangeEvent<typeof activeTokenIndex>) => {
-    const {
-      target: { value },
-    } = event;
-    setActiveTokenIndex(value as number);
-    setActiveNetIndex(0);
-  };
-
-  const handleNetChange = (index: number) => {
-    if (index !== activeNetIndex) {
-      setActiveNetIndex(index);
-    }
-  };
-
-  const handlePercentChange = (e: any) => {
-    const p = e.target.value;
-    setPercent(p);
-  };
-
+  const activeNet = netData ? netData['1'] : {};
   const handleChangeAddressInput = (e: any) => {
     const { value } = e.target;
     if (address !== value) {
@@ -100,71 +88,78 @@ const WithdrawNFT = () => {
     }
   };
 
-  const handleChangeAmountInput = (e: any) => {
-    const { value }: { value: string } = e.target;
-    if (amount !== value) {
-      setAmount(value);
-      setPercent('');
-    }
-  };
-
-  const validate = (
-    addr: string | undefined,
-    amnt: string | undefined,
-    net: string,
-    token_id: string,
-  ) => {
-    if (net === '3' || net === '5' || net === '6' || net === '7' || net === '8' || net === '10') {
-      setError('Not supported yet. Please wait to complete.');
-      return false;
-    }
-    if (token_id === '10') {
-      setError('Not supported yet. Please wait to complete.');
-      return false;
-    }
-    const am = parseFloat(amnt as string);
+  const validate = (addr: string | undefined) => {
     if (!addr) {
-      setError('Invalid address.');
-      return false;
-    }
-    if (!am || am <= 0 || am > Math.min(balanceData[activeToken?.id], 0.01)) {
-      setError('Invalid amount.');
+      setError('Fill in the address field.');
       return false;
     }
     setError('');
     return true;
   };
 
+  const gasCostValidate = (gas: string) => {
+    setGasCosts(gas);
+    const coin_balance = balances['2']['1'];
+    console.log('eth_balance:', coin_balance);
+    // const txData = cloneDeep(quoteData.estimate.transactionRequest);
+    // txData.chainId = parseInt(txData.chainId);
+    // const gas = await estimateGasLifi(fromNet.chain_id, txData);
+    const result = !(parseFloat(coin_balance) - parseFloat(gas) < 0);
+    console.log(result);
+    if (!result) {
+      setGasEnough(false);
+      setError('Insufficient gas.');
+    } else {
+      setGasEnough(true);
+    }
+    return result;
+  };
+
+  const confirmAction = () => {
+    setWaitingConfirm(true);
+  };
+
+  const cancelAction = () => {
+    setWaitingConfirm(false);
+  };
+
   const sendRequestWithdraw = () => {
-    setError('Cannot withdraw NFT yet.');
-    // if (validate(address, amount, activeNet?.id ?? '0', activeToken.id)) {
-    //   balanceData[activeToken.id] -= parseFloat(amount);
-    //   chrome.runtime.sendMessage('test', function (response) {
-    //   });
-    //   withdrawMutate({
-    //     user: '1',
-    //     net: activeNet.id,
-    //     asset: activeToken.id,
-    //     amount: parseFloat(amount),
-    //     receiver: address, // SOL address
-    //   });
-    // }
+    if (validate(address) && gasEnough) {
+      setWaitingConfirm(false);
+      withdrawNft(address, nft.tokenId, nft?.contract.address)
+        .then((res: any) => {
+          console.log(res);
+        })
+        .catch((e: any) => {
+          console.log(e);
+          setError('Error occured while withdraw');
+        });
+    }
   };
 
   useEffect(() => {
-    if (percent === '' || percent === '0') return;
-    setAmount(
-      (
-        Math.floor(
-          ((parseFloat(balanceData[activeToken?.id]) * parseFloat(percent)) / 100) * 100000,
-        ) / 100000
-      ).toString(),
-    );
-  }, [percent]);
-
-  useEffect(() => {
-    setActiveTokenIndex(parseInt(token ?? '0'));
-  }, [token]);
+    if (!Boolean(address)) return;
+    validate(address);
+    const getCost = async () => {
+      setIsLoading(true);
+      const gas = await estimateGasSendNft(
+        walletData['1'],
+        address,
+        nft.tokenId,
+        nft.contract.address,
+      )
+        .then((res) => res)
+        .catch((e) => {
+          console.log(e);
+          setError('Error in your input');
+          return '0';
+        });
+      setGasCosts(gas);
+      gasCostValidate(gas);
+      setIsLoading(false);
+    };
+    getCost();
+  }, [address]);
 
   return (
     <Box className='base-box'>
@@ -235,30 +230,28 @@ const WithdrawNFT = () => {
             //   </Box>
             // </div>
           }
-          {!networkError && (
+          {!networkError && nftStatus === 'success' && nft ? (
             <img
-              src={token_images[parseInt(token ?? '0')]}
-              alt={token_images[parseInt(token ?? '0')]}
+              src={nft.media[0].gateway}
+              alt={nft.contract.address}
               width={145}
               height={145}
               data-xblocker='passed'
             />
-          )}
+          ) : null}
           {networkError ? (
             <Box>Network error...</Box>
           ) : (
             <Box margin='10px 20px 0' style={{ backgroundColor: 'transparent' }}>
               <Typography variant='h6' component='h6' textAlign='left' color='#AAAAAA' mb={1}>
                 Withdraw address
-                <span style={{ color: '#0abab5' }}>
-                  (Note: Only {tokenData[activeTokenIndex]?.label})
-                </span>
+                <span style={{ color: '#0abab5' }}>(Note: Only on Ethereum)</span>
               </Typography>
               <Paper component='form' sx={style_input_paper}>
                 <InputBase
                   sx={style_textfield}
                   fullWidth
-                  placeholder='Fill in carefully according to the specific currency'
+                  placeholder='Fill in carefully according to the specific NFT'
                   inputProps={{
                     'aria-label': 'withdraw address',
                   }}
@@ -266,10 +259,11 @@ const WithdrawNFT = () => {
                   onChange={handleChangeAddressInput}
                 />
               </Paper>
+              {error}
               {error ? (
                 <Typography
-                  variant='h6'
-                  component='h6'
+                  variant='h5'
+                  component='article'
                   textAlign='left'
                   fontWeight='bold'
                   alignItems='center'
@@ -280,20 +274,33 @@ const WithdrawNFT = () => {
                   {error}
                 </Typography>
               ) : null}
-              <Typography
+              {/* <Typography
                 variant='h5'
                 component='h5'
                 textAlign='left'
                 fontWeight='bold'
                 alignItems='center'
-                mt={2}
-                mb={0}
+                mt={3}
+                mb={2}
                 style={{ overflowWrap: 'break-word', textAlign: 'center' }}
               >
                 Fee&nbsp;
-                <span style={{ color: '#0abab5' }}>
-                  {1}
-                  &nbsp; USD
+                <span style={{ color: '#0abab5' }}>0.05%</span>
+              </Typography> */}
+              <Typography
+                variant='h6'
+                component='h6'
+                textAlign='left'
+                fontWeight='bold'
+                alignItems='left'
+                color={theme.palette.text.secondary}
+                style={{ overflowWrap: 'break-word' }}
+                mt={2}
+              >
+                Gas fee:{' '}
+                <span style={{ color: theme.palette.text.primary }}>
+                  {Boolean(parseFloat(gasCosts)) ? parseFloat(gasCosts).toFixed(8) : gasCosts}{' '}
+                  {activeNet.coin}
                 </span>
               </Typography>
             </Box>
@@ -301,28 +308,37 @@ const WithdrawNFT = () => {
         </Box>
       </ScrollBox>
       <Box className='bottom-box'>
-        <Button
-          variant='contained'
-          sx={{
-            backgroundSize: 'stretch',
-            width: '120px',
-            height: '30px',
-            color: 'white',
-            margin: 'auto',
-            borderRadius: '8px',
-            display: 'block',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            backgroundColor: '#0e9d9a',
-            // ':hover': {
-            //   backgroundColor: '#7eca0b88',
-            // },
-          }}
-          disabled={withdrawIsLoading}
-          onClick={sendRequestWithdraw}
-        >
-          Confirm
-        </Button>
+        {waitingConfirm ? (
+          <>
+            <Button
+              variant='contained'
+              sx={style_btn_confirm}
+              disabled={isLoading}
+              onClick={cancelAction}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant='contained'
+              sx={style_btn_confirm}
+              disabled={isLoading}
+              onClick={sendRequestWithdraw}
+            >
+              Confirm
+            </Button>
+          </>
+        ) : isLoading ? (
+          <img src={LoadingIcon} width={30} />
+        ) : (
+          <Button
+            variant='contained'
+            sx={style_btn_confirm}
+            disabled={nftStatus !== 'success' || !Boolean(address) || !gasEnough || isLoading}
+            onClick={confirmAction}
+          >
+            Withdraw
+          </Button>
+        )}
       </Box>
     </Box>
   );

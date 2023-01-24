@@ -23,10 +23,10 @@ const Layout = ({ children }: LayoutProps) => {
     <Box className='extension-box'>
       {networkError ? (
         <Box style={{ marginTop: '60%' }}>Network Error...</Box>
-      ) : loading ? (
-        // <Rings style={{ marginTop: '60%' }}  />
-        <img src={LoadingIcon} width={80} style={{ marginTop: '60%' }} />
       ) : (
+        // ) : loading ? (
+        // <Rings style={{ marginTop: '60%' }}  />
+        // <img src={LoadingIcon} width={80} style={{ marginTop: '0%' }} />
         <>
           <NavBar />
           {children}

@@ -119,7 +119,6 @@ async function start() {
   const activeTab = await queryCurrentActiveTab(windowType);
 
   let loadPhishingWarningPage: any;
-
   if (isManifestV3) {
     /*
      * In case of MV3 the issue of blank screen was very frequent, it is caused by UI initialising before background is ready to send state.
@@ -129,6 +128,7 @@ async function start() {
      * In case the UI is already rendered, only update the streams.
      */
     const messageListener = async (message: any) => {
+      console.log('message:', message);
       if (message?.data?.method === 'startUISync') {
         if (isUIInitialised) {
           // Currently when service worker is revived we create new streams
@@ -144,11 +144,11 @@ async function start() {
     /**
      * An error thrown if the phishing warning page takes too long to load.
      */
-    class PhishingWarningPageTimeoutError extends Error {
-      constructor() {
-        super('Timeout failed');
-      }
-    }
+    // class PhishingWarningPageTimeoutError extends Error {
+    //   constructor() {
+    //     super('Timeout failed');
+    //   }
+    // }
 
     /**
      * Load the phishing warning page temporarily to ensure the service

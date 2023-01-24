@@ -7,11 +7,7 @@ import { RestrictedMethods } from './permissions';
  * fullscreen - When the user clicks 'expand view' to open the extension in a new tab
  * background - The background process that powers the extension
  */
-export type EnvironmentType =
-  | 'popup'
-  | 'notification'
-  | 'fullscreen'
-  | 'background';
+export type EnvironmentType = 'popup' | 'notification' | 'fullscreen' | 'background';
 export const ENVIRONMENT_TYPE_POPUP = 'popup';
 export const ENVIRONMENT_TYPE_NOTIFICATION = 'notification';
 export const ENVIRONMENT_TYPE_FULLSCREEN = 'fullscreen';
@@ -66,7 +62,7 @@ export const EXTENSION_MESSAGES = {
 } as const;
 
 /**
- * The different kinds of subjects that MetaMask may interact with, including
+ * The different kinds of subjects that Wallet may interact with, including
  * third parties and itself (e.g. when the background communicated with the UI).
  */
 export const SUBJECT_TYPES = {

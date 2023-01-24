@@ -16,6 +16,8 @@ import {
   getBtcLtcTx,
   getSolTx,
   getTronTx,
+  listNft,
+  withdrawNft,
 } from '../apis/api';
 import BitcoinIcon from '../assets/coingroup/bitcoin.svg';
 import EthIcon from '../assets/coingroup/ethereum.svg';
@@ -38,6 +40,7 @@ import { ASSETS_MAIN, ASSETS_TEST } from '~/constants/supported-assets';
 import { NODE_ENV } from '~/constants/network';
 import { CHAINS_MAIN, CHAINS_TEST } from '~/constants/nets';
 import { isEmpty } from 'lodash';
+import useNetwork from '~/hooks/useNetwork';
 
 interface SocketContextType {
   loading: boolean;
@@ -56,12 +59,13 @@ interface SocketContextType {
   transactionMutate?: any;
   errorResult?: Result;
   successResult?: Result;
-  withdrawMutate?: any;
-  withdrawIsLoading?: boolean;
+  // withdrawMutate?: any;
+  // withdrawIsLoading?: boolean;
   // swapIsLoading?: boolean;
   // swapMutate?: any;
   // swapData: any;
   withdraw?: any;
+  withdrawNft?: any;
   quoteMutate: any;
   quoteIsError: Boolean;
   quoteData: any;
@@ -79,6 +83,8 @@ interface SocketContextType {
   tezosTx: any;
   tronTx: any;
   getTx: () => void;
+  nftStatus: string;
+  nftList: any;
 }
 
 const init_tokens = [
@@ -190,6 +196,7 @@ type Result = {
 
 export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [priceLoading, setPriceLoading] = useState<boolean>(true);
+  const [nftStatus, setNftStatus] = useState<string>('loading');
   const [balances, setBalances] = useState<any>({});
   const [calcedBalances, setCalcedBalances] = useState<any>({});
   const [requestRefetch, setRequestRefetch] = useState<number>(0);
@@ -197,7 +204,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [successResult, setSuccessResult] = useState<Result>();
   const [errorResult, setErrorResult] = useState<Result>();
   const [connection, setConnection] = useState<WebSocket>();
-  const [networkError, setNetworkError] = useState<boolean>(false);
+  // const [networkError, setNetworkError] = useState<boolean>(false);
   const [transactionIsLoading, setTransactionIsLoading] = useState<boolean>(true);
   const [updateNeed, setUpdateNeed] = useState<number>(0);
   const [ethTx, setEthTx] = useState<any>(null);
@@ -211,10 +218,14 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   const [btcTx, setBtcTx] = useState<any>(null);
   const [ltcTx, setLtcTx] = useState<any>(null);
   const [updateInterval, setUpdateInterval] = useState<any>(null);
+  const [nftList, setNftList] = useState<any>(null);
 
   // Access the client
   const queryClient = useQueryClient();
   const user = '1';
+
+  const onLine = useNetwork();
+  const networkError = !onLine;
 
   // // Queries
   // const {
@@ -238,7 +249,26 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     isLoading: walletIsLoading,
     isError: walletIsError,
     data: walletData,
-  } = useQuery(['/ListWallets', `?user=${user}`], getQuery);
+  } = {} as any; //useQuery(['/ListWallets', `?user=${user}`], getQuery);
+
+  useEffect(() => {
+    if (walletStatus === 'success') {
+      let address = findBy(walletData, 'net_id', '1')?.address;
+      const getListNft = async () => {
+        const nft = await listNft(address)
+          .then((res: any) => {
+            console.log(res);
+            setNftList(res);
+            setNftStatus('success');
+          })
+          .catch((e: any) => {
+            console.log(e);
+            setNftStatus('error');
+          });
+      };
+      getListNft();
+    }
+  }, [walletStatus]);
 
   const refetch = (query: string[]) => {
     // queryClient.invalidateQueries(query);
@@ -266,48 +296,48 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   //   },
   // );
 
-  const {
-    status: withdrawStatus,
-    isLoading: withdrawIsLoading,
-    isError: withdrawIsError,
-    mutate: withdrawMutate,
-    data: withdrawData,
-  } = useMutation(
-    (data) => {
-      return postQuery('/WithdrawAsset', data);
-    },
-    {
-      onSuccess: (data) => {
-        if (data?.success) {
-          const { withdrawal } = data;
-          setSuccessResult((prev) => ({
-            count: (prev?.count ?? 0) + 1,
-            message: `Your withdraw request of ${withdrawal.amount} ${
-              tokenData?.find((a) => a.id === withdrawal.token_id)?.name
-            } has been successful. Check your balance.`,
-          }));
-          refetch(['ListAssets']);
-        } else {
-          setErrorResult((prev) => ({
-            count: (prev?.count ?? 0) + 1,
-            message: `${data?.message} Check your input is correct.`,
-          }));
-        }
-      },
-      onError: (data: any) => {
-        const { error } = data;
-        setErrorResult((prev) => ({
-          count: (prev?.count ?? 0) + 1,
-          message: `Your withdraw request of ${error.amount} ${
-            tokenData?.find((a: any) => a.id === error.token_id)?.name
-          } has been failed. Check if amount is less than 0.01 for test mode. Or please contact to the support team.`,
-        }));
-      },
-      onSettled: () => {
-        refetch(['ListAssets']);
-      },
-    },
-  );
+  // const {
+  //   status: withdrawStatus,
+  //   isLoading: withdrawIsLoading,
+  //   isError: withdrawIsError,
+  //   mutate: withdrawMutate,
+  //   data: withdrawData,
+  // } = useMutation(
+  //   (data) => {
+  //     return postQuery('/WithdrawAsset', data);
+  //   },
+  //   {
+  //     onSuccess: (data) => {
+  //       if (data?.success) {
+  //         const { withdrawal } = data;
+  //         setSuccessResult((prev) => ({
+  //           count: (prev?.count ?? 0) + 1,
+  //           message: `Your withdraw request of ${withdrawal.amount} ${
+  //             tokenData?.find((a) => a.id === withdrawal.token_id)?.name
+  //           } has been successful. Check your balance.`,
+  //         }));
+  //         refetch(['ListAssets']);
+  //       } else {
+  //         setErrorResult((prev) => ({
+  //           count: (prev?.count ?? 0) + 1,
+  //           message: `${data?.message} Check your input is correct.`,
+  //         }));
+  //       }
+  //     },
+  //     onError: (data: any) => {
+  //       const { error } = data;
+  //       setErrorResult((prev) => ({
+  //         count: (prev?.count ?? 0) + 1,
+  //         message: `Your withdraw request of ${error.amount} ${
+  //           tokenData?.find((a: any) => a.id === error.token_id)?.name
+  //         } has been failed. Check if amount is less than 0.01 for test mode. Or please contact to the support team.`,
+  //       }));
+  //     },
+  //     onSettled: () => {
+  //       refetch(['ListAssets']);
+  //     },
+  //   },
+  // );
 
   const {
     status: quoteStatus,
@@ -430,7 +460,15 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     return result;
   };
 
+  const withdrawRequestNft = async (to: string, id: string, tokenAddress: string) => {
+    const accountFrom: any = findBy(walletData, 'net_id', '1');
+    const result = await withdrawNft(accountFrom, to, id, tokenAddress);
+    refetch(['ListAssets']);
+    return result;
+  };
+
   const updateBalance = () => {
+    if (!walletData) return;
     getBalance(walletData, netData, tokenData).then((res: any) => {
       setBalances(res);
       const calcedBalances = Object.entries(res).reduce((ret: any, entry: any) => {
@@ -451,6 +489,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const getTx = async () => {
+    if (!walletData) return;
     setTransactionIsLoading(true);
     let address = findBy(walletData, 'net_id', '1')?.address;
     if (!Boolean(address)) return null;
@@ -501,8 +540,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     !Boolean(netData) ||
     isEmpty(balances) ||
     walletIsLoading ||
-    // withdrawIsLoading ||
-    networkError;
+    nftStatus === 'loading';
+  // withdrawIsLoading ||
 
   useEffect(() => {
     updatePrice();
@@ -516,7 +555,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
 
     connection_price.onopen = (socket) => {
       setPriceLoading(false);
-      setNetworkError(false);
     };
 
     connection_price.onmessage = (message) => {
@@ -531,9 +569,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
       }));
     };
 
-    connection_price.onerror = (error) => {
-      setNetworkError(true);
-    };
+    connection_price.onerror = (error) => {};
 
     return () => connection_price?.close();
   }, []);
@@ -656,8 +692,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         }),
         errorResult,
         successResult,
-        withdrawMutate,
-        withdrawIsLoading,
+        // withdrawMutate,
+        // withdrawIsLoading,
         transactionIsLoading,
         // transactionData: transactionData?.rows,
         // transactionTotal: transactionData?.total ? transactionData?.total[0].Total : 0,
@@ -666,6 +702,7 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         // swapMutate,
         // swapData,
         withdraw: withdrawRequest,
+        withdrawNft: withdrawRequestNft,
         quoteIsError,
         quoteData,
         quoteMutate,
@@ -683,6 +720,8 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
         tezosTx,
         tronTx,
         getTx,
+        nftStatus,
+        nftList,
       }}
     >
       {children}

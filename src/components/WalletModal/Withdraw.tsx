@@ -192,7 +192,7 @@ const Withdraw = () => {
 
   const theme = useTheme();
 
-  const { networkError, balanceData, tokenData, withdrawMutate, withdrawIsLoading } = useSocket();
+  const { networkError, balanceData, tokenData } = useSocket();
 
   const activeToken = tokenData[activeTokenIndex];
 
@@ -253,13 +253,13 @@ const Withdraw = () => {
 
   const sendRequestWithdraw = () => {
     if (validate(address, amount, activeNet)) {
-      withdrawMutate({
-        user: '1',
-        net: activeNet.toString(),
-        asset: activeToken.id,
-        amount: parseFloat(amount),
-        receiver: address, // SOL address
-      });
+      // withdrawMutate({
+      //   user: '1',
+      //   net: activeNet.toString(),
+      //   asset: activeToken.id,
+      //   amount: parseFloat(amount),
+      //   receiver: address, // SOL address
+      // });
     }
   };
 
@@ -552,23 +552,7 @@ const Withdraw = () => {
                 {activeToken?.name}
               </span>
             </Typography>
-            {withdrawIsLoading ? (
-              // <LoadingButton
-              //   loading
-              //   variant="contained"
-              //   loadingPosition="center"
-              //   sx={{
-              //     // backgroundImage: `url(${ConfirmBtn})`,
-              //     backgroundColor: 'green',
-              //     backgroundSize: 'stretch',
-              //     width: '325px',
-              //     height: '56px',
-              //     color: 'white',
-              //     margin: 'auto',
-              //     borderRadius: '50px',
-              //     display: 'block',
-              //   }}
-              // />
+            {/* {withdrawIsLoading ? (
               <Button
                 sx={{
                   backgroundImage: `url(${ConfirmBtn})`,
@@ -598,7 +582,7 @@ const Withdraw = () => {
                 }}
                 onClick={sendRequestWithdraw}
               />
-            )}
+            )} */}
             {/* <Typography
               variant='h6'
               textAlign='left'

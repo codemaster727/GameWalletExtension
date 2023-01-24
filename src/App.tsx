@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Provider, useSelector, useDispatch } from 'react-redux';
 import {
   // createBrowserRouter,
@@ -34,6 +34,20 @@ import WithdrawNFT from './pages/WithdrawNFT';
 import AccountPage from './pages/Account';
 import Swap from './pages/Swap';
 import store from './store/store';
+import {
+  INITIALIZE_CONFIRM_SEED_PHRASE_ROUTE,
+  INITIALIZE_CREATE_PASSWORD_ROUTE,
+  INITIALIZE_END_OF_FLOW_ROUTE,
+  INITIALIZE_IMPORT_WITH_SEED_PHRASE_ROUTE,
+  INITIALIZE_ROUTE,
+  INITIALIZE_SEED_PHRASE_ROUTE,
+} from './constants/routes';
+import SelectAction from './pages/first-time-flow/select-action';
+import ImportWithSeedPhrase from './pages/first-time-flow/create-password/import-with-seed-phrase';
+import NewAccount from './pages/first-time-flow/create-password/new-account';
+import RevealSeedPhrase from './pages/first-time-flow/seed-phrase/reveal-seed-phrase';
+import ConfirmSeedPhrase from './pages/first-time-flow/seed-phrase/confirm-seed-phrase';
+import EndOfFlow from './pages/first-time-flow/end-of-flow';
 // import * as actions from './store/actions';
 // import {} from './scripts/ui';
 
@@ -42,7 +56,7 @@ const draftInitialState = {
 
   // metamaskState represents the cross-tab state
   // metamask: metamaskState,
-  metamask: {},
+  wallet: {},
 
   // appState represents the current tab's popup state
   appState: {},
@@ -75,7 +89,9 @@ const queryClient = new QueryClient();
 // };
 
 const App = () => {
+  const [seedPhrase, setSeedPhrase] = useState<any>();
   const { authed, signIn, signUp, signOut } = useAuth();
+
   const PrivateRoute = ({
     children,
   }: {
@@ -95,7 +111,69 @@ const App = () => {
     return e.request.url?.replace('http://localhost:3000', '');
   };
 
+  // const handleCreateNewAccount = async (password: string) => {
+  //   const { createNewAccount } = this.props;
+
+  //   try {
+  //     const seedPhrase = await createNewAccount(password);
+  //     setSeedPhrase(seedPhrase);
+  //   } catch (error: any) {
+  //     throw new Error(error.message);
+  //   }
+  // };
+
+  // const handleImportWithSeedPhrase = async (password: string, seedPhrase: any) => {
+  //   const { createNewAccountFromSeed } = this.props;
+
+  //   try {
+  //     const vault = await createNewAccountFromSeed(password, seedPhrase);
+  //     return vault;
+  //   } catch (error: any) {
+  //     throw new Error(error.message);
+  //   }
+  // };
+
+  // const handleUnlock = async (password: string) => {
+  //   const { unlockAccount, history, nextRoute } = this.props;
+
+  //   try {
+  //     const seedPhrase = await unlockAccount(password);
+  //     setSeedPhrase(seedPhrase);
+  //     navigate(nextRoute);
+  //   } catch (error: any) {
+  //     throw new Error(error.message);
+  //   }
+  // };
+
   const router = createHashRouter([
+    {
+      path: INITIALIZE_ROUTE,
+      element: (
+        // <AuthRoute>
+        <SelectAction />
+        // </AuthRoute>
+      ),
+    },
+    {
+      path: INITIALIZE_CREATE_PASSWORD_ROUTE,
+      element: <NewAccount />,
+    },
+    {
+      path: INITIALIZE_IMPORT_WITH_SEED_PHRASE_ROUTE,
+      element: <ImportWithSeedPhrase />,
+    },
+    {
+      path: INITIALIZE_SEED_PHRASE_ROUTE,
+      element: <RevealSeedPhrase />,
+    },
+    {
+      path: INITIALIZE_CONFIRM_SEED_PHRASE_ROUTE,
+      element: <ConfirmSeedPhrase />,
+    },
+    {
+      path: INITIALIZE_END_OF_FLOW_ROUTE,
+      element: <EndOfFlow />,
+    },
     {
       element: (
         <Layout>

@@ -29,6 +29,7 @@
     "alarms",
     "clipboardWrite",
     "notifications",
+    "webRequest",
     "scripting"
   ],
   "host_permissions": [

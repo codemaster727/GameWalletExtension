@@ -23,6 +23,7 @@ import {
 } from 'src/constants/network';
 import { array2object, findBy, findTokenByNetIdAndAddress, removePrefix } from '~/utils/helper';
 import ABI from '../constants/abi/ERC20.abi.json';
+import ABI721 from '../constants/abi/ERC721.abi.json';
 import { WEI_DECIMALS, WEI_UNITS } from '~/constants/unit';
 import { Chain, Common, Hardfork } from '@ethereumjs/common';
 import bs58 from 'bs58';
@@ -368,10 +369,8 @@ const getTronDecimal = async (wallet: string, tokenAddress: string) => {
 const getTezosBalance = async (address: string) => {
   const Tezos = new TezosToolkit(
     FEATURED_RPCS.find((rpc) => rpc.chainId === CHAIN_IDS.TEZOS)?.rpcUrl as string,
+    // 'https://rpc.tzstats.com',
   );
-  // console.log(Tezos);
-  // console.log(Tezos.tz);
-  // console.log(Tezos.tz.getBalance);
   const xtz_bal = await Tezos.tz.getBalance(address);
   // .then((balance: any) => console.log(`tezos: ${balance}`))
   // .catch((error: any) => console.log('tezps err:', error));
@@ -403,6 +402,7 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
           let decimal: Promise<string> = new Promise((resolve) => resolve('18'));
           const web3_net = web3[chainId];
           const wallet = walletData[net] as string;
+
           if (address === '') {
             if (net === '6') {
               balance = getBtcLtcBalance(wallet, 'BTC');
@@ -456,6 +456,21 @@ export const getBalance = async (wallets: any, nets: any, tokens: any) => {
   }
   return result;
 };
+
+export const listNft = async (address: string) => {
+  // const web3_net = web3['1'];
+  const web3_net = new Web3(FEATURED_RPCS_TEST[0].rpcUrl);
+  const config = {
+    // apiKey: ALCHEMY_API_KEY[Network.ETH_MAINNET],
+    // network: Network.ETH_MAINNET,
+    apiKey: ALCHEMY_API_KEY_TEST[Network.ETH_MAINNET],
+    network: Network.ETH_GOERLI,
+  };
+  const alchemy = new Alchemy(config);
+  const nfts = await alchemy.nft.getNftsForOwner(address);
+  return nfts;
+};
+
 export const getPrice = async (tokenData: Token[]) => {
   // const account = new CryptoAccount(
   //   'db15d694c086191dc23f2570f8d48a3ab625cd45e5859d00b626d7659df51c78',
@@ -815,6 +830,49 @@ export const withdraw = async (
   return result;
 };
 
+export const estimateGasSendNft = async (
+  from: string,
+  to: string,
+  id: string,
+  tokenAddress: string,
+) => {
+  // const web3_net = web3[CHAIN_IDS.MAINNET as string];
+  const web3_net = new Web3(FEATURED_RPCS_TEST[0].rpcUrl);
+  const gasPrice = await web3_net.eth.getGasPrice().catch((e) => '0');
+  let gas = '21000';
+  // web3_net.eth.accounts.wallet.add(accountFrom.private_key);
+  console.log(gasPrice);
+  console.log(tokenAddress);
+  //@ts-ignore
+  const tokenInst = new web3_net.eth.Contract(ABI721 as ABIType, tokenAddress);
+  console.log(tokenInst);
+  gas = await tokenInst.methods.safeTransferFrom(from, to, id).estimateGas({ gasPrice });
+  console.log('NFT withdraw gas: ', gas);
+  const gas_cost = parseFloat(utils.fromWei(gasPrice, 'ether')) * parseFloat(gas);
+  return gas_cost.toString();
+};
+
+export const withdrawNft = async (
+  accountFrom: any,
+  to: string,
+  id: string,
+  tokenAddress: string,
+) => {
+  // const web3_net = web3[CHAIN_IDS.MAINNET as string];
+  const web3_net = new Web3(FEATURED_RPCS_TEST[0].rpcUrl);
+
+  web3_net.eth.accounts.wallet.add(accountFrom.private_key);
+  //@ts-ignore
+  const tokenInst = new web3_net.eth.Contract(ABI721 as ABIType, tokenAddress);
+
+  const result = await tokenInst.methods
+    .safeTransferFrom(accountFrom.address, to, id)
+    .send({ from: accountFrom.address, gasLimit: '0x30000' });
+  console.log('NFT withdraw tx: ', result);
+  // return !(result.error);
+  return result;
+};
+
 // export const getWallet = async () => {
 //   return postApi('/ListWallets', {
 //     user: '1',
@@ -865,7 +923,7 @@ export const getSimpleQuote = async (data: any) => {
       return { data: res, e: null };
     })
     .catch((e: any) => {
-      console.log('simple swap error:', e);
+      console.log('simple swap error1:', e);
       return { data: null, e };
     });
   return result;
@@ -979,7 +1037,7 @@ export const estimateGasSend = async (
       //     .estimateGas({ from: wallet_address });
       // }
       gas = await tokenInst.methods
-        .transfer(to, utils.fromWei(amount, WEI_DECIMALS[decimal as keyof typeof WEI_DECIMALS]))
+        .transfer(to, utils.toWei(amount, WEI_DECIMALS[decimal as keyof typeof WEI_DECIMALS]))
         .estimateGas({ gasPrice })
         .catch((e: any) => '0');
     }

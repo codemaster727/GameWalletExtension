@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import browser from 'webextension-polyfill';
-//@ts-ignore
-import KeyringController from 'eth-keyring-controller';
+import KeyringController from '@metamask/eth-keyring-controller';
+// const { KeyringController } = require('@metamask/eth-keyring-controller');
 // import SimpleKeyring from 'eth-simple-keyring';
 import log from 'loglevel';
 import seedPhraseVerifier from './lib/seed-phrase-verifier';
@@ -9,10 +9,13 @@ import { Mutex } from 'await-semaphore';
 import { Buffer } from 'buffer';
 import { KEYRING_TYPES } from '~/shared/constants/keyrings';
 import { HARDWARE_KEYRING_TYPES } from '~/shared/constants/hardware-wallets';
+// import { ObservableStore } from '@metamask/obs-store';
+import { isManifestV3 } from '~/shared/modules/mv3.utils';
+import OnboardingController from './controllers/onboarding';
 
 (browser as any).global = browser;
 // @ts-ignore
-browser.Buffer = browser.Buffer || Buffer;
+browser.Buffer = browser.Buffer ?? Buffer;
 
 // browser.notifications.create({
 //   type: 'basic',
@@ -22,31 +25,29 @@ browser.Buffer = browser.Buffer || Buffer;
 // });
 
 export default class WalletController extends EventEmitter {
-  keyringController: KeyringController;
+  keyringController: any;
+  onboardingController: any;
   createVaultMutex: Mutex;
+  // store?: ObservableStore<any>;
   /**
    * @param {object} opts
    */
   constructor(opts: any) {
     super();
+    const initState = opts.initState || {};
     this.keyringController = new KeyringController({
       keyringTypes: Object.values(HARDWARE_KEYRING_TYPES).map((value: string) => value), // optional array of types to support.
       initState: {}, // Last emitted persisted state.
-      encryptor: {
-        // An optional object for defining encryption schemes:
-        // Defaults to Browser-native SubtleCrypto.
-        encrypt(password: string, object: any) {
-          // return new Promise('encrypted!');
-          return password;
-        },
-        decrypt(password: string, encryptedString: string) {
-          // return new Promise({ foo: 'bar' });
-          return password;
-        },
-      },
+      // encryptor: {},
     });
+    this.onboardingController = new OnboardingController({
+      initState: initState.OnboardingController ?? {},
+    });
+    // this.keyringController.on('unlock', () => this._onUnlock());
+    // this.keyringController.on('lock', () => this._onLock());
     // lock to ensure only one vault created at once
     this.createVaultMutex = new Mutex();
+    // this.store = new ObservableStore({});
   }
 
   /**
@@ -57,9 +58,22 @@ export default class WalletController extends EventEmitter {
    * @returns {object} Object containing API functions.
    */
   getApi() {
-    const { keyringController } = this;
+    const { createNewVaultAndKeychain, keyringController } = this;
     return {
-      createNewVaultAndKeychain: this.createNewVaultAndKeychain.bind(this),
+      // KeyringController
+      setLocked: this.setLocked.bind(this),
+      createNewVaultAndKeychain: createNewVaultAndKeychain.bind(this),
+      getAllAccounts: keyringController.getAccounts.bind(this.keyringController),
+      verifySeedPhrase: this.verifySeedPhrase.bind(this),
+      exportAccount: keyringController.exportAccount.bind(keyringController),
+
+      // onboarding controller
+      // setSeedPhraseBackedUp:
+      //   onboardingController.setSeedPhraseBackedUp.bind(onboardingController),
+      // completeOnboarding:
+      //   onboardingController.completeOnboarding.bind(onboardingController),
+      // setFirstTimeFlowType:
+      //   onboardingController.setFirstTimeFlowType.bind(onboardingController),
     };
   }
 
@@ -71,14 +85,14 @@ export default class WalletController extends EventEmitter {
 
     const serialized = await primaryKeyring.serialize();
     const seedPhraseAsBuffer = Buffer.from(serialized.mnemonic);
-
     const accounts = await primaryKeyring.getAccounts();
+    console.log(accounts);
     if (accounts.length < 1) {
       throw new Error('MetamaskController - No accounts found');
     }
 
     try {
-      await seedPhraseVerifier.verifyAccounts(accounts, seedPhraseAsBuffer);
+      // await seedPhraseVerifier.verifyAccounts(accounts, seedPhraseAsBuffer);
       return Array.from(seedPhraseAsBuffer.values());
     } catch (err: any) {
       log.error(err.message);
@@ -100,6 +114,7 @@ export default class WalletController extends EventEmitter {
    * @returns {object} vault
    */
   async createNewVaultAndKeychain(password: string) {
+    console.log(this);
     const releaseLock = await this.createVaultMutex.acquire();
     try {
       let vault;
@@ -108,15 +123,14 @@ export default class WalletController extends EventEmitter {
         vault = await this.keyringController.fullUpdate();
       } else {
         vault = await this.keyringController.createNewVaultAndKeychain(password);
-        console.log(vault);
 
         const encodedSeedPhrase = await this.verifySeedPhrase();
-        console.log(window.Buffer.from(encodedSeedPhrase).toString('utf8'));
+        console.log(Buffer.from(encodedSeedPhrase).toString('utf8'));
 
         const addresses = await this.keyringController.getAccounts();
         const addresses1 = await this.keyringController.getAccounts();
         console.log(addresses);
-        console.log(addresses1);
+        // this.store.putState({ addresses });
         // this.preferencesController.setAddresses(addresses);
         // this.selectFirstIdentity();
       }
@@ -125,6 +139,116 @@ export default class WalletController extends EventEmitter {
     } finally {
       releaseLock();
     }
+  }
+
+  /**
+   * Create a new Vault and restore an existent keyring.
+   *
+   * @param {string} password
+   * @param {number[]} encodedSeedPhrase - The seed phrase, encoded as an array
+   * of UTF-8 bytes.
+   */
+  async createNewVaultAndRestore(password: string, encodedSeedPhrase: any) {
+    const releaseLock = await this.createVaultMutex.acquire();
+    try {
+      let accounts, lastBalance;
+
+      const seedPhraseAsBuffer = Buffer.from(encodedSeedPhrase);
+
+      const { keyringController } = this;
+
+      // clear known identities
+      // this.preferencesController.setAddresses([]);
+
+      // clear permissions
+      // this.permissionController.clearState();
+
+      ///: BEGIN:ONLY_INCLUDE_IN(flask)
+      // Clear snap state
+      // this.snapController.clearState();
+      // Clear notification state
+      // this.notificationController.clear();
+      ///: END:ONLY_INCLUDE_IN
+
+      // clear accounts in accountTracker
+      // this.accountTracker.clearAccounts();
+
+      // clear cachedBalances
+      // this.cachedBalancesController.clearCachedBalances();
+
+      // clear unapproved transactions
+      // this.txController.txStateManager.clearUnapprovedTxs();
+
+      // create new vault
+      const vault = await keyringController.createNewVaultAndRestore(password, seedPhraseAsBuffer);
+
+      // const ethQuery = new EthQuery(this.provider);
+      accounts = await keyringController.getAccounts();
+      // lastBalance = await this.getBalance(
+      //   accounts[accounts.length - 1],
+      //   ethQuery,
+      // );
+
+      const [primaryKeyring] = keyringController.getKeyringsByType(KEYRING_TYPES.HD_KEY_TREE);
+      if (!primaryKeyring) {
+        throw new Error('MetamaskController - No HD Key Tree found');
+      }
+
+      // seek out the first zero balance
+      while (lastBalance !== '0x0') {
+        await keyringController.addNewAccount(primaryKeyring);
+        accounts = await keyringController.getAccounts();
+        // lastBalance = await this.getBalance(
+        //   accounts[accounts.length - 1],
+        //   ethQuery,
+        // );
+      }
+
+      // remove extra zero balance account potentially created from seeking ahead
+      // if (accounts.length > 1 && lastBalance === '0x0') {
+      //   await this.removeAccount(accounts[accounts.length - 1]);
+      //   accounts = await keyringController.getAccounts();
+      // }
+
+      // This must be set as soon as possible to communicate to the
+      // keyring's iframe and have the setting initialized properly
+      // Optimistically called to not block MetaMask login due to
+      // Ledger Keyring GitHub downtime
+      // const transportPreference =
+      //   this.preferencesController.getLedgerTransportPreference();
+      // this.setLedgerTransportPreference(transportPreference);
+
+      // set new identities
+      // this.preferencesController.setAddresses(accounts);
+      // this.selectFirstIdentity();
+      return vault;
+    } finally {
+      releaseLock();
+    }
+  }
+
+  async clearLoginArtifacts() {
+    //@ts-ignore
+    await browser.storage.session.remove(['loginToken', 'loginSalt']);
+  }
+
+  /**
+   * Locks MetaMask
+   */
+  setLocked() {
+    const [trezorKeyring] = this.keyringController.getKeyringsByType(KEYRING_TYPES.TREZOR);
+    if (trezorKeyring) {
+      trezorKeyring.dispose();
+    }
+
+    const [ledgerKeyring] = this.keyringController.getKeyringsByType(KEYRING_TYPES.LEDGER);
+    ledgerKeyring?.destroy?.();
+
+    if (isManifestV3) {
+      this.clearLoginArtifacts();
+    }
+
+    return this.keyringController.setLocked();
   }
 
   async withdraw(request: any) {}

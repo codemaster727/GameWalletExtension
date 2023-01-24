@@ -8,6 +8,7 @@ interface AuthContextType {
   authed: AuthState;
   user: any;
   accountAuthed: AuthState;
+  initialized: AuthState;
   signIn: (password: string) => Promise<boolean>;
   signUp: () => void;
   signOut: () => Promise<void>;
@@ -21,8 +22,10 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authed, setAuthed] = useState<AuthState>(AuthState.LOADING);
+  const [initialized, setInitialized] = useState<AuthState>(AuthState.UNAUTHED);
   const [user, setuser] = useState<any>({ id: '1' });
   const [accountAuthed, setAccountAuthed] = useState<AuthState>(AuthState.UNAUTHED);
+  // const [initialized,setInitialized] = useState(false)
   // const navigate = useNavigate();
   // Access the client
   const queryClient = useQueryClient();
@@ -85,6 +88,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         authed,
         user,
         accountAuthed,
+        initialized,
         signIn,
         signUp,
         signOut,

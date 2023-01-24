@@ -45,7 +45,8 @@ const Balances = () => {
   // const [isNFT, setIsNFT] = useState<boolean>(false);
   const [token, setToken] = useState<number>(0);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const { loading, priceData, balanceData, tokenData, netData } = useSocket();
+  const { loading, priceData, balanceData, tokenData, netData, nftList, nftStatus } = useSocket();
+  const { ownedNfts } = nftList;
   const { state, dispatch } = useStateContext();
   const { isUSD } = state.balance_states;
   // const tokenData = tokenDataOrigin.slice(0, tokenDataOrigin.length - 1);
@@ -359,8 +360,26 @@ const Balances = () => {
                     </Table>
                   ) : (
                     <Box display='flex' justifyContent='space-between' flexWrap='wrap' rowGap={2}>
-                      {token_images.map((image, index) => (
-                        <Button sx={{ padding: '0' }} component={Link} to={`/withdrawNFT/${index}`}>
+                      {nftStatus === 'error'
+                        ? 'Error on loading NFTs'
+                        : ownedNfts.map((nft: any, index: number) => (
+                            <Button
+                              sx={{ padding: '0' }}
+                              component={Link}
+                              to={`/withdrawNFT/${index}`}
+                            >
+                              <img
+                                key={nft.media[0].gateway}
+                                src={nft.media[0].gateway}
+                                alt={nft.contract.address}
+                                width={145}
+                                height={145}
+                                data-xblocker='passed'
+                              />
+                            </Button>
+                          ))}
+                      {/* {token_images.map((image, index) => (
+                        <Button sx={{ padding: '0' }} component={Link} to={`/withdrawNFT`}>
                           <img
                             key={image}
                             src={token_images[index]}
@@ -370,7 +389,7 @@ const Balances = () => {
                             data-xblocker='passed'
                           />
                         </Button>
-                      ))}
+                      ))} */}
                     </Box>
                   )}
                 </Box>

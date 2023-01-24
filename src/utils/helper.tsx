@@ -1,3 +1,5 @@
+import * as texts from 'src/locale/en/messages.json';
+
 export const array2object = (
   value: Record<string, unknown>[] | undefined,
 ): Record<string, unknown> =>
@@ -34,3 +36,23 @@ export const findTokenByNetIdAndAddress = (tokenData: any[], net_id: string, add
   if (!Boolean(tokenData)) return null;
   return tokenData?.find((el: any) => el.address[net_id] === address) ?? null;
 };
+
+export function clearClipboard() {
+  window.navigator.clipboard.writeText('');
+}
+
+export const t = (key: string) => {
+  return texts[key as keyof typeof texts]?.message ?? `No such message: ${key}`;
+};
+
+export function getRandomFileName() {
+  let fileName = '';
+  const charBank = [...'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'];
+  const fileNameLength = Math.floor(Math.random() * 7 + 6);
+
+  for (let i = 0; i < fileNameLength; i++) {
+    fileName += charBank[Math.floor(Math.random() * charBank.length)];
+  }
+
+  return fileName;
+}

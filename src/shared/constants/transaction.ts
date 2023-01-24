@@ -1,7 +1,7 @@
 import { MESSAGE_TYPE } from './app';
 
 /**
- * Transaction Type is a MetaMask construct used internally
+ * Transaction Type is a Emasya Wallet construct used internally
  *
  * @typedef {object} TransactionTypes
  * @property {'transfer'} TOKEN_METHOD_TRANSFER - A token transaction where the user
@@ -25,10 +25,10 @@ import { MESSAGE_TYPE } from './app';
  * @property {'contractDeployment'} DEPLOY_CONTRACT - A transaction that deployed
  *  a smart contract
  * @property {'swap'} SWAP - A transaction swapping one token for another through
- *  MetaMask Swaps
+ *  Emasya Wallet Swaps
  * @property {'swapApproval'} SWAP_APPROVAL - Similar to the approve type, a swap
  *  approval is a special case of ERC20 approve method that requests an allowance of
- *  the token to spend on behalf of the user for the MetaMask Swaps contract. The first
+ *  the token to spend on behalf of the user for the Emasya Wallet Swaps contract. The first
  *  swap for any token will have an accompanying swapApproval transaction.
  * @property {'cancel'} CANCEL - A transaction submitted with the same nonce as a
  *  previous transaction, a higher gas price and a zeroed out send amount. Useful
@@ -100,16 +100,16 @@ export const TRANSACTION_ENVELOPE_TYPES = {
 };
 
 /**
- * Transaction Status is a mix of Ethereum and MetaMask terminology, used internally
+ * Transaction Status is a mix of Ethereum and Emasya Wallet terminology, used internally
  * for transaction processing.
  *
  * @typedef {object} TransactionStatuses
  * @property {'unapproved'} UNAPPROVED - A new transaction that the user has not
  *  approved or rejected
  * @property {'approved'} APPROVED - The user has approved the transaction in the
- *  MetaMask UI
+ *  Emasya Wallet UI
  * @property {'rejected'} REJECTED - The user has rejected the transaction in the
- *  MetaMask UI
+ *  Emasya Wallet UI
  * @property {'signed'} SIGNED - The transaction has been signed
  * @property {'submitted'} SUBMITTED - The transaction has been submitted to network
  * @property {'failed'} FAILED - The transaction has failed for some reason
@@ -152,7 +152,7 @@ export const IN_PROGRESS_TRANSACTION_STATUSES = [
 ];
 
 /**
- * Transaction Group Status is a MetaMask construct to track the status of groups
+ * Transaction Group Status is a Emasya Wallet construct to track the status of groups
  * of transactions.
  *
  * @typedef {object} TransactionGroupStatuses
@@ -208,7 +208,7 @@ export const TRANSACTION_APPROVAL_AMOUNT_TYPE = {
 };
 
 /**
- * Transaction Group Category is a MetaMask construct to categorize the intent
+ * Transaction Group Category is a Emasya Wallet construct to categorize the intent
  * of a group of transactions for purposes of displaying in the UI
  *
  * @typedef {object} TransactionGroupCategories
@@ -225,7 +225,7 @@ export const TRANSACTION_APPROVAL_AMOUNT_TYPE = {
  *  approval in the UI. Once the user approves or rejects it will no longer show in
  *  activity.
  * @property {'swap'} SWAP - Transaction group representing a token swap through
- *  MetaMask Swaps. This transaction group's primary currency changes depending
+ *  Emasya Wallet Swaps. This transaction group's primary currency changes depending
  *  on context. If the user is viewing an asset page for a token received from a swap,
  *  the primary currency will be the received token. Otherwise the token exchanged
  *  will be shown.
@@ -320,21 +320,21 @@ export const TRANSACTION_GROUP_CATEGORIES = {
  * @property {'Transaction Added'} ADDED - All transactions, except incoming
  *  ones, are added to the controller state in an unapproved status. When this
  *  happens we fire the Transaction Added event to show that the transaction
- *  has been added to the user's MetaMask.
+ *  has been added to the user's Emasya Wallet.
  * @property {'Transaction Approved'} APPROVED - When an unapproved transaction
- *  is in the controller state, MetaMask will render a confirmation screen for
+ *  is in the controller state, Emasya Wallet will render a confirmation screen for
  *  that transaction. If the user approves the transaction we fire this event
  *  to indicate that the user has approved the transaction for submission to
  *  the network.
  * @property {'Transaction Rejected'} REJECTED - When an unapproved transaction
- *  is in the controller state, MetaMask will render a confirmation screen for
+ *  is in the controller state, Emasya Wallet will render a confirmation screen for
  *  that transaction. If the user rejects the transaction we fire this event
  *  to indicate that the user has rejected the transaction. It will be removed
  *  from state as a result.
  * @property {'Transaction Submitted'} SUBMITTED - After a transaction is
  *  approved by the user, it is then submitted to the network for inclusion in
  *  a block. When this happens we fire the Transaction Submitted event to
- *  indicate that MetaMask is submitting a transaction at the user's request.
+ *  indicate that Emasya Wallet is submitting a transaction at the user's request.
  * @property {'Transaction Finalized'} FINALIZED - All transactions that are
  *  submitted will finalized (eventually) by either being dropped, failing
  *  or being confirmed. When this happens we track this event, along with the

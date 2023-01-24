@@ -1,8 +1,8 @@
-import accountReducer from './accountSlice';
+import walletReducer from './walletSlice';
 
 const rootReducer = {
   reducer: {
-    account: accountReducer,
+    wallet: walletReducer,
   },
 };
 

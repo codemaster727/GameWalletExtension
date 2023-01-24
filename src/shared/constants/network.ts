@@ -1,7 +1,7 @@
 import { capitalize } from 'lodash';
 /**
  * A type representing any valid value for 'type' for setProviderType and other
- * methods that add or manipulate networks in MetaMask state.
+ * methods that add or manipulate networks in Emasya Wallet state.
  */
 export type NetworkType = typeof NETWORK_TYPES[keyof typeof NETWORK_TYPES];
 
@@ -75,7 +75,7 @@ type RPCPreferences = {
 };
 
 /**
- * An object that describes a network to be used inside of MetaMask
+ * An object that describes a network to be used inside of Emasya Wallet
  */
 type RPCDefinition = {
   /**
@@ -154,7 +154,7 @@ type BuyableChainSettings = {
 /**
  * Throughout the extension we set the current provider by referencing its
  * "type", which can be any of the values in the below object. These values
- * represent the built-in networks of MetaMask, including test nets, as well
+ * represent the built-in networks of Emasya Wallet, including test nets, as well
  * as "rpc" which is the "type" of a custom network added by the user or via
  * wallet_addEthereumChain.
  */
@@ -227,8 +227,7 @@ export const BSC_DISPLAY_NAME = 'Binance Smart Chain';
 export const POLYGON_DISPLAY_NAME = 'Polygon';
 export const AVALANCHE_DISPLAY_NAME = 'Avalanche Network C-Chain';
 export const ARBITRUM_DISPLAY_NAME = 'Arbitrum One';
-export const BNB_DISPLAY_NAME =
-  'BNB Smart Chain (previously Binance Smart Chain Mainnet)';
+export const BNB_DISPLAY_NAME = 'BNB Smart Chain (previously Binance Smart Chain Mainnet)';
 export const OPTIMISM_DISPLAY_NAME = 'Optimism';
 export const FANTOM_DISPLAY_NAME = 'Fantom Opera';
 export const HARMONY_DISPLAY_NAME = 'Harmony Mainnet Shard 0';
@@ -242,8 +241,7 @@ export const getRpcUrl = ({
 }: {
   network: NetworkType;
   excludeProjectId?: boolean;
-}) =>
-  `https://${network}.infura.io/v3/${excludeProjectId ? '' : infuraProjectId}`;
+}) => `https://${network}.infura.io/v3/${excludeProjectId ? '' : infuraProjectId}`;
 
 export const MAINNET_RPC_URL = getRpcUrl({
   network: NETWORK_TYPES.MAINNET,
@@ -422,11 +420,7 @@ export const INFURA_PROVIDER_TYPES = [
   NETWORK_TYPES.SEPOLIA,
 ];
 
-export const TEST_CHAINS = [
-  CHAIN_IDS.GOERLI,
-  CHAIN_IDS.SEPOLIA,
-  CHAIN_IDS.LOCALHOST,
-];
+export const TEST_CHAINS = [CHAIN_IDS.GOERLI, CHAIN_IDS.SEPOLIA, CHAIN_IDS.LOCALHOST];
 
 const typedCapitalize = <K extends string>(k: K): Capitalize<K> =>
   capitalize(k) as Capitalize<typeof k>;
@@ -437,12 +431,8 @@ export const TEST_NETWORK_TICKER_MAP: {
     'localhost' | 'mainnet' | 'rpc'
   >]: `${Capitalize<K>}${typeof CURRENCY_SYMBOLS.ETH}`;
 } = {
-  [NETWORK_TYPES.GOERLI]: `${typedCapitalize(NETWORK_TYPES.GOERLI)}${
-    CURRENCY_SYMBOLS.ETH
-  }`,
-  [NETWORK_TYPES.SEPOLIA]: `${typedCapitalize(NETWORK_TYPES.SEPOLIA)}${
-    CURRENCY_SYMBOLS.ETH
-  }`,
+  [NETWORK_TYPES.GOERLI]: `${typedCapitalize(NETWORK_TYPES.GOERLI)}${CURRENCY_SYMBOLS.ETH}`,
+  [NETWORK_TYPES.SEPOLIA]: `${typedCapitalize(NETWORK_TYPES.SEPOLIA)}${CURRENCY_SYMBOLS.ETH}`,
 };
 
 /**
@@ -780,10 +770,7 @@ export const BUYABLE_CHAINS_MAP: {
   [CHAIN_IDS.BSC]: {
     nativeCurrency: CURRENCY_SYMBOLS.BNB,
     network: 'bsc',
-    transakCurrencies: [
-      SUPPORTED_CURRENCY_SYMBOLS.BNB,
-      SUPPORTED_CURRENCY_SYMBOLS.BUSD,
-    ],
+    transakCurrencies: [SUPPORTED_CURRENCY_SYMBOLS.BNB, SUPPORTED_CURRENCY_SYMBOLS.BUSD],
     moonPay: {
       defaultCurrencyCode: `${SUPPORTED_CURRENCY_SYMBOLS.BNB}_BSC`,
       showOnlyCurrencies: [
@@ -811,10 +798,7 @@ export const BUYABLE_CHAINS_MAP: {
     wyre: {
       srn: 'matic',
       currencyCode: CURRENCY_SYMBOLS.MATIC,
-      currencies: [
-        SUPPORTED_CURRENCY_SYMBOLS.MATIC,
-        SUPPORTED_CURRENCY_SYMBOLS.MUSDC,
-      ],
+      currencies: [SUPPORTED_CURRENCY_SYMBOLS.MATIC, SUPPORTED_CURRENCY_SYMBOLS.MUSDC],
     },
   },
   [CHAIN_IDS.AVALANCHE]: {
@@ -853,10 +837,7 @@ export const BUYABLE_CHAINS_MAP: {
   [CHAIN_IDS.OPTIMISM]: {
     nativeCurrency: CURRENCY_SYMBOLS.ETH,
     network: 'optimism',
-    transakCurrencies: [
-      SUPPORTED_CURRENCY_SYMBOLS.ETH,
-      SUPPORTED_CURRENCY_SYMBOLS.USDC,
-    ],
+    transakCurrencies: [SUPPORTED_CURRENCY_SYMBOLS.ETH, SUPPORTED_CURRENCY_SYMBOLS.USDC],
   },
   [CHAIN_IDS.ARBITRUM]: {
     nativeCurrency: CURRENCY_SYMBOLS.ARBITRUM,

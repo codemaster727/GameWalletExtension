@@ -44,6 +44,7 @@ import { SIMPLE_SWAP_KEYS } from '~/constants/supported-assets';
 import { estimateGasSend, getLifi, getSimpleQuote, lifiSwapPost, simpleSwapPost } from '~/apis/api';
 import { Token } from '~/context/types';
 import LoadingIcon from 'src/assets/utils/loading.gif';
+import Message from '~/components/Message';
 // import { SIMPLE_SWAP_API_KEY } from '~/constants/apis';
 
 enum Focus {
@@ -74,9 +75,10 @@ const Swap = () => {
   const [toAmount, setToAmount] = useState<string>('0');
   const [focus, setFocus] = useState<Focus>(Focus.From);
   const [rate, setRate] = useState<number>(0);
-  const [gasCosts, setGasCosts] = useState<string>('0.00');
+  const [gasCosts, setGasCosts] = useState<string>('0');
   const [error, setError] = useState<string>('');
   const [waitingConfirm, setWaitingConfirm] = useState<boolean>(false);
+  const [gasEnough, setGasEnough] = useState<boolean>(false);
   const [isSwapping, setIsSwapping] = useState<boolean>(false);
   const [swapQuoteIsLoading, setSwapQuoteIsLoading] = useState<boolean>(false);
   const [simpleQuoteData, setSimpleQuoteData] = useState<any>();
@@ -241,13 +243,15 @@ const Swap = () => {
   const gasCostValidate = (gas: string) => {
     setGasCosts(gas);
     const coin_balance = balances[findBy(tokenData, 'name', fromNet.coin).id][fromNet.id];
-
     // const txData = cloneDeep(quoteData.estimate.transactionRequest);
     // txData.chainId = parseInt(txData.chainId);
     // const gas = await estimateGasLifi(fromNet.chain_id, txData);
     const result = !(coin_balance - parseFloat(gas) < 0);
     if (!result) {
+      setGasEnough(false);
       setError('Insufficient gas.');
+    } else {
+      setGasEnough(true);
     }
     return result;
   };
@@ -292,6 +296,8 @@ const Swap = () => {
       const simple_result = await getSimpleQuote(routesRequest);
       setSimpleQuoteData(simple_result);
       setSwapQuoteIsLoading(false);
+      const gas = await estimateGasSend(fromNet, fromToken, walletData['1'], fromAmount);
+      gasCostValidate(gas);
     }
   };
 
@@ -384,6 +390,7 @@ const Swap = () => {
           utils.fromWei(gasCost.amount, 'ether'),
         );
         setGasCosts(parseFloat(gas).toString());
+        gasCostValidate(gas);
 
         return () => clearTimeout(timer);
       }
@@ -400,8 +407,9 @@ const Swap = () => {
         setRate(parseFloat(simpleQuoteData.data.data ?? '0') / parseFloat(fromAmount));
       } else {
         setToAmount('0');
-        console.log('simpleswap:', simpleQuoteData.e?.response?.data?.message);
-        setError(`Swap quote error. ${simpleQuoteData.e?.response?.data?.message}.}`);
+        console.log('simpleswap:', simpleQuoteData);
+        console.log('simpleswap:', simpleQuoteData.e?.response?.data);
+        setError(`Swap quote error. ${simpleQuoteData.e?.response?.data ?? ''}`);
       }
     }
   }, [simpleQuoteData]);
@@ -455,7 +463,7 @@ const Swap = () => {
     if (quoteIsError) {
       setRate(0);
       console.log('quote error:', quoteData);
-      setError('Insufficient balance or No available dex or bridge found.');
+      setError('Insufficient balance or no available dex or bridge found.');
     }
   }, [quoteIsError]);
 
@@ -751,20 +759,7 @@ const Swap = () => {
                     </Box>
                   )}
                 </Paper>
-                {error ? (
-                  <Typography
-                    variant='h5'
-                    component='article'
-                    textAlign='left'
-                    fontWeight='bold'
-                    alignItems='left'
-                    mt={2}
-                    color={theme.palette.error.main}
-                    style={{ overflowWrap: 'break-word' }}
-                  >
-                    {error}
-                  </Typography>
-                ) : null}
+                {error ? <Message type='error' msg={error} /> : null}
                 <Typography
                   variant='h6'
                   component='h6'
@@ -788,11 +783,7 @@ const Swap = () => {
                 >
                   Swap fee:{' '}
                   <span style={{ color: theme.palette.text.primary }}>
-                    {Boolean(error)
-                      ? '0'
-                      : Boolean(parseFloat(gasCosts))
-                      ? parseFloat(gasCosts).toFixed(8)
-                      : fromNet.gas}{' '}
+                    {Boolean(parseFloat(gasCosts)) ? parseFloat(gasCosts).toFixed(8) : gasCosts}{' '}
                     {fromNet.coin}
                   </span>
                 </Typography>
@@ -808,11 +799,11 @@ const Swap = () => {
                   Total:{' '}
                   <span style={{ color: theme.palette.text.primary }}>
                     {fromNet.coin === fromToken.name
-                      ? parseFloat(fromAmount).toFixed(8) + fromToken.name + ' + '
+                      ? parseFloat(fromAmount).toFixed(parseFloat(fromAmount) ? 8 : 0) +
+                        fromToken.name +
+                        ' + '
                       : ''}
-                    {Boolean(error)
-                      ? '0'
-                      : Boolean(parseFloat(gasCosts))
+                    {Boolean(parseFloat(gasCosts))
                       ? parseFloat(gasCosts).toFixed(8)
                       : netData[fromNetIndex].gas}{' '}
                     {fromNet.coin}
@@ -848,12 +839,14 @@ const Swap = () => {
             variant='contained'
             sx={style_btn_confirm}
             disabled={
-              Boolean(error) ||
               !Boolean(fromAmount) ||
+              fromAmount === '0' ||
               !Boolean(toAmount) ||
+              toAmount === '0' ||
               quoteIsLoading ||
               swapQuoteIsLoading ||
-              isSwapping
+              isSwapping ||
+              !gasEnough
             }
             onClick={confirmAction}
           >

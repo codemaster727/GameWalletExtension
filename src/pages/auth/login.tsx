@@ -7,7 +7,7 @@ import { useAuth } from '~/context/AuthProvider';
 import Logo from 'src/assets/logo/logo512.png';
 import './auth.scss';
 import { useDispatch } from 'react-redux';
-import { createNewAccount } from '~/store/reducers/accountSlice';
+import { createNewAccountThunk } from '~/store/reducers/walletSlice';
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -26,7 +26,7 @@ const Login = () => {
   };
 
   useEffect(() => {
-    dispatch(createNewAccount('123456'));
+    // dispatch(createNewAccountThunk(''));
   }, []);
 
   return (

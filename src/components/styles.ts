@@ -144,3 +144,9 @@ export const style_btn_confirm = {
   fontWeight: 'bold',
   backgroundColor: '#0e9d9a',
 };
+
+export const style_textfield = {
+  color: 'white',
+  fontSize: '14px',
+  fontWeight: 'bold',
+};
