@@ -1,4 +1,4 @@
-import React, { PureComponent, useCallback, useState } from 'react';
+import React, { PureComponent, useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import update from 'immutability-helper';
@@ -13,7 +13,7 @@ import {
 import { exportAsFile } from '../../../../utils/export-utils';
 import DraggableSeed from './draggable-seed.component';
 import { t } from '~/utils/helper';
-import { Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useNavigate } from 'react-router-dom';
@@ -83,37 +83,46 @@ const ConfirmSeedPhrase = ({ seedPhrase, setSeedPhraseBackedUp }: any) => {
     }
   };
 
+  useEffect(() => {
+    setCards(
+      seedPhrase.split(' ').map((seed: string, index: number) => ({ id: index, text: seed })),
+    );
+  }, []);
+
   return (
-    <div className='confirm-seed-phrase' data-testid='confirm-seed-phrase'>
-      <div className='confirm-seed-phrase__back-button'>
-        <a
-          onClick={(e) => {
-            e.preventDefault();
-            navigate(INITIALIZE_SEED_PHRASE_ROUTE);
-          }}
-          href='#'
+    <Box sx={{ backgroundColor: '#17181b', textAlign: 'center', marginTop: '8rem' }}>
+      <div className='confirm-seed-phrase' data-testid='confirm-seed-phrase'>
+        <div className='confirm-seed-phrase__back-button'>
+          <a
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(INITIALIZE_SEED_PHRASE_ROUTE);
+            }}
+            href='#'
+          >
+            {`< ${t('back')}`}
+          </a>
+        </div>
+        <div className='first-time-flow__header'>{t('confirmSecretBackupPhrase')}</div>
+        <div className='first-time-flow__text-block'>{t('selectEachPhrase')}</div>
+        <div
+          className={classnames('confirm-seed-phrase__selected-seed-words', {
+            'confirm-seed-phrase__selected-seed-words--dragging': 1 > -1,
+          })}
         >
-          {`< ${t('back')}`}
-        </a>
+          here
+          <div>{cards.map((card, i) => renderCard(card, i))}</div>
+        </div>
+        <Button
+          color='primary'
+          className='first-time-flow__button'
+          onClick={handleSubmit}
+          disabled={!isValid()}
+        >
+          {t('confirm')}
+        </Button>
       </div>
-      <div className='first-time-flow__header'>{t('confirmSecretBackupPhrase')}</div>
-      <div className='first-time-flow__text-block'>{t('selectEachPhrase')}</div>
-      <div
-        className={classnames('confirm-seed-phrase__selected-seed-words', {
-          'confirm-seed-phrase__selected-seed-words--dragging': 1 > -1,
-        })}
-      >
-        <div>{cards.map((card, i) => renderCard(card, i))}</div>
-      </div>
-      <Button
-        color='primary'
-        className='first-time-flow__button'
-        onClick={handleSubmit}
-        disabled={!isValid()}
-      >
-        {t('confirm')}
-      </Button>
-    </div>
+    </Box>
   );
 };
 

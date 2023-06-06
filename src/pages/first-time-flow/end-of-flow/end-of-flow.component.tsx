@@ -12,7 +12,7 @@ import { DEFAULT_ROUTE } from '../../../constants/routes';
 // } from '../../../../shared/constants/metametrics';
 // import ZENDESK_URLS from '../../../helpers/constants/zendesk-url';
 import { t } from '~/utils/helper';
-import { Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 
 export default class EndOfFlowScreen extends PureComponent {
   static contextTypes = {
@@ -68,31 +68,32 @@ export default class EndOfFlowScreen extends PureComponent {
     const { onboardingInitiator } = this.props as any;
 
     return (
-      <div className='end-of-flow' data-testid='end-of-flow'>
-        <div className='end-of-flow__emoji'>🎉</div>
-        <div className='first-time-flow__header'>{t('congratulations')}</div>
-        <div className='first-time-flow__text-block end-of-flow__text-1'>
-          {t('endOfFlowMessage1')}
-        </div>
-        <div className='first-time-flow__text-block end-of-flow__text-2'>
-          {t('endOfFlowMessage2')}
-        </div>
-        <div className='end-of-flow__text-3'>{`• ${t('endOfFlowMessage3')}`}</div>
-        <div className='end-of-flow__text-3'>{`• ${t('endOfFlowMessage4')}`}</div>
-        <div className='end-of-flow__text-3'>{`• ${t('endOfFlowMessage5')}`}</div>
-        <div className='end-of-flow__text-3'>{`• ${t('endOfFlowMessage6')}`}</div>
-        <div className='first-time-flow__text-block end-of-flow__text-4'>
-          {`*${t('endOfFlowMessage8')}`}&nbsp;
-        </div>
-        <Button
-          color='primary'
-          className='first-time-flow__button'
-          onClick={this.onComplete}
-          data-testid='EOF-complete-button'
-        >
-          {t('endOfFlowMessage10')}
-        </Button>
-        {/* {onboardingInitiator ? (
+      <Box sx={{ backgroundColor: '#17181b', textAlign: 'center', marginTop: '8rem' }}>
+        <div className='end-of-flow' data-testid='end-of-flow'>
+          <div className='end-of-flow__emoji'>🎉</div>
+          <div className='first-time-flow__header'>{t('congratulations')}</div>
+          <div className='first-time-flow__text-block end-of-flow__text-1'>
+            {t('endOfFlowMessage1')}
+          </div>
+          <div className='first-time-flow__text-block end-of-flow__text-2'>
+            {t('endOfFlowMessage2')}
+          </div>
+          <div className='end-of-flow__text-3'>{`• ${t('endOfFlowMessage3')}`}</div>
+          <div className='end-of-flow__text-3'>{`• ${t('endOfFlowMessage4')}`}</div>
+          <div className='end-of-flow__text-3'>{`• ${t('endOfFlowMessage5')}`}</div>
+          <div className='end-of-flow__text-3'>{`• ${t('endOfFlowMessage6')}`}</div>
+          <div className='first-time-flow__text-block end-of-flow__text-4'>
+            {`*${t('endOfFlowMessage8')}`}&nbsp;
+          </div>
+          <Button
+            color='primary'
+            className='first-time-flow__button'
+            onClick={this.onComplete}
+            data-testid='EOF-complete-button'
+          >
+            {t('endOfFlowMessage10')}
+          </Button>
+          {/* {onboardingInitiator ? (
           <Snackbar
             content={t('onboardingReturnNotice', [
               t('endOfFlowMessage10'),
@@ -100,7 +101,8 @@ export default class EndOfFlowScreen extends PureComponent {
             ])}
           />
         ) : null} */}
-      </div>
+        </div>
+      </Box>
     );
   }
 }

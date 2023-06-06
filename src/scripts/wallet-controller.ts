@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import browser from 'webextension-polyfill';
-import KeyringController from '@metamask/eth-keyring-controller';
+import { KeyringController } from '@metamask/eth-keyring-controller';
 // const { KeyringController } = require('@metamask/eth-keyring-controller');
 // import SimpleKeyring from 'eth-simple-keyring';
 import log from 'loglevel';
@@ -11,7 +11,7 @@ import { KEYRING_TYPES } from '~/shared/constants/keyrings';
 import { HARDWARE_KEYRING_TYPES } from '~/shared/constants/hardware-wallets';
 // import { ObservableStore } from '@metamask/obs-store';
 import { isManifestV3 } from '~/shared/modules/mv3.utils';
-import OnboardingController from './controllers/onboarding';
+// import OnboardingController from './controllers/onboarding';
 
 (browser as any).global = browser;
 // @ts-ignore
@@ -40,9 +40,9 @@ export default class WalletController extends EventEmitter {
       initState: {}, // Last emitted persisted state.
       // encryptor: {},
     });
-    this.onboardingController = new OnboardingController({
-      initState: initState.OnboardingController ?? {},
-    });
+    // this.onboardingController = new OnboardingController({
+    //   initState: initState.OnboardingController ?? {},
+    // });
     // this.keyringController.on('unlock', () => this._onUnlock());
     // this.keyringController.on('lock', () => this._onLock());
     // lock to ensure only one vault created at once

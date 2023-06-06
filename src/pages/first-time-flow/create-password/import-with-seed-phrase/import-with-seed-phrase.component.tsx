@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {
   INITIALIZE_SELECT_ACTION_ROUTE,
   INITIALIZE_END_OF_FLOW_ROUTE,
+  INITIALIZE_ROUTE,
 } from '../../../../constants/routes';
 import CreateNewVault from '../../../../components/app/create-new-vault';
 import { Box } from '@mui/material';
@@ -80,7 +81,7 @@ export default class ImportWithSeedPhrase extends PureComponent {
                 //     text: 'Back',
                 //   },
                 // });
-                navigate(INITIALIZE_SELECT_ACTION_ROUTE);
+                navigate(INITIALIZE_ROUTE);
               }}
               href='#'
             >

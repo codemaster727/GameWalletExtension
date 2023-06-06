@@ -1,6 +1,6 @@
 // import { ObservableStore } from '@metamask/obs-store';
 import log from 'loglevel';
-const ObservableStore = require('obs-store');
+// const ObservableStore = require('obs-store');
 
 /**
  * @typedef {object} InitState
@@ -35,7 +35,7 @@ export default class OnboardingController {
       ...opts.initState,
       ...initialTransientState,
     };
-    this.store = new ObservableStore({});
+    // this.store = new ObservableStore({});
   }
 
   setSeedPhraseBackedUp(newSeedPhraseBackUpState: any) {
